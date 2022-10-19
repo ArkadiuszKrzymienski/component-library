@@ -20,11 +20,7 @@ const titleSlot = {
 };
 let wrapper;
 beforeEach(() => {
-  wrapper = mount(UiModal, {
-    props: {
-      modelValue: true,
-    },
-  });
+  wrapper = mount(UiModal, { props: { modelValue: true } });
 });
 
 describe('UiModal.vue', () => {

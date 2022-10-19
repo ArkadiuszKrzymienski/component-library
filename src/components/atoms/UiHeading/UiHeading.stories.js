@@ -32,13 +32,9 @@ export default {
 };
 
 const Template = (args) => ({
-  components: {
-    UiHeading,
-  },
+  components: { UiHeading },
   setup() {
-    return {
-      ...args,
-    };
+    return { ...args };
   },
   template: `<UiHeading
     :level="level"
@@ -51,8 +47,5 @@ const Template = (args) => ({
 export const Common = Template.bind({
 });
 
-export const AsSpan = Template.bind({
-});
-AsSpan.args = {
-  tag: 'span',
-};
+export const AsSpan = Template.bind({});
+AsSpan.args = { tag: 'span' };

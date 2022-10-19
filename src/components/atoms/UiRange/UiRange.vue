@@ -1,30 +1,27 @@
 <template>
   <UiNumberStepper
-    v-bind="getRootAttrs($attrs)"
+    v-bind="numberStepperAttrs"
     :model-value="modelValue"
-    :style="{
-      '--_range-runnable-track-width': trackWidth
-    }"
+    :style="{ '--_range-runnable-track-width': trackWidth }"
     :min="min"
     :max="max"
     :step="step"
-    :button-decrement-attrs="defaultProps.buttonDecrementAttrs"
-    :button-increment-attrs="defaultProps.buttonIncrementAttrs"
     class="ui-range"
     @update:model-value="changeHandler"
   >
     <template
       v-for="(_, name) in $slots"
-      #[name]="slotData"
+      #[name]="data"
     >
       <slot
         :name="name"
-        v-bind="slotData"
+        v-bind="data"
       />
     </template>
     <template
       #default="{
-        change, value
+        change,
+        value
       }"
     >
       <div class="ui-range__input">
@@ -32,12 +29,12 @@
         <slot
           name="value"
           v-bind="{
-            value
+            value,
+            headingValueAttrs: defaultProps.headingValueAttrs
           }"
         >
           <UiHeading
-            :level="1"
-            tag="span"
+            v-bind="defaultProps.headingValueAttrs"
             class="ui-range__value"
           >
             {{ value }}
@@ -47,7 +44,7 @@
         <slot
           name="range"
           v-bind="{
-            attrs: getInputAttrs($attrs),
+            inputAttrs: defaultProps.inputAttrs,
             min,
             max,
             change,
@@ -56,7 +53,7 @@
         >
           <input
             v-keyboard-focus
-            v-bind="getInputAttrs($attrs)"
+            v-bind="defaultProps.inputAttrs"
             type="range"
             :min="min"
             :max="max"
@@ -65,7 +62,7 @@
             :aria-valuemax="max"
             :aria-valuenow="value"
             class="ui-range__track"
-            @input="change($event.target.valueAsNumber)"
+            @input="change(($event.target as HTMLInputElement).valueAsNumber)"
           >
         </slot>
       </div>
@@ -74,9 +71,7 @@
 </template>
 
 <script lang="ts">
-export default {
-  inheritAttrs: false,
-};
+export default { inheritAttrs: false };
 </script>
 
 <script setup lang="ts">
@@ -84,11 +79,13 @@ import {
   computed,
   useAttrs,
 } from 'vue';
+import type { PropsAttrs } from '../../../types/attrs';
+import type { HTMLTag } from '../../../types/tag';
+import type { HeadingLevel } from '../UiHeading/UiHeading.vue';
 import UiHeading from '../UiHeading/UiHeading.vue';
 import UiNumberStepper from '../../molecules/UiNumberStepper/UiNumberStepper.vue';
-import useInput from '../../../composable/useInput';
+import useAttributes from '../../../composable/useAttributes';
 import { keyboardFocus as vKeyboardFocus } from '../../../utilities/directives';
-import type { PropsAttrs } from '../../../types/attrs';
 
 const props = defineProps({
   /**
@@ -120,46 +117,67 @@ const props = defineProps({
     default: 1,
   },
   /**
-   * Use this props to pass attrs for decrement UiButton
+   * Use this props to pass attrs for value UiHeading
    */
-  buttonDecrementAttrs: {
+  headingValueAttrs: {
     type: Object as PropsAttrs,
     default: () => ({
+      level: 1,
+      tag: 'span',
     }),
   },
   /**
-   * Use this props to pass attrs for increment UiButton
+   * Use this props to pass attrs for input element.
    */
-  buttonIncrementAttrs: {
+  inputAttrs: {
     type: Object as PropsAttrs,
     default: () => ({
     }),
   },
 });
-const defaultProps = computed(() => ({
-  buttonDecrementAttrs: {
-    'aria-hidden': true,
-    tabindex: -1,
-    ...props.buttonDecrementAttrs,
-  },
-  buttonIncrementAttrs: {
-    'aria-hidden': true,
-    tabindex: -1,
-    ...props.buttonIncrementAttrs,
-  },
-}));
-const attrs = useAttrs();
 const emit = defineEmits<{(e:'update:modelValue', value: number): void}>();
-const { getRootAttrs, getInputAttrs } = useInput();
+const {
+  attrs, listeners,
+} = useAttributes();
 const trackWidth = computed(() => {
   const scope = props.max - props.min;
   const position = props.modelValue - props.min;
   return `${(position / scope) * 100}%`;
 });
 function changeHandler(value: number) {
-  if (attrs.disabled) return;
+  if (attrs.value.disabled) return;
   emit('update:modelValue', value);
 }
+// TODO: remove in 0.6.0 / BEGIN
+const buttonDecrementAttrs = computed(() => attrs.value.buttonDecrementAttrs || attrs.value['button-decrement-attrs']);
+if (buttonDecrementAttrs.value) {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('[@infermedica/component-library warn][UiRange]: The `buttonDecrementAttrs` props will be removed in 0.6.0. Please use `numberStepperAttrs` props instead.');
+  }
+}
+const buttonIncrementAttrs = computed(() => attrs.value.buttonIncrementAttrs || attrs.value['button-increment-attrs']);
+if (buttonIncrementAttrs.value) {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('[@infermedica/component-library warn][UiRange]: The `buttonIncrementAttrs` props will be removed in 0.6.0. Please use `numberStepperAttrs` props instead.');
+  }
+}
+// END
+const defaultProps = computed(() => ({
+  headingValueAttrs: {
+    level: 1 as HeadingLevel,
+    tag: 'span' as HTMLTag,
+    ...props.headingValueAttrs,
+  },
+  inputAttrs: {
+    ...listeners.value,
+    ...props.inputAttrs,
+  },
+}));
+const numberStepperAttrs = computed(() => ({
+  buttonDecrementAttrs: buttonDecrementAttrs.value as Record<string, unknown>,
+  buttonIncrementAttrs: buttonIncrementAttrs.value as Record<string, unknown>,
+  ...attrs,
+}));
 </script>
 
 <style lang="scss">
@@ -191,10 +209,9 @@ function changeHandler(value: number) {
     touch-action: none;
 
     @include mixins.from-tablet {
-      margin: functions.var($element + "-tablet-input", margin, 0);
-
       flex: 0 1 100%;
       order: 0;
+      margin: functions.var($element + "-tablet-input", margin, 0);
     }
 
     &::before {

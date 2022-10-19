@@ -38,11 +38,7 @@ describe('UiSimpleQuestion.vue', () => {
       },
     ];
     const optionsLength = options.length;
-    const wrapper = mount(UiSimpleQuestion, {
-      props: {
-        options,
-      },
-    });
+    const wrapper = mount(UiSimpleQuestion, { props: { options } });
 
     const optionTiles = wrapper.findAllComponents(UiTile);
     expect(optionTiles.length).toBe(optionsLength);

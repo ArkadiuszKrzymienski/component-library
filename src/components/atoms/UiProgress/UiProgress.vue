@@ -1,9 +1,7 @@
 <template>
   <div
     class="ui-progress"
-    :style="{
-      '--_progress-value': progressValue
-    }"
+    :style="{ '--_progress-value': progressValue }"
   >
     <div
       v-if="progressValue"
@@ -79,7 +77,7 @@ const progressValue = computed(() => {
       display: block;
       width: var(--_progress-padding);
       height: 100%;
-      background: functions.var($element + "indicator", background,arg var(--color-progress-indicator));
+      background: functions.var($element + "indicator", background, arg var(--color-progress-indicator));
       content: "";
     }
 

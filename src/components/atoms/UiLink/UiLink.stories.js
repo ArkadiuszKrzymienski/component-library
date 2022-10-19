@@ -22,9 +22,7 @@ export default {
     content,
     icon: {
       description: 'Use this control to set the icon.',
-      table: {
-        category: 'stories controls',
-      },
+      table: { category: 'stories controls' },
       control: 'select',
       options: icons,
     },
@@ -37,19 +35,13 @@ export default {
       ],
     }),
   },
-  decorators: [() => ({
-    template: '<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 2.5rem"><story /></div>',
-  })],
+  decorators: [ () => ({ template: '<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 2.5rem"><story /></div>' }) ],
 };
 
 export const Common = (args) => ({
-  components: {
-    UiLink,
-  },
+  components: { UiLink },
   setup() {
-    return {
-      ...args,
-    };
+    return { ...args };
   },
   template: `<UiLink
     :to="to"
@@ -135,19 +127,9 @@ const Template = (args) => ({
 export const Link = Template.bind({
 });
 
-export const LinkSecondary = Template.bind({
-});
-LinkSecondary.args = {
-  modifiers: ['ui-button--theme-secondary'],
-};
+export const LinkSecondary = Template.bind({});
+LinkSecondary.args = { modifiers: [ 'ui-button--theme-secondary' ] };
 
-export const LinkOnBrand = Template.bind({
-});
-LinkOnBrand.args = {
-  modifiers: ['ui-button--theme-brand'],
-};
-LinkOnBrand.parameters = {
-  backgrounds: {
-    default: 'brand',
-  },
-};
+export const LinkOnBrand = Template.bind({});
+LinkOnBrand.args = { modifiers: [ 'ui-button--theme-brand' ] };
+LinkOnBrand.parameters = { backgrounds: { default: 'brand' } };

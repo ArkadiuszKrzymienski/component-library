@@ -5,9 +5,7 @@
       focusToggle: false
     })"
     class="ui-dropdown"
-    :class="{
-      'is-active': isOpen
-    }"
+    :class="{ 'is-active': isOpen }"
     @keydown="dropdownKeydownHandler"
   >
     <!-- @slot Use this slot to place toggle template. -->
@@ -19,11 +17,12 @@
         closeHandler,
         isOpen,
         text,
-        attrs: buttonAttrs
+        buttonAttrs,
+        buttonToggleAttrs,
       }"
     >
       <UiButton
-        v-bind="buttonAttrs"
+        v-bind="buttonAttrs || buttonToggleAttrs"
         ref="toggle"
         class="ui-dropdown__toggle"
         :aria-expanded="`${isOpen}`"
@@ -38,7 +37,7 @@
       v-bind="{
         closeHandler,
         isOpen,
-        attrs: popoverAttrs
+        popoverAttrs
       }"
     >
       <UiPopover
@@ -70,13 +69,13 @@
                 v-for="(item, key) in itemsToRender"
                 :key="key"
               >
-                <UiDropdownItem :value="item.value">
+                <UiDropdownItem
+                  v-bind="dropdownItemAttrs(item)"
+                >
                   <!-- @slot Use this slot to replace dropdown item content. -->
                   <slot
                     :name="item.name"
-                    v-bind="{
-                      item
-                    }"
+                    v-bind="{ item }"
                   >
                     {{ item.text }}
                   </slot>
@@ -97,6 +96,7 @@ import {
   computed,
   provide,
   nextTick,
+  useAttrs,
 } from 'vue';
 import type {
   PropType,
@@ -104,7 +104,7 @@ import type {
 } from 'vue';
 import useDropdownItems from './useDropdownItems';
 import { clickOutside as vClickOutside } from '../../../utilities/directives';
-import { focusElement } from '../../../utilities/helpers/index.ts';
+import { focusElement } from '../../../utilities/helpers/index';
 import UiDropdownItem from './_internal/UiDropdownItem.vue';
 import UiButton from '../../atoms/UiButton/UiButton.vue';
 import UiPopover from '../UiPopover/UiPopover.vue';
@@ -113,7 +113,7 @@ import type { PropsAttrs } from '../../../types/attrs';
 export type DropdownValue = string | Record<string, unknown>
 export interface DropdownItemAsObj {
   text?: string;
-  name: string;
+  name?: string;
   value: DropdownValue;
   [key: string]: DropdownValue | undefined;
 }
@@ -145,7 +145,10 @@ const props = defineProps({
    * Use this props or v-model to set value.
    */
   modelValue: {
-    type: [String, Object] as PropType<DropdownValue>,
+    type: [
+      String,
+      Object,
+    ] as PropType<DropdownValue>,
     default: '',
   },
   /**
@@ -170,9 +173,16 @@ const props = defineProps({
     default: true,
   },
   /**
-   *  Use this props to pass attrs to UiButton.
+   * Use this props to pass list of dropdown items.
    */
-  buttonAttrs: {
+  items: {
+    type: Array as PropType<DropdownItem[]>,
+    default: () => [],
+  },
+  /**
+   *  Use this props to pass attrs to toggle UiButton.
+   */
+  buttonToggleAttrs: {
     type: Object as PropsAttrs,
     default: () => ({
     }),
@@ -185,15 +195,8 @@ const props = defineProps({
     default: () => ({
     }),
   },
-  /**
-   * Use this props to pass list of dropdown items.
-   */
-  items: {
-    type: Array as PropType<DropdownItem[]>,
-    default: () => [],
-  },
 });
-const emit = defineEmits<{(e: 'update:modelValue', value: DropdownValue):void;
+const emit = defineEmits<{(e: 'update:modelValue', value: DropdownValue): void;
   (e: 'open'): void;
   (e: 'close'): void;
 }>();
@@ -212,8 +215,11 @@ const {
   prevDropdownItem,
   selectedDropdownItem,
 } = useDropdownItems(dropdown);
-function disableArrows(event) {
-  if (['ArrowUp', 'ArrowDown'].indexOf(event.code) > -1) {
+function disableArrows(event: KeyboardEvent): void {
+  if ([
+    'ArrowUp',
+    'ArrowDown',
+  ].indexOf(event.code) > -1) {
     event.preventDefault();
   }
 }
@@ -256,14 +262,14 @@ const dropdownName = computed(() => (
   props.name || `dropdown-${uid()}`
 ));
 provide('name', dropdownName);
-const modelValue = computed<DropdownValue>(() => (props.modelValue));
+const modelValue = computed(() => props.modelValue);
 provide('modelValue', modelValue);
-function changeHandler(value: DropdownValue):void {
+function changeHandler(value: DropdownValue): void {
   emit('update:modelValue', value);
   closeHandler();
 }
 provide('changeHandler', changeHandler);
-async function dropdownKeydownHandler({ key }: {key: string}): Promise<void> {
+async function dropdownKeydownHandler({ key }: { key: string }): Promise<void> {
   if (!props.enableKeyboardNavigation) return;
 
   switch (key) {
@@ -297,7 +303,7 @@ async function dropdownKeydownHandler({ key }: {key: string}): Promise<void> {
 // todo: why this component handle searchQuery and searchDebounce?
 const searchQuery = ref('');
 const searchDebounce = ref<ReturnType<typeof setTimeout> | null>(null);
-function handleInputQuery({ key }: {key: string}): void {
+function handleInputQuery({ key }: { key: string }): void {
   searchQuery.value += key.toLowerCase();
   const match: number = dropdownItems.value.findIndex(
     (item: HTMLElement) => item.innerText.toLowerCase().startsWith(searchQuery.value),
@@ -320,7 +326,7 @@ defineExpose({
   closeHandler,
 });
 
-const itemsToRender = computed<DropdownItemAsObj[]>(() => (props.items.map((item: DropdownItem, key) => {
+const itemsToRender = computed(() => (props.items.map((item, key) => {
   if (typeof item === 'string' || typeof item === 'number') {
     return {
       name: `dropdown-item-${key}`,
@@ -329,11 +335,27 @@ const itemsToRender = computed<DropdownItemAsObj[]>(() => (props.items.map((item
     };
   }
   return {
-    name: item.name || `dropdown-item-${key}`,
     ...item,
-    value: item.value,
+    name: item.name || `dropdown-item-${key}`,
+    value: item.value || JSON.parse(JSON.stringify(item)),
   };
 })));
+
+// TODO: remove in 0.6.0 / BEGIN
+const attrs = useAttrs();
+const buttonAttrs = computed(() => attrs.buttonAttrs || attrs['button-attrs']);
+if (buttonAttrs.value) {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('[@infermedica/component-library warn][UiDropdown]: The `buttonAttrs` props will be removed in 0.6.0. Please use `buttonToggleAttrs` props instead.');
+  }
+}
+// END
+const dropdownItemAttrs = (item: DropdownItemAsObj) => {
+  const {
+    name, text, ...rest
+  } = item;
+  return rest;
+};
 </script>
 
 <style lang="scss">

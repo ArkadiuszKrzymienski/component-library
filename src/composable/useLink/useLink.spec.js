@@ -9,9 +9,7 @@ const toProps = {
   to: 'to link',
   tag: 'li',
 };
-const tagProps = {
-  tag: 'li',
-};
+const tagProps = { tag: 'li' };
 
 describe('composable/useLink', () => {
   test('return correct component tag when parameter has property href', () => {

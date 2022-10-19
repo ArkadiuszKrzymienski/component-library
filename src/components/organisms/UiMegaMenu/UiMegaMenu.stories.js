@@ -16,12 +16,12 @@ export default {
       {
         title: 'For business',
         name: 'for-business',
-        content: 'Symptomate is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:',
+        content: 'Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:',
       },
       {
         title: 'CE Marking',
         name: 'ce-marking',
-        content: 'Symptomate',
+        content: 'Triage',
       },
       {
         title: 'Instruction fo Use',
@@ -34,16 +34,12 @@ export default {
   argTypes: {
     items: {
       description: 'Use this control to set the items.',
-      table: {
-        category: 'stories controls',
-      },
+      table: { category: 'stories controls' },
       control: 'array',
     },
     initModelValue: {
       description: 'Use this control to set initial state.',
-      table: {
-        category: 'stories controls',
-      },
+      table: { category: 'stories controls' },
       control: 'text',
     },
     modelValue: {
@@ -113,8 +109,5 @@ const Template = (args) => ({
   </UiMegaMenu>`,
 });
 
-export const Common = Template.bind({
-});
-Common.parameters = {
-  layout: 'fullscreen',
-};
+export const Common = Template.bind({});
+Common.parameters = { layout: 'fullscreen' };

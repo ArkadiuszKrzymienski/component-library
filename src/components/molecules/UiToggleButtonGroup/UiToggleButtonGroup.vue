@@ -10,14 +10,11 @@
         :key="key"
       >
         <UiToggleButton
-          :value="item.value"
-          v-bind="item.toggleButtonAttrs"
+          v-bind="toggleButtonAttrs(item)"
         >
           <slot
             :name="item.name"
-            v-bind="{
-              item
-            }"
+            v-bind="{ item }"
           >
             {{ item.text }}
           </slot>
@@ -28,9 +25,7 @@
 </template>
 
 <script lang="ts">
-export default {
-  name: 'UiToggleButtonGroup',
-};
+export default { name: 'UiToggleButtonGroup' };
 </script>
 
 <script setup lang="ts">
@@ -45,8 +40,9 @@ import UiToggleButton from './_internal/UiToggleButton.vue';
 export type ToggleButtonValue = number | string | Record<string, unknown> | undefined | null;
 export interface ToggleButtonItemAsObj{
   name: string;
-  text: string | number;
+  text: string;
   value: ToggleButtonValue;
+  toggleButtonAttrs?: Record<string, unknown>
   [key: string]: ToggleButtonValue | undefined;
 }
 export type ToggleButtonItem = number | string | ToggleButtonItemAsObj;
@@ -55,7 +51,11 @@ const props = defineProps({
    * Use this props or v-model to set value.
    */
   modelValue: {
-    type: [Number, String, Object] as PropType<ToggleButtonValue>,
+    type: [
+      Number,
+      String,
+      Object,
+    ] as PropType<ToggleButtonValue>,
     default: '',
   },
   /**
@@ -86,8 +86,8 @@ const innerValue = computed<ToggleButtonValue>({
   },
 });
 provide('modelValue', innerValue);
-const itemsToRender = computed<ToggleButtonItemAsObj[]>(() => (
-  props.items.map((item: ToggleButtonItem, key: number) => {
+const itemsToRender = computed(() => (
+  props.items.map((item, key) => {
     if (typeof item === 'string' || typeof item === 'number') {
       return {
         name: `toggle-button-${key}`,
@@ -101,6 +101,12 @@ const itemsToRender = computed<ToggleButtonItemAsObj[]>(() => (
       value: item.value,
     };
   })));
+const toggleButtonAttrs = (item: Record<string, unknown>) => {
+  const {
+    name, text, ...rest
+  } = item;
+  return rest;
+};
 </script>
 
 <style lang="scss">

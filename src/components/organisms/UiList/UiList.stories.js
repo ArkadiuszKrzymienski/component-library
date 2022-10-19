@@ -9,12 +9,21 @@ export default {
     UiListItem,
   },
   args: {
-    items: ['Painful swallowing', 'Stuffy nose', 'Sneeze', 'Muscle pain', 'Runny nose'],
+    items: [
+      'Painful swallowing',
+      'Stuffy nose',
+      'Sneeze',
+      'Muscle pain',
+      'Runny nose',
+    ],
     tag: 'ul',
   },
   argTypes: {
     tag: {
-      options: ['ul', 'ol'],
+      options: [
+        'ul',
+        'ol',
+      ],
       control: 'select',
     },
     listItem: {
@@ -72,9 +81,7 @@ WithListItemSlot.args = {
     {
       name: 'painful-swallowing',
       text: 'Painful swallowing',
-      listItemAttrs: {
-        'data-testid': 'painful',
-      },
+      listItemAttrs: { 'data-testid': 'painful' },
     },
     {
       name: 'stuffy-nose',

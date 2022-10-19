@@ -14,29 +14,17 @@ describe('UiRange.vue', () => {
     expect(wrapper.classes('ui-range')).toBe(true);
   });
   test('renders a content via value slot', () => {
-    const wrapper = mount(UiRange, {
-      slots: {
-        value: '<div class="symptom-checker"></div>',
-      },
-    });
+    const wrapper = mount(UiRange, { slots: { value: '<div class="symptom-checker"></div>' } });
     const slot = wrapper.find('.symptom-checker');
     expect(slot.exists()).toBe(true);
   });
   test('renders a content via decrement slot', () => {
-    const wrapper = mount(UiRange, {
-      slots: {
-        decrement: '<div class="symptom-checker"></div>',
-      },
-    });
+    const wrapper = mount(UiRange, { slots: { decrement: '<div class="symptom-checker"></div>' } });
     const slot = wrapper.find('.symptom-checker');
     expect(slot.exists()).toBe(true);
   });
   test('renders a content via increment slot', () => {
-    const wrapper = mount(UiRange, {
-      slots: {
-        increment: '<div class="symptom-checker"></div>',
-      },
-    });
+    const wrapper = mount(UiRange, { slots: { increment: '<div class="symptom-checker"></div>' } });
     const slot = wrapper.find('.symptom-checker');
     expect(slot.exists()).toBe(true);
   });
@@ -74,12 +62,8 @@ describe('UiRange.vue', () => {
       props: {
         ...props,
         modelValue: initialModelValue,
-        buttonIncrementAttrs: {
-          disabled: true,
-        },
-        buttonDecrementAttrs: {
-          disabled: true,
-        },
+        buttonIncrementAttrs: { disabled: true },
+        buttonDecrementAttrs: { disabled: true },
       },
     });
     const buttons = wrapper.findAllComponents(UiButton);

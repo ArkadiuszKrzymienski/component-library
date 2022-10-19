@@ -4,14 +4,14 @@ import UiIcon from '@/components/atoms/UiIcon/UiIcon.vue';
 import UiText from '@/components/atoms/UiText/UiText.vue';
 import { ref } from 'vue';
 import { actions } from '@storybook/addon-actions';
-import {
-  modifiers,
-  placeholder,
-} from '@sb/helpers/argTypes';
+import { modifiers } from '@sb/helpers/argTypes';
 import icons from '@/components/atoms/UiIcon/icons.ts';
+import { keyboardFocus } from '../../../utilities/directives';
 
 const events = actions({
   onClick: 'onClick',
+  onFocus: 'onFocus',
+  onBlur: 'onBlur',
   onUpdateModelValue: 'update:modelValue',
 });
 
@@ -23,18 +23,33 @@ export default {
   },
   args: {
     initModelValue: '',
+    type: 'text',
     modifiers: [],
     placeholder: 'Put your height',
+    disabled: false,
     suffix: '',
-    type: 'text',
+    inputAttrs: { 'data-testid': 'input-element' },
+    textSuffixAttrs: { 'data-testid': 'text-suffix' },
   },
   argTypes: {
     initModelValue: {
       description: 'Use this control to set initial state.',
-      table: {
-        category: 'stories controls',
-      },
+      table: { category: 'stories controls' },
       control: 'text',
+    },
+    type: {
+      description: 'Use this control to set input type.',
+      table: { category: 'stories controls' },
+      control: 'select',
+      options: [
+        'email',
+        'number',
+        'password',
+        'search',
+        'tel',
+        'text',
+        'url',
+      ],
     },
     modifiers: modifiers({
       options: [
@@ -43,18 +58,9 @@ export default {
         'ui-input--has-icon',
       ],
     }),
-    placeholder,
-    type: {
-      description: 'Use this control to set input type.',
-      table: {
-        category: 'stories controls',
-      },
-      control: 'select',
-      options: ['email', 'number', 'password', 'search', 'tel', 'text', 'url'],
-    },
-    modelValue: {
-      control: false,
-    },
+    modelValue: { control: false },
+    inputAttrs: { table: { subcategory: 'Attrs props' } },
+    textSuffixAttrs: { table: { subcategory: 'Attrs props' } },
   },
 };
 
@@ -72,40 +78,33 @@ const Template = (args) => ({
   },
   template: `<UiInput
     v-model="modelValue"
-    :placeholder="placeholder"
     :suffix="suffix"
-    :class="modifiers"
     :type="type"
+    :class="modifiers"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    :text-suffix-attrs="textSuffixAttrs"
+    :input-attrs="inputAttrs"
     @update:modelValue="onUpdateModelValue"
+    @focus="onFocus"
+    @blur="onBlur"
   />`,
 });
 
 export const WithPlaceholder = Template.bind({
 });
 
-export const WithValue = Template.bind({
-});
-WithValue.args = {
-  initModelValue: 'Input text',
-};
+export const WithValue = Template.bind({});
+WithValue.args = { initModelValue: 'Input text' };
 
-export const HasError = Template.bind({
-});
-HasError.args = {
-  modifiers: ['ui-input--has-error'],
-};
+export const HasError = Template.bind({});
+HasError.args = { modifiers: [ 'ui-input--has-error' ] };
 
-export const IsDisabled = Template.bind({
-});
-IsDisabled.args = {
-  modifiers: ['ui-input--is-disabled'],
-};
+export const IsDisabled = Template.bind({});
+IsDisabled.args = { modifiers: [ 'ui-input--is-disabled' ] };
 
-export const WithSuffix = Template.bind({
-});
-WithSuffix.args = {
-  suffix: 'Suffix',
-};
+export const WithSuffix = Template.bind({});
+WithSuffix.args = { suffix: 'Suffix' };
 
 export const WithAButtonInSuffix = (args) => ({
   components: {
@@ -123,18 +122,28 @@ export const WithAButtonInSuffix = (args) => ({
   },
   template: `<UiInput
     v-model="modelValue"
-    :placeholder="placeholder"
+    :suffix="suffix"
+    :type="type"
     :class="modifiers"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    :text-suffix-attrs="textSuffixAttrs"
+    :input-attrs="inputAttrs"
     @update:modelValue="onUpdateModelValue"
+    @focus="onFocus"
+    @blur="onBlur"
   >
-    <template #aside>
+    <template #aside="{
+      suffix, 
+      attrs
+    }">
       <UiButton 
         class="ui-button--icon ui-input__aside"
         @click="onClick"
       >
         <UiIcon
-            :icon="icon"
-            class="ui-button__icon"
+          :icon="icon"
+          class="ui-button__icon"
         />
       </UiButton>
     </template>
@@ -142,13 +151,11 @@ export const WithAButtonInSuffix = (args) => ({
 });
 WithAButtonInSuffix.args = {
   icon: 'search',
-  modifiers: ['ui-input--has-icon'],
+  modifiers: [ 'ui-input--has-icon' ],
 };
 WithAButtonInSuffix.argTypes = {
   icon: {
-    control: {
-      type: 'select',
-    },
+    control: { type: 'select' },
     options: icons,
   },
 };
@@ -158,6 +165,7 @@ export const WithInputSlot = (args) => ({
     UiInput,
     UiIcon,
   },
+  directives: { keyboardFocus },
   setup() {
     const modelValue = ref(args.initModelValue);
     return {
@@ -168,13 +176,26 @@ export const WithInputSlot = (args) => ({
   },
   template: `<UiInput
     v-model="modelValue"
-    :placeholder="placeholder"
+    :suffix="suffix"
+    :type="type"
     :class="modifiers"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    :text-suffix-attrs="textSuffixAttrs"
+    :input-attrs="inputAttrs"
     @update:modelValue="onUpdateModelValue"
+    @focus="onFocus"
+    @blur="onBlur"
   >
-    <template #input="{attrs, input, value, validation}">
+    <template #input="{
+      inputAttrs, 
+      input, 
+      value, 
+      validation
+    }">
       <input
-        v-bind="attrs"
+        v-keyboard-focus
+        v-bind="inputAttrs"
         :value="value"
         class="ui-input__input"
         @keydown="validation"
@@ -200,14 +221,23 @@ export const WithAsideSlot = (args) => ({
   },
   template: `<UiInput
     v-model="modelValue"
-    :placeholder="placeholder"
     :suffix="suffix"
+    :type="type"
     :class="modifiers"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    :text-suffix-attrs="textSuffixAttrs"
+    :input-attrs="inputAttrs"
     @update:modelValue="onUpdateModelValue"
+    @focus="onFocus"
+    @blur="onBlur"
   >
-    <template #aside="{suffix}">
+    <template #aside="{
+      suffix,
+      textSuffixAttrs
+    }">
       <UiText
-        tag="span"
+        v-bind="textSuffixAttrs"
         class="ui-input__aside"
       >
         {{ suffix }}
@@ -215,6 +245,4 @@ export const WithAsideSlot = (args) => ({
     </template>
   </UiInput>`,
 });
-WithAsideSlot.args = {
-  suffix: 'cm',
-};
+WithAsideSlot.args = { suffix: 'Suffix' };

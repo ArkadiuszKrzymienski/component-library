@@ -1,14 +1,10 @@
 import { mount } from '@vue/test-utils';
-import { focusElement } from './index.ts';
+import { focusElement } from './index';
 
 let wrapper;
 let button;
-const Component = {
-  template: '<button></button>',
-};
-const options = {
-  attachTo: 'body',
-};
+const Component = { template: '<button></button>' };
+const options = { attachTo: 'body' };
 beforeEach(() => {
   wrapper = mount(Component, options);
   button = wrapper.findComponent(Component);

@@ -38,11 +38,9 @@ const mountToggleButtonGroupWithButtons = ({
       deselectable,
     },
     {
-      default: () => items.map(({ value, label }) => h(UiToggleButton, {
-        value,
-      }, {
-        default: () => label,
-      })),
+      default: () => items.map(({
+        value, label,
+      }) => h(UiToggleButton, { value }, { default: () => label })),
     },
   ));
 
@@ -116,21 +114,15 @@ describe('UiToggleButtonGroup.vue', () => {
       modelValue,
       items: [
         {
-          value: {
-            id: 1,
-          },
+          value: { id: 1 },
           label: '1',
         },
         {
-          value: {
-            id: 2,
-          },
+          value: { id: 2 },
           label: '2',
         },
         {
-          value: {
-            id: 2,
-          },
+          value: { id: 2 },
           label: '3',
         },
       ],

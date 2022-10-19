@@ -2,7 +2,10 @@
   <UiContainer class="ui-controls">
     <!-- @slot Use this slot to replace container content. -->
     <slot name="container">
-      <div class="ui-controls__container">
+      <div
+        v-bind="containerAttrs"
+        class="ui-controls__container"
+      >
         <!-- @slot Use this slot to place container content. -->
         <slot />
       </div>
@@ -11,54 +14,58 @@
     <slot
       name="bottom"
       v-bind="{
-        buttonNextAttrs: nextAttrs,
-        buttonBackAttrs: backAttrs,
-        toBack,
         toNext,
         hideNextButton,
+        buttonNextAttrs: defaultProps.buttonNextAttrs,
         invalid,
-        translation: defaultProps.translation
+        toBack,
+        iconBackAttrs: defaultProps.iconBackAttrs,
+        buttonBackAttrs: defaultProps.buttonBackAttrs,
+        translation: defaultProps.translation,
       }"
     >
       <div class="ui-controls__bottom">
         <!-- @slot Use this slot to replace next template. -->
         <slot
-          v-if="toNext"
+          name="next"
           v-bind="{
+            toNext,
             hideNextButton,
-            attrs: nextAttrs,
+            buttonNextAttrs: defaultProps.buttonNextAttrs,
             invalid,
             translation: defaultProps.translation
           }"
-          name="next"
         >
           <UiButton
-            v-if="!hideNextButton"
-            v-bind="nextAttrs"
+            v-if="toNext && !hideNextButton"
+            v-bind="defaultProps.buttonNextAttrs"
             class="ui-controls__next"
-            :class="{
-              'ui-button--is-disabled': invalid
-            }"
+            :class="{ 'ui-button--is-disabled': invalid }"
           >
             {{ defaultProps.translation.next }}
           </UiButton>
+          <span
+            v-else
+          />
         </slot>
         <!-- @slot Use this slot to replace back template. -->
         <slot
           name="back"
           v-bind="{
+            hideBackButton,
             toBack,
-            attrs: backAttrs,
+            buttonBackAttrs: defaultProps.buttonBackAttrs,
+            iconBackAttrs: defaultProps.iconBackAttrs,
             translation: defaultProps.translation
           }"
         >
           <UiButton
-            v-if="toBack"
-            v-bind="backAttrs"
+            v-if="toBack && !hideBackButton"
+            v-bind="defaultProps.buttonBackAttrs"
             class="ui-button--text ui-controls__back"
           >
             <UiIcon
-              icon="chevron-left"
+              v-bind="defaultProps.iconBackAttrs"
               class="ui-button__icon"
             /> {{ defaultProps.translation.back }}
           </UiButton>
@@ -75,13 +82,14 @@ import UiContainer from '../UiContainer/UiContainer.vue';
 import UiButton from '../../atoms/UiButton/UiButton.vue';
 import UiIcon from '../../atoms/UiIcon/UiIcon.vue';
 import type { PropsAttrs } from '../../../types/attrs';
+import type { Icon } from '../../../types/icon';
 
 export interface ControlsTranslation {
-  back: string,
-  next: string,
-  [key: string]: string
+  back?: string,
+  next?: string,
+  [key: string]: string | undefined
 }
-export type ControlsNavigation = string | Record<string, unknown> | boolean;
+export type ControlsNavigation = string | Record<string, unknown>;
 const props = defineProps({
   /**
    * Use this props to move the responsibility to move to the next screen to question content.
@@ -91,17 +99,30 @@ const props = defineProps({
     default: false,
   },
   /**
+   * Use this props to move the responsibility to move to the back screen to question content.
+   */
+  hideBackButton: {
+    type: Boolean,
+    default: false,
+  },
+  /**
    * Use this props to set route to back screen.
    */
   toBack: {
-    type: [String, Object, Boolean] as PropType<ControlsNavigation>,
+    type: [
+      String,
+      Object,
+    ] as PropType<ControlsNavigation>,
     default: '',
   },
   /**
    * Use this props to set route to next screen.
    */
   toNext: {
-    type: [String, Object, Boolean] as PropType<ControlsNavigation>,
+    type: [
+      String,
+      Object,
+    ] as PropType<ControlsNavigation>,
     default: '',
   },
   /**
@@ -110,6 +131,23 @@ const props = defineProps({
   invalid: {
     type: Boolean,
     default: true,
+  },
+  /**
+   * Use this props to override labels inside component translation.
+   */
+  translation: {
+    type: Object as PropType<ControlsTranslation>,
+    default: () => ({
+      back: 'Back',
+      next: 'Next',
+    }),
+  },
+  /**
+   *  Use this props to pass attrs to container element.
+   */
+  containerAttrs: {
+    type: Object,
+    default: () => ({}),
   },
   /**
    * Use this props to pass attrs for next UiButton.
@@ -128,14 +166,11 @@ const props = defineProps({
     }),
   },
   /**
-   * Use this props to override labels inside component translation.
+   * Use this props to pass attrs for back UiIcon.
    */
-  translation: {
-    type: Object as PropType<ControlsTranslation>,
-    default: () => ({
-      back: 'Back',
-      next: 'Next',
-    }),
+  iconBackAttrs: {
+    type: Object as PropsAttrs,
+    default: () => ({ icon: 'chevron-left' }),
   },
 });
 const defaultProps = computed(() => ({
@@ -149,23 +184,39 @@ const emit = defineEmits<{(e: 'has-error'): void}>();
 function hasError(): void {
   emit('has-error');
 }
-const nextAttrs = computed<Record<string, unknown>>(() => (
-  props.invalid
-    ? {
-      onClick: hasError,
-      ...props.buttonNextAttrs,
-    }
-    : {
-      to: props.toNext,
-      ...props.buttonNextAttrs,
-    }
-));
-const backAttrs = computed<Record<string, unknown>>(() => (
-  {
+interface DefaultProps {
+  translation: ControlsTranslation,
+  buttonBackAttrs: Record<string, unknown>,
+  iconBackAttrs: {
+    icon: Icon,
+    [key: string]: unknown,
+  }
+  buttonNextAttrs: Record<string, unknown>,
+}
+const defaultProps = computed<DefaultProps>(() => ({
+  translation: {
+    back: 'Back',
+    next: 'Next',
+    ...props.translation,
+  },
+  buttonBackAttrs: {
     to: props.toBack,
     ...props.buttonBackAttrs,
-  }
-));
+  },
+  iconBackAttrs: {
+    icon: 'chevron-left',
+    ...props.iconBackAttrs,
+  },
+  buttonNextAttrs: {
+    onClick: props.invalid
+      ? hasError
+      : undefined,
+    to: props.invalid
+      ? undefined
+      : props.toNext,
+    ...props.buttonNextAttrs,
+  },
+}));
 </script>
 
 <style lang="scss">
@@ -192,7 +243,11 @@ const backAttrs = computed<Record<string, unknown>>(() => (
   }
 
   &__bottom {
-    @include mixins.inner-border($element: $element + "-bottom", $color:  var(--color-border-divider), $width: 1px 0 0 0);
+    @include mixins.inner-border(
+      $element: $element + "-bottom",
+      $color:  var(--color-border-divider),
+      $width: 1px 0 0 0
+    );
 
     display: flex;
     height: functions.var($element + "-bottom", height, 5rem);

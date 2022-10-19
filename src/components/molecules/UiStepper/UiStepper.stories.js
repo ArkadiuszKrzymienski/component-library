@@ -7,28 +7,34 @@ import UiListItem from '@/components/organisms/UiList/_internal/UiListItem.vue';
 
 const steps = [
   {
-    name: 'Introduction',
+    label: 'Introduction',
     href: '#',
+    'data-testid': 'introduction',
   },
   {
-    name: 'A really long step name',
+    label: 'A really long step label',
     href: '#',
+    'data-testid': 'long-step-label',
   },
   {
-    name: 'Symptoms',
+    label: 'Symptoms',
     href: '#',
+    'data-testid': 'symptoms',
   },
   {
-    name: 'Regions',
+    label: 'Regions',
     href: '#',
+    'data-testid': 'regions',
   },
   {
-    name: 'Interview',
+    label: 'Interview',
     href: '#',
+    'data-testid': 'interview',
   },
   {
-    name: 'Results',
+    label: 'Results',
     href: '#',
+    'data-testid': 'results',
   },
 ];
 
@@ -44,20 +50,17 @@ export default {
   },
   args: {
     steps,
-    currentStep: steps.at(2).name,
-    progressAttrs: {
-      id: 'progress',
-    },
+    currentStep: steps.at(2).label,
+    progressAttrs: { id: 'progress' },
   },
   argTypes: {
     currentStep: {
       control: 'select',
-      options: steps.map((step) => step.name),
+      options: steps.map((step) => step.label),
     },
+    progressAttrs: { table: { subcategory: 'Attrs props' } },
   },
-  decorators: [() => ({
-    template: '<div class="desktop:max-w-35"><story /></div>',
-  })],
+  decorators: [ () => ({ template: '<div class="desktop:max-w-35"><story /></div>' }) ],
 };
 
 const Template = (args) => ({
@@ -164,7 +167,7 @@ export const WithDesktopSlot = (args) => ({
               v-bind="determineStep(index, step)"
               class="ui-button--text ui-button--theme-secondary ui-stepper__item"
             >
-              {{ step.name }}
+              {{ step.label }}
             </UiButton>
           </UiListItem>
         </template>
@@ -205,7 +208,7 @@ export const WithItemsSlot = (args) => ({
             v-bind="determineStep(index, step)"
             class="ui-button--text ui-button--theme-secondary ui-stepper__item"
           >
-            {{ step.name }}
+            {{ step.label }}
           </UiButton>
         </UiListItem>
       </template>
@@ -241,7 +244,7 @@ export const WithItemSlot = (args) => ({
           v-bind="determineStep(index, step)"
           class="ui-button--text ui-button--theme-secondary ui-stepper__item"
         >
-          {{ step.name }}
+          {{ step.label }}
         </UiButton>
       </UiListItem>
     </template>
@@ -269,7 +272,7 @@ export const WithItemLinkSlot = (args) => ({
         v-bind="determineStep(index, step)"
         class="ui-button--text ui-button--theme-secondary ui-stepper__item-link"
       >
-        {{ step.name }}
+        {{ step.label }}
       </UiButton>
     </template>
   </UiStepper>`,
@@ -308,8 +311,4 @@ export const WithMobileSlot = (args) => ({
     </template>
   </UiStepper>`,
 });
-WithMobileSlot.parameters = {
-  viewport: {
-    defaultViewport: 'mobile2',
-  },
-};
+WithMobileSlot.parameters = { viewport: { defaultViewport: 'mobile2' } };

@@ -4,9 +4,7 @@ import UiIcon from '@/components/atoms/UiIcon/UiIcon.vue';
 import { actions } from '@storybook/addon-actions';
 import { content } from '@sb/helpers/argTypes';
 
-const events = actions({
-  onRemove: 'remove',
-});
+const events = actions({ onRemove: 'remove' });
 
 export default {
   title: 'Molecules/Chip',
@@ -17,9 +15,9 @@ export default {
   },
   args: {
     content: 'Label',
-    buttonAttrs: {
-      'aria-label': 'remove chest pain from symptoms',
-    },
+    textLabelAttrs: { 'data-testid': 'label-text' },
+    buttonRemoveAttrs: { ariaLabel: 'remove label' },
+    iconRemoveAttrs: { 'data-testid': 'icon-remove' },
     removeAction: null,
   },
   argTypes: {
@@ -31,6 +29,9 @@ export default {
         category: 'events',
       },
     },
+    textLabelAttrs: { table: { subcategory: 'Attrs props' } },
+    buttonRemoveAttrs: { table: { subcategory: 'Attrs props' } },
+    iconRemoveAttrs: { table: { subcategory: 'Attrs props' } },
   },
 };
 
@@ -45,10 +46,12 @@ export const WithLabel = (args) => ({
     };
   },
   template: `<UiChip
-    :button-attrs="buttonAttrs"
+    :text-label-attrs="textLabelAttrs"
+    :button-remove-attrs="buttonRemoveAttrs"
+    :icon-remove-attrs="iconRemoveAttrs"
     @remove="onRemove"
   >
-    {{content}}
+    {{ content }}
   </UiChip>`,
 });
 
@@ -65,21 +68,29 @@ export const WithRemoveSlot = (args) => ({
     };
   },
   template: `<UiChip
-    v-bind="events" 
+    :text-label-attrs="textLabelAttrs"
+    :button-remove-attrs="buttonRemoveAttrs"
+    :icon-remove-attrs="iconRemoveAttrs"
     @remove="onRemove"
   >
-    <template #remove="{clickHandler, attrs}">
+    <template 
+      #remove="{
+        buttonRemoveAttrs,
+        clickHandler,
+        iconRemoveAttrs 
+      }"
+    >
       <UiButton
-        v-bind="attrs"
+        v-bind="buttonRemoveAttrs"
         class="ui-button--icon ui-button--circled ui-chip__remove"
         @click="clickHandler"
       >
         <UiIcon
-          icon="remove-filled"
+          v-bind="iconRemoveAttrs"
           class="ui-button__icon ui-chip__icon"
         />
       </UiButton>
     </template>
-    {{content}}
+    {{ content }}
   </UiChip>`,
 });

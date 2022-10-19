@@ -23,7 +23,7 @@ import {
   nextTick,
 } from 'vue';
 import type { Ref } from 'vue';
-import { removeNonDigits } from '../../../../utilities/helpers/index.ts';
+import { removeNonDigits } from '../../../../utilities/helpers/index';
 import UiInput from '../../../atoms/UiInput/UiInput.vue';
 import useKeyValidation from '../../../../composable/useKeyValidation';
 import type { DatepickerTranslation } from '../UiDatepicker.vue';
@@ -65,7 +65,10 @@ async function checkMonth(event: Event): Promise<void> {
   unfulfilledMonthError.value = false;
   const inputValue = (event as InputEvent).data;
   await nextTick();
-  if (inputValue && (!['0', '1'].includes(inputValue) || month.value.length === 2) && props.valid) {
+  if (inputValue && (![
+    '0',
+    '1',
+  ].includes(inputValue) || month.value.length === 2) && props.valid) {
     emit('change-input', 'month');
   }
 }

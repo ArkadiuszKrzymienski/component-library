@@ -3,16 +3,10 @@ import { keyboardFocus } from './index';
 
 let wrapper;
 let button;
-const Component = {
-  template: '<button v-keyboard-focus></button>',
-};
+const Component = { template: '<button v-keyboard-focus></button>' };
 const options = {
   attachTo: 'body',
-  global: {
-    directives: {
-      keyboardFocus,
-    },
-  },
+  global: { directives: { keyboardFocus } },
 };
 beforeEach(() => {
   wrapper = mount(Component, options);

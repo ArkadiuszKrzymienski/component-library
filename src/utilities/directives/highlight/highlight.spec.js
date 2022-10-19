@@ -10,15 +10,9 @@ const Component = {
   cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum?</p>`,
 };
 const options = {
-  global: {
-    directives: {
-      highlight,
-    },
-  },
+  global: { directives: { highlight } },
   data() {
-    return {
-      searchQuery: '',
-    };
+    return { searchQuery: '' };
   },
 };
 

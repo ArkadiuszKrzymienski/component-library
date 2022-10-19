@@ -15,19 +15,20 @@ export default {
     modifiers: [],
     items: [
       {
-        text: 'Medical Certification',
+        label: 'Medical Certification',
+        href: '#',
+        'data-testid': 'medical-certification',
+      },
+      {
+        label: 'Instruction for Use',
         href: '#',
       },
       {
-        text: 'Instruction for Use',
+        label: 'Terms of Service',
         href: '#',
       },
       {
-        text: 'Terms of Service',
-        href: '#',
-      },
-      {
-        text: 'Privacy Policy',
+        label: 'Privacy Policy',
         href: '#',
       },
     ],
@@ -72,34 +73,18 @@ const Template = (args) => ({
 export const Common = Template.bind({
 });
 
-export const Multiline = Template.bind({
-});
-Multiline.decorators = [() => ({
-  template: '<div style="max-width: 480px;"><story /></div>',
-})];
+export const Multiline = Template.bind({});
+Multiline.decorators = [ () => ({ template: '<div style="max-width: 480px;"><story /></div>' }) ];
 
-export const Secondary = Template.bind({
-});
-Secondary.args = {
-  modifiers: ['ui-navigation--theme-secondary'],
-};
+export const Secondary = Template.bind({});
+Secondary.args = { modifiers: [ 'ui-navigation--theme-secondary' ] };
 
-export const OnBrand = Template.bind({
-});
-OnBrand.args = {
-  modifiers: ['ui-navigation--theme-brand'],
-};
-OnBrand.parameters = {
-  backgrounds: {
-    default: 'brand',
-  },
-};
+export const OnBrand = Template.bind({});
+OnBrand.args = { modifiers: [ 'ui-navigation--theme-brand' ] };
+OnBrand.parameters = { backgrounds: { default: 'brand' } };
 
-export const Small = Template.bind({
-});
-Small.args = {
-  modifiers: 'ui-navigation--small',
-};
+export const Small = Template.bind({});
+Small.args = { modifiers: 'ui-navigation--small' };
 
 export const Vertical = (args) => ({
   components: {
@@ -139,22 +124,22 @@ WithNavigationItemSlot.args = {
   items: [
     {
       name: 'medical-certification',
-      text: 'Medical Certification',
+      label: 'Medical Certification',
       href: '#',
     },
     {
       name: 'instruction-for-use',
-      text: 'Instruction for Use',
+      label: 'Instruction for Use',
       href: '#',
     },
     {
       name: 'terms-of-service',
-      text: 'Terms of Service',
+      label: 'Terms of Service',
       href: '#',
     },
     {
       name: 'privacy-policy',
-      text: 'Privacy Policy',
+      label: 'Privacy Policy',
       href: '#',
     },
   ],
@@ -179,7 +164,9 @@ export const WithDefaultSlot = (args) => ({
     >
       <UiNavigationItem
         class=" ui-navigation__item"
-        v-bind="item.navigationItemAttrs"
+        v-bind="(()=>{const {
+            name, text, ...rest
+          } = item; return rest;})()"
       >
         {{ item.text }}
       </UiNavigationItem>
@@ -213,22 +200,22 @@ WithIconInNavigationItemSlot.args = {
   items: [
     {
       name: 'medical-certification',
-      text: 'Medical Certification',
+      label: 'Medical Certification',
       href: '#',
     },
     {
       name: 'instruction-for-use',
-      text: 'Instruction for Use',
+      label: 'Instruction for Use',
       href: '#',
     },
     {
       name: 'terms-of-service',
-      text: 'Terms of Service',
+      label: 'Terms of Service',
       href: '#',
     },
     {
       name: 'privacy-policy',
-      text: 'Privacy Policy',
+      label: 'Privacy Policy',
       href: '#',
     },
   ],

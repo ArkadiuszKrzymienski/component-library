@@ -22,7 +22,7 @@ import {
   nextTick,
 } from 'vue';
 import type { Ref } from 'vue';
-import { removeNonDigits } from '../../../../utilities/helpers/index.ts';
+import { removeNonDigits } from '../../../../utilities/helpers/index';
 import UiInput from '../../../atoms/UiInput/UiInput.vue';
 import useKeyValidation from '../../../../composable/useKeyValidation';
 import type { DatepickerTranslation } from '../UiDatepicker.vue';
@@ -64,7 +64,12 @@ async function checkDay(event: InputEvent): Promise<void> {
   unfulfilledDayError.value = false;
   const inputValue = event.data;
   await nextTick();
-  if (inputValue && (!['0', '1', '2', '3'].includes(inputValue) || day.value.length === 2) && props.valid) {
+  if (inputValue && (![
+    '0',
+    '1',
+    '2',
+    '3',
+  ].includes(inputValue) || day.value.length === 2) && props.valid) {
     emit('change-input', 'day');
   }
 }

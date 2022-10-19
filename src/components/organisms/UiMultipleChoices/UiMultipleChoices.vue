@@ -5,8 +5,8 @@
       name="hint"
       v-bind="{
         hint,
-        attrs: alertHintAttrs,
-        hintType,
+        alertHintAttrs,
+        hintType
       }"
     >
       <UiAlert
@@ -19,31 +19,40 @@
       </UiAlert>
     </slot>
     <UiList
-      :items="itemsToRender"
-      v-bind="$attrs"
       class="ui-multiple-choices__list"
     >
-      <template #default>
-        <template
-          v-for="(item, index) in choices || items"
-          :key="index"
+      <template
+        v-for="(item, index) in choices || items"
+        :key="index"
+      >
+        <!-- @slot Use this slot to replace list-item template. -->
+        <slot
+          name="list-item"
+          v-bind="{
+            item,
+            index,
+            value,
+            options,
+            hasError,
+            updateHandler
+          }"
         >
-          <!-- @slot Use this slot to replace list-item template. -->
-          <slot
-            name="list-item"
-            v-bind="{
-              item,
-              index,
-              value,
-              options,
-              hasError,
-              updateHandler
-            }"
-          >
-            <UiListItem class="ui-multiple-choices__list-item">
+          <UiListItem class="ui-multiple-choices__list-item">
+            <!-- @slot Use this slot to replace choice template.-->
+            <slot
+              :name="choiceItem && 'choice-item' || 'choice'"
+              v-bind="{
+                value,
+                index,
+                item,
+                options,
+                hasError,
+                updateHandler
+              }"
+            >
               <UiMultipleChoicesItem
                 :model-value="value[index]"
-                :item="item"
+                v-bind="item"
                 :options="options"
                 :invalid="hasError(index)"
                 class="ui-multiple-choices__choice"
@@ -71,16 +80,11 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  inheritAttrs: false,
-};
-</script>
-
 <script setup lang="ts">
 import {
   computed,
   useAttrs,
+  useSlots,
   watch,
 } from 'vue';
 import type { PropType } from 'vue';
@@ -89,6 +93,16 @@ import UiAlert from '../../molecules/UiAlert/UiAlert.vue';
 import UiList from '../UiList/UiList.vue';
 import UiListItem from '../UiList/_internal/UiListItem.vue';
 import UiMultipleChoicesItem from './_internal/UiMultipleChoicesItem.vue';
+
+export interface MultipleChoiceOption {
+  [key: string]: unknown;
+  label?: string;
+  value?: string | Record<string, unknown>;
+}
+export interface MultipleChoiceItem {
+  [key: string]: unknown;
+  label: string;
+}
 
 const props = defineProps({
   /**
@@ -113,37 +127,24 @@ const props = defineProps({
     default: true,
   },
   /**
-   * Use this props to pass multiple choices items.
+   *  Use this props to set possible choices.
    */
   items: {
-    type: Array,
+    type: Array as PropType<MultipleChoiceItem[]>,
     default: () => ([]),
   },
   /**
-   *  Use this props to override default options.
+   *  Use this props to set possible options.
    */
   options: {
-    type: Array,
-    default: () => ([
-      {
-        name: 'Yes',
-        value: 'present',
-      },
-      {
-        name: 'No',
-        value: 'absent',
-      },
-      {
-        name: 'Don\'t know',
-        value: 'unknown',
-      },
-    ]),
+    type: Array as PropType<MultipleChoiceOption[]>,
+    default: () => ([]),
   },
   /**
    *  Use this props or v-model to set checked.
    */
   modelValue: {
-    type: Array,
+    type: Array as PropType<string | Record<string, unknown>[]>,
     default: () => ([]),
   },
   /**
@@ -155,36 +156,34 @@ const props = defineProps({
     }),
   },
 });
-const emit = defineEmits<{(e: 'update:modelValue', value: any): void, (e: 'update:invalid', value: boolean): void}>();
-const value = computed(() => (props.modelValue));
-const valid = computed(() => (value.value.filter((item) => item).length === props.items.length));
+const emit = defineEmits<{(e: 'update:modelValue', value: string | Record<string, unknown>[]): void, (e: 'update:invalid', value: boolean): void}>();
+const value = computed(() => (JSON.parse(JSON.stringify(props.modelValue))));
+const valid = computed(() => (value.value.filter((item: Record<string, unknown>) => item).length === props.items.length));
 watch(valid, (value) => {
   emit('update:invalid', !value);
-});
-const hintType = computed<'error'| 'default'>(() => (props.touched && props.invalid ? 'error' : 'default'));
+}, { immediate: true });
+const hintType = computed(() => (props.touched && props.invalid ? 'error' : 'default'));
 const hasError = (index: number) => (props.touched && !value.value[index]);
-const updateHandler = (newValue: any, index: number) => {
+function updateHandler(newValue: string | Record<string, unknown>, index: number): void {
   value.value[index] = newValue;
-  emit('update:modelValue', props.modelValue);
-};
+  emit('update:modelValue', value.value);
+}
 // TODO: remove in 0.6.0 / BEGIN
 const attrs = useAttrs();
-const choices = computed(() => (attrs.choices));
+const choices = computed(() => (attrs.choices) as MultipleChoiceItem[]);
 if (choices.value) {
   if (process.env.NODE_ENV === 'development') {
-    console.warn('[@infermedica/component-library warn][UiMultipleChoices]: choices will be removed in 0.6.0. Please use items instead.');
+    console.warn('[@infermedica/component-library warn][UiMultipleChoices]: The `choices` props will be removed in 0.6.0. Please use `items` props instead.');
+  }
+}
+const slots = useSlots();
+const choiceItem = computed(() => (slots['choice-item']));
+if (choiceItem.value) {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('[@infermedica/component-library warn][UiMultipleChoices]: The `choice-item` slot will be removed in 0.6.0. Please use `choice` slot instead.');
   }
 }
 // END
-const itemsToRender = computed(() => {
-  const items = choices.value || props.items;
-  return items.map((item) => ({
-    ...item,
-    listItemAttrs: {
-      class: 'ui-multiple-choices__list-item',
-    },
-  }));
-});
 </script>
 
 <style lang="scss">
@@ -206,7 +205,11 @@ const itemsToRender = computed(() => {
   &__list-item {
     --list-item-padding: 0;
 
-    @include mixins.inner-border($element: multiple-choices-list-item, $color: var(--color-border-divider), $width: 1px 0 0 0);
+    @include mixins.inner-border(
+      $element: multiple-choices-list-item,
+      $color: var(--color-border-divider),
+      $width: 1px 0 0 0
+    );
 
     &:last-of-type {
       &::after {

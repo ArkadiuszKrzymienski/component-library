@@ -7,17 +7,12 @@
         :key="key"
       >
         <UiAccordionItem
-          :title="item.title"
-          :name="item.name"
-          :settings="item.settings"
-          v-bind="item.accordionItemAttrs"
+          v-bind="item"
         >
           <!-- @slot Use this slot to replace accordion item content. -->
           <slot
             :name="item.name"
-            v-bind="{
-              item
-            }"
+            v-bind="{ item }"
           />
         </UiAccordionItem>
       </template>
@@ -33,16 +28,17 @@ import {
 import type { PropType } from 'vue';
 import UiAccordionItem from './_internal/UiAccordionItem.vue';
 import UiList from '../UiList/UiList.vue';
+import type { IconAsString } from '../../../types/icon';
 
 export type AccordionValue = string | string[];
 export interface AccordionItemSettings {
-  iconOpen: string;
-  iconClose: string;
+  iconOpen?: IconAsString;
+  iconClose?: IconAsString;
   [key: string]: unknown
 }
 export interface AccordionItemAsObj {
   title: string;
-  name: string;
+  name?: string;
   accordionItemAttrs?: Record<string, unknown>;
   settings?: AccordionItemSettings;
   [key: string]: unknown;
@@ -53,7 +49,10 @@ const props = defineProps({
    * Use this props or v-model to set opened items.
    */
   modelValue: {
-    type: [String, Array] as PropType<AccordionValue>,
+    type: [
+      String,
+      Array,
+    ] as PropType<AccordionValue>,
     default: '',
   },
   /**
@@ -64,7 +63,7 @@ const props = defineProps({
     default: () => ([]),
   },
 });
-const emit = defineEmits<{(e: 'update:modelValue', value:AccordionValue): void}>();
+const emit = defineEmits<{(e: 'update:modelValue', value: AccordionValue): void}>();
 const opened = computed<AccordionValue>(() => (props.modelValue));
 provide('opened', opened);
 function toggle(name: string): void {
@@ -73,21 +72,24 @@ function toggle(name: string): void {
   } else if (opened.value.includes(name)) {
     emit('update:modelValue', opened.value.filter((item) => (item !== name)));
   } else {
-    emit('update:modelValue', [...opened.value, name]);
+    emit('update:modelValue', [
+      ...opened.value,
+      name,
+    ]);
   }
 }
 provide('toggle', toggle);
-const itemsToRender = computed<AccordionItemAsObj[]>(() => (props.items.map((item: AccordionItem, key: number) => {
-  if (typeof item === 'string') {
+const itemsToRender = computed(() => (
+  props.items.map((item, key) => {
+    if (typeof item === 'string') {
+      return {
+        name: `accordion-item-${key}`,
+        title: item,
+      };
+    }
     return {
       name: `accordion-item-${key}`,
-      title: item,
+      ...item,
     };
-  }
-  const { name } = item;
-  return {
-    ...item,
-    name: name || `accordion-item-${key}`,
-  };
-})));
+  })));
 </script>

@@ -5,7 +5,9 @@
       name="header"
       v-bind="{
         title,
-        attrs: buttonAttrs,
+        headingTitleAttrs,
+        buttonAttrs,
+        buttonCloseAttrs,
         clickHandler
       }"
     >
@@ -17,12 +19,12 @@
         <slot
           name="title"
           v-bind="{
+            headingTitleAttrs,
             title
           }"
         >
           <UiHeading
-            level="4"
-            tag="span"
+            v-bind="headingTitleAttrs"
           >
             {{ title }}
           </UiHeading>
@@ -31,19 +33,27 @@
         <slot
           name="close"
           v-bind="{
-            attrs: buttonAttrs,
-            clickHandler
+            buttonAttrs,
+            buttonCloseAttrs,
+            clickHandler,
+            iconCloseAttrs: defaultProps.iconCloseAttrs
           }"
         >
           <UiButton
-            v-bind="buttonAttrs"
+            v-bind="buttonAttrs || buttonCloseAttrs"
             class="ui-button--icon ui-button--theme-secondary ui-popover__close"
             @click="clickHandler"
           >
-            <UiIcon
-              icon="clear"
-              class="ui-button__icon"
-            />
+            <!-- @slot Use this slot to replace icon template. -->
+            <slot
+              name="icon"
+              v-bind="{ iconCloseAttrs: defaultProps.iconCloseAttrs }"
+            >
+              <UiIcon
+                v-bind="defaultProps.iconCloseAttrs"
+                class="ui-button__icon"
+              />
+            </slot>
           </UiButton>
         </slot>
       </div>
@@ -59,13 +69,18 @@
 import {
   onMounted,
   onBeforeUnmount,
+  useAttrs,
+  computed,
 } from 'vue';
+import type { HeadingLevel } from '@/components/atoms/UiHeading/UiHeading.vue';
 import UiHeading from '../../atoms/UiHeading/UiHeading.vue';
 import UiButton from '../../atoms/UiButton/UiButton.vue';
 import UiIcon from '../../atoms/UiIcon/UiIcon.vue';
 import type { PropsAttrs } from '../../../types/attrs';
+import type { HTMLTag } from '../../../types/tag';
+import type { Icon } from '../../../types/icon';
 
-defineProps({
+const props = defineProps({
   /**
    * Use this props to pass title for popover.
    */
@@ -74,14 +89,42 @@ defineProps({
     default: '',
   },
   /**
+   * Use this props to pass attrs to title UiHeading.
+   */
+  headingTitleAttrs: {
+    type: Object as PropsAttrs,
+    default: () => ({
+      level: '4',
+      tag: 'span',
+    }),
+  },
+  /**
    * Use this props to pass attrs to close UiButton.
    */
-  buttonAttrs: {
+  buttonCloseAttrs: {
     type: Object as PropsAttrs,
     default: () => ({
     }),
   },
+  /**
+   * Use this props to pass attrs to close UiIcon.
+   */
+  iconCloseAttrs: {
+    type: Object as PropsAttrs,
+    default: () => ({ icon: 'clear' }),
+  },
 });
+const defaultProps = computed(() => ({
+  headingTitleAttrs: {
+    level: '4' as HeadingLevel,
+    tag: 'span' as HTMLTag,
+    ...props.headingTitleAttrs,
+  },
+  iconCloseAttrs: {
+    icon: 'clear' as Icon,
+    ...props.iconCloseAttrs,
+  },
+}));
 const emit = defineEmits<{(e: 'close'): void}>();
 function clickHandler(): void {
   emit('close');
@@ -96,6 +139,15 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', keydownHandler);
 });
+// TODO: remove in 0.6.0 / BEGIN
+const attrs = useAttrs();
+const buttonAttrs = computed(() => attrs.buttonAttrs || attrs['button-attrs']);
+if (buttonAttrs.value) {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('[@infermedica/component-library warn][UiPopover]: The `buttonAttrs` props will be removed in 0.6.0. Please use `buttonCloseAttrs` props instead.');
+  }
+}
+// END
 </script>
 
 <style lang="scss">
@@ -123,6 +175,8 @@ onBeforeUnmount(() => {
   }
 
   &__content {
+    max-height: functions.var($element + "-content", max-height);
+    overflow-y: auto;
     padding: functions.var($element + "-content", padding, var(--space-16));
     border-radius: inherit;
     border-top-left-radius: 0;

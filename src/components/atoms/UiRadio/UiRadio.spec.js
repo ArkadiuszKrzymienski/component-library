@@ -7,20 +7,12 @@ describe('UiRadio.vue', () => {
     expect(wrapper.classes('ui-radio')).toBe(true);
   });
   test('render a content via default slot', () => {
-    const wrapper = mount(UiRadio, {
-      slots: {
-        default: '<div class="symptom-checker"></div>',
-      },
-    });
+    const wrapper = mount(UiRadio, { slots: { default: '<div class="symptom-checker"></div>' } });
     const slot = wrapper.find('.symptom-checker');
     expect(slot.exists()).toBe(true);
   });
   test('render a content via radio slot', () => {
-    const wrapper = mount(UiRadio, {
-      slots: {
-        radio: '<div class="symptom-checker"></div>',
-      },
-    });
+    const wrapper = mount(UiRadio, { slots: { radio: '<div class="symptom-checker"></div>' } });
     const slot = wrapper.find('.symptom-checker');
     expect(slot.exists()).toBe(true);
   });

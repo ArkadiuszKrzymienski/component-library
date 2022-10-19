@@ -13,9 +13,7 @@
           <!-- @slot Use this slot to replace list item content -->
           <slot
             :name="item.name"
-            v-bind="{
-              item
-            }"
+            v-bind="{ item }"
           >
             <UiText>{{ item.text }}</UiText>
             <template v-if="(item as ListRenderItemWithChildren).children?.items">
@@ -41,7 +39,7 @@ import type { ListTag } from '../../../types/tag';
 export type ListChildren = {tag?: ListTag, items?: ListChildren, listAttrs: Record<string, unknown>}
 export interface ListItemAsObj {
   name: string;
-  children: ListChildren | ListChildren[];
+  children?: ListChildren | ListChildren[];
 }
 export type ListItem = string | ListItemAsObj;
 export interface ListRenderItem {
@@ -74,14 +72,16 @@ const props = defineProps({
     default: () => ([]),
   },
 });
-const itemsToRender = computed<ListRender[]>(() => (props.items.map((item: ListItem, key: number) => {
+const itemsToRender = computed<ListRender[]>(() => (props.items.map((item, key) => {
   if (typeof item === 'string') {
     return {
       name: `list-item-${key}`,
       text: item,
     };
   }
-  const { name, children } = item;
+  const {
+    name, children,
+  } = item;
   return {
     ...item,
     name: name || `list-item-${key}`,
@@ -92,9 +92,7 @@ const itemsToRender = computed<ListRender[]>(() => (props.items.map((item: ListI
       }
       : {
         items: children?.items,
-        ...(children?.listAttrs || {
-          tag: props.tag,
-        }),
+        ...(children?.listAttrs || { tag: props.tag }),
       },
   };
 })));

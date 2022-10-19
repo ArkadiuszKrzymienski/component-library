@@ -12,14 +12,8 @@ import docs from './scroll-tabindex.mdx';
 
 export default {
   title: 'Utilities/Directives/Scroll Tabindex',
-  decorators: [() => ({
-    template: '<div style="--backdrop-position: absolute; --side-panel-position: absolute; --side-panel-z-index: 0; min-height: 320px;"><story /></div>',
-  })],
-  parameters: {
-    docs: {
-      page: docs,
-    },
-  },
+  decorators: [ () => ({ template: '<div style="--backdrop-position: absolute; --side-panel-position: absolute; --side-panel-z-index: 0; min-height: 320px;"><story /></div>' }) ],
+  parameters: { docs: { page: docs } },
 };
 
 export const WithDirective = () => ({
@@ -30,9 +24,7 @@ export const WithDirective = () => ({
     UiSidePanel,
     UiText,
   },
-  directives: {
-    scrollTabindex,
-  },
+  directives: { scrollTabindex },
   setup() {
     const modelValue = ref(true);
     return {
@@ -81,9 +73,7 @@ export const WithDirectiveAndScrollableContent = () => ({
     UiSidePanel,
     UiText,
   },
-  directives: {
-    scrollTabindex,
-  },
+  directives: { scrollTabindex },
   setup() {
     const modelValue = ref(true);
     return {
@@ -121,7 +111,7 @@ export const WithDirectiveAndScrollableContent = () => ({
                 <UiBulletPoints tag="ol" type="a">
                   <UiBulletPointsItem>
                     <UiText>principles of operation of the website and the mobile application "
-                      <UiLink href="#">Symptomate.com</UiLink>",
+                      <UiLink href="#">Triage.com</UiLink>",
                     </UiText>
                   </UiBulletPointsItem>
                   <UiBulletPointsItem>
@@ -218,7 +208,7 @@ export const WithoutDirective = () => ({
                 <UiBulletPoints tag="ol" type="a">
                   <UiBulletPointsItem>
                     <UiText>principles of operation of the website and the mobile application "
-                      <UiLink href="#">Symptomate.com</UiLink>",
+                      <UiLink href="#">Triage.com</UiLink>",
                     </UiText>
                   </UiBulletPointsItem>
                   <UiBulletPointsItem>

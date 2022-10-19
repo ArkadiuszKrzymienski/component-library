@@ -22,11 +22,13 @@ export default {
     subtitle: 'Recommendation',
     description: 'Your symptoms are very serious, and you may require emergency care. Do not delay. Call an ambulance right now.',
     type: 'emergency_ambulance',
+    iconTriageAttrs: { 'data-testid': 'triage-icon' },
+    textSubtitleAttrs: { 'data-testid': 'subtitle-text' },
+    headingTitleAttrs: { 'data-testid': 'title-heading' },
+    textDescriptionAttrs: { 'data-testid': 'description-text' },
   },
   argTypes: {
-    modifiers: modifiers({
-      options: ['ui-card--modern'],
-    }),
+    modifiers: modifiers({ options: [ 'ui-card--modern' ] }),
     title: {
       description: 'Use this props to set title for card.',
       table: {
@@ -95,24 +97,19 @@ export default {
       },
     },
     type: {
-      control: {
-        type: 'select',
-      },
+      control: { type: 'select' },
       options: [
-        'emergency_ambulance', 'emergency', 'consultation_24', 'consultation', 'self_care',
+        'emergency_ambulance',
+        'emergency',
+        'consultation_24',
+        'consultation',
+        'self_care',
       ],
     },
-    symptoms: {
-      name: 'symptoms',
-      description: '@deprecated Will be removed in 0.4.0 use `details` slots instead',
-      table: {
-        category: 'slots',
-        type: {
-          summary: 'unknown',
-        },
-      },
-      control: false,
-    },
+    iconTriageAttrs: { table: { subcategory: 'Attrs props' } },
+    textSubtitleAttrs: { table: { subcategory: 'Attrs props' } },
+    headingTitleAttrs: { table: { subcategory: 'Attrs props' } },
+    textDescriptionAttrs: { table: { subcategory: 'Attrs props' } },
   },
 };
 
@@ -126,47 +123,39 @@ const Template = (args) => ({
     };
   },
   template: `<UiCard
-    :class="modifiers"
     :title="title"
     :subtitle="subtitle"
     :description="description"
     :type="type"
+    :icon-triage-attrs="iconTriageAttrs"
+    :text-subtitle-attrs="textSubtitleAttrs"
+    :heading-title-attrs="headingTitleAttrs"
+    :text-description-attrs="textDescriptionAttrs"
+    :class="modifiers"
   />`,
 });
 
 export const Ambulance = Template.bind({
 });
 
-export const Emergency = Template.bind({
-});
-Emergency.args = {
-  type: 'emergency',
-};
+export const Emergency = Template.bind({});
+Emergency.args = { type: 'emergency' };
 
-export const Consultation24 = Template.bind({
-});
-Consultation24.args = {
-  type: 'consultation_24',
-};
+export const Consultation24 = Template.bind({});
+Consultation24.args = { type: 'consultation_24' };
 
-export const Consultation = Template.bind({
-});
-Consultation.args = {
-  type: 'consultation',
-};
+export const Consultation = Template.bind({});
+Consultation.args = { type: 'consultation' };
 
-export const SelfCare = Template.bind({
-});
-SelfCare.args = {
-  type: 'self_care',
-};
+export const SelfCare = Template.bind({});
+SelfCare.args = { type: 'self_care' };
 
 export const ModernAmbulance = Template.bind({
 });
 ModernAmbulance.args = {
   type: 'emergency_ambulance',
   subtitle: '',
-  modifiers: ['ui-card--modern'],
+  modifiers: [ 'ui-card--modern' ],
 };
 
 export const ModernEmergency = Template.bind({
@@ -174,7 +163,7 @@ export const ModernEmergency = Template.bind({
 ModernEmergency.args = {
   type: 'emergency',
   subtitle: '',
-  modifiers: ['ui-card--modern'],
+  modifiers: [ 'ui-card--modern' ],
 };
 
 export const ModernConsultation24 = Template.bind({
@@ -182,7 +171,7 @@ export const ModernConsultation24 = Template.bind({
 ModernConsultation24.args = {
   type: 'consultation_24',
   subtitle: '',
-  modifiers: ['ui-card--modern'],
+  modifiers: [ 'ui-card--modern' ],
 };
 
 export const ModernConsultation = Template.bind({
@@ -190,7 +179,7 @@ export const ModernConsultation = Template.bind({
 ModernConsultation.args = {
   type: 'consultation',
   subtitle: '',
-  modifiers: ['ui-card--modern'],
+  modifiers: [ 'ui-card--modern' ],
 };
 
 export const ModernSelfCare = Template.bind({
@@ -198,7 +187,7 @@ export const ModernSelfCare = Template.bind({
 ModernSelfCare.args = {
   type: 'self_care',
   subtitle: '',
-  modifiers: ['ui-card--modern'],
+  modifiers: [ 'ui-card--modern' ],
 };
 
 export const WithDetailsSlot = (args) => ({
@@ -216,11 +205,15 @@ export const WithDetailsSlot = (args) => ({
   },
   template: `
     <UiCard
-      :class="modifiers"
       :title="title"
       :subtitle="subtitle"
       :description="description"
       :type="type"
+      :icon-triage-attrs="iconTriageAttrs"
+      :text-subtitle-attrs="textSubtitleAttrs"
+      :heading-title-attrs="headingTitleAttrs"
+      :text-description-attrs="textDescriptionAttrs"
+      :class="modifiers"
     >
     <template #details>
       <UiHeading
@@ -229,16 +222,7 @@ export const WithDetailsSlot = (args) => ({
       >
         Alarming symptoms:
       </UiHeading>
-      <UiBulletPoints>
-        <template
-          v-for="(symptom, key) in ['Vomiting', 'Abdominal pain, lasting 2 to 7 days']"
-          :key="key"
-        >
-          <UiBulletPointsItem icon="bullet-alarming" class="ui-bullet-points-item--primary">
-            <UiText>{{ symptom }}</UiText>
-          </UiBulletPointsItem>
-        </template>
-      </UiBulletPoints>
+      <UiBulletPoints :items="['Vomiting', 'Abdominal pain, lasting 2 to 7 days']" />
     </template>
     </UiCard>`,
 });
@@ -260,11 +244,11 @@ export const WithTriageSlot = (args) => ({
     :description="description"
     :type="type"
   >
-    <template #triage="{icon}">
+    <template #triage="{ iconTriageAttrs }">
       <div class="ui-card__triage">
         <UiIcon
-          v-if="icon"
-          :icon="icon"
+          v-if="iconTriageAttrs.icon"
+          v-bind="iconTriageAttrs"
           class="ui-card__icon"
         />
       </div>
@@ -284,28 +268,42 @@ export const WithContentSlot = (args) => ({
     };
   },
   template: `<UiCard
-    :class="modifiers"
     :title="title"
     :subtitle="subtitle"
     :description="description"
     :type="type"
+    :icon-triage-attrs="iconTriageAttrs"
+    :text-subtitle-attrs="textSubtitleAttrs"
+    :heading-title-attrs="headingTitleAttrs"
+    :text-description-attrs="textDescriptionAttrs"
+    :class="modifiers"
   >
-    <template #content="{subtitle, title, description}">
+    <template #content="{
+      subtitle,
+      textSubtitleAttrs,
+      title,
+      headingTitleAttrs, 
+      description,
+      textDescriptionAttrs,
+    }">
       <div class="ui-card__content">
         <UiText
           v-if="subtitle"
+          v-bind="textSubtitleAttrs"
           class="ui-card__subtitle"
         >
           {{ subtitle }}
         </UiText>
         <UiHeading
           v-if="title"
+          v-bind="headingTitleAttrs"
           class="ui-card__title"
         >
           {{ title }}
         </UiHeading>
         <UiText
           v-if="description"
+          v-bind="textDescriptionAttrs"
           class="ui-card__description"
         >
           {{ description }}
@@ -326,15 +324,25 @@ export const WithSubtitleSlot = (args) => ({
     };
   },
   template: `<UiCard
-    :class="modifiers"
     :title="title"
     :subtitle="subtitle"
     :description="description"
     :type="type"
+    :icon-triage-attrs="iconTriageAttrs"
+    :text-subtitle-attrs="textSubtitleAttrs"
+    :heading-title-attrs="headingTitleAttrs"
+    :text-description-attrs="textDescriptionAttrs"
+    :class="modifiers"
   >
-    <template #subtitle="{subtitle}">
+    <template 
+      #subtitle="{
+        subtitle,
+        textSubtitleAttrs
+      }"
+    >
       <UiText
         v-if="subtitle"
+        v-bind="textSubtitleAttrs"
         class="ui-card__subtitle"
       >
         {{ subtitle }}
@@ -354,15 +362,25 @@ export const WithTitleSlot = (args) => ({
     };
   },
   template: `<UiCard
-    :class="modifiers"
     :title="title"
     :subtitle="subtitle"
     :description="description"
     :type="type"
+    :icon-triage-attrs="iconTriageAttrs"
+    :text-subtitle-attrs="textSubtitleAttrs"
+    :heading-title-attrs="headingTitleAttrs"
+    :text-description-attrs="textDescriptionAttrs"
+    :class="modifiers"
   >
-    <template #title="{title}">
+    <template 
+      #title="{
+        title,
+        headingTitleAttrs,
+      }"
+    >
       <UiHeading
         v-if="title"
+        v-bind="headingTitleAttrs"
         class="ui-card__title"
       >
         {{ title }}
@@ -382,15 +400,25 @@ export const WithDescriptionSlot = (args) => ({
     };
   },
   template: `<UiCard
-    :class="modifiers"
     :title="title"
     :subtitle="subtitle"
     :description="description"
     :type="type"
+    :icon-triage-attrs="iconTriageAttrs"
+    :text-subtitle-attrs="textSubtitleAttrs"
+    :heading-title-attrs="headingTitleAttrs"
+    :text-description-attrs="textDescriptionAttrs"
+    :class="modifiers"
   >
-    <template #description="{description}">
+    <template 
+      #description="{
+        description,
+        textDescriptionAttrs
+      }"
+    >
       <UiText
         v-if="description"
+        v-bind="textDescriptionAttrs"
         class="ui-card__description"
       >
         {{ description }}
