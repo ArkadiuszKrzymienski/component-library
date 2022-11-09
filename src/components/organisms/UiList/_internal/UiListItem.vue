@@ -3,29 +3,41 @@
     class="ui-list-item"
     v-bind="listItemAttrs"
   >
-    <component
-      :is="tag"
-      v-bind="$attrs"
-      class="ui-list-item__content"
+    <!-- @slot Use this slot to replace list item content template. -->
+    <slot
+      name="content"
+      v-bind="{
+        tag,
+        hasSuffix,
+        suffixComponent,
+        suffixAttrs: defaultProps.suffixAttrs
+      }"
     >
-      <!-- @slot Use this slot to place content inside list-item. -->
-      <slot />
-      <!-- @slot Use this slot to replace suffix template -->
-      <slot
-        name="suffix"
-        v-bind="{
-          hasSuffix,
-          suffixAttrs: defaultProps.suffixAttrs
-        }"
+      <component
+        :is="tag"
+        v-bind="$attrs"
+        class="ui-list-item__content"
       >
-        <component
-          :is="suffixComponent"
-          v-if="hasSuffix"
-          v-bind="defaultProps.suffixAttrs"
-          class="ui-list-item__suffix"
-        />
-      </slot>
-    </component>
+        <!-- @slot Use this slot to place content inside list-item. -->
+        <slot />
+        <!-- @slot Use this slot to replace suffix template -->
+        <slot
+          name="suffix"
+          v-bind="{
+            hasSuffix,
+            suffixComponent,
+            suffixAttrs: defaultProps.suffixAttrs
+          }"
+        >
+          <component
+            :is="suffixComponent"
+            v-if="hasSuffix"
+            v-bind="defaultProps.suffixAttrs"
+            class="ui-list-item__suffix"
+          />
+        </slot>
+      </component>
+    </slot>
   </li>
 </template>
 

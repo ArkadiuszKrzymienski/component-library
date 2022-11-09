@@ -363,17 +363,23 @@ export const WithCheckbox = (args) => ({
     </template>
   </UiList>`,
 });
+const withError = {
+  class: [
+    'ui-list-item--has-error',
+    'ui-checkbox--has-error',
+  ],
+};
 const withInfo = {
   hasSuffix: true,
   textLabelAttrs: { class: [ 'list-checkbox-item__checkbox-label' ] },
   suffixAttrs: {
     icon: 'info',
-    label: 'more info',
-    onClick: events.onClickInfoButton,
+    iconSuffixAttrs: { class: [ 'list-checkbox-item__suffix-icon' ] },
+    label: 'More info',
+    labelAttrs: { class: [ 'visual-hidden' ] },
     class: [ 'list-checkbox-item__suffix' ],
     tabindex: -1,
-    labelAttrs: { class: [ 'visual-hidden' ] },
-    iconSuffixAttrs: { class: [ 'list-checkbox-item__suffix-icon' ] },
+    onClick: events.onClickInfoButton,
   },
 };
 WithCheckbox.args = {
@@ -384,6 +390,15 @@ WithCheckbox.args = {
         value: item,
         tag: UiCheckbox,
         ...withInfo,
+        ...withError,
+      };
+    }
+    if (index === 2) {
+      return {
+        label: item,
+        value: item,
+        tag: UiCheckbox,
+        ...withError,
       };
     }
     return {
