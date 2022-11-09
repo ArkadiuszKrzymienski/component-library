@@ -371,6 +371,7 @@ const withInfo = {
     label: 'more info',
     onClick: events.onClickInfoButton,
     class: [ 'list-checkbox-item__suffix' ],
+    tabindex: -1,
     labelAttrs: { class: [ 'visual-hidden' ] },
     iconSuffixAttrs: { class: [ 'list-checkbox-item__suffix-icon' ] },
   },
@@ -382,7 +383,6 @@ WithCheckbox.args = {
         label: item,
         value: item,
         tag: UiCheckbox,
-        class: [ 'ui-button--outlined' ],
         ...withInfo,
       };
     }
@@ -390,7 +390,6 @@ WithCheckbox.args = {
       label: item,
       value: item,
       tag: UiCheckbox,
-      class: [ 'ui-button--outlined' ],
     };
   }),
 };
