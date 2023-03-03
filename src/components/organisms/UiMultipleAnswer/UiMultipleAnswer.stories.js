@@ -77,12 +77,18 @@ export default {
     invalid: { control: false },
     hintAlertAttrs: { table: { subcategory: 'Attrs props' } },
   },
+  parameters: {
+    cssProperties: {
+      '--multiple-answer-hint-padding-block': 'var(--multiple-answer-hint-padding-block-start, 0) var(--multiple-answer-hint-padding-block-end, var(--space-12))',
+      '--multiple-answer-hint-padding-inline': 'var(--multiple-answer-hint-padding-inline-start, var(--space-20)) var(--multiple-answer-hint-padding-inline-end, var(--space-20))',
+      '--multiple-answer-tablet-hint-padding-block': 'var(--multiple-answer-tablet-hint-padding-block-start, 0) var(--multiple-answer-tablet-hint-padding-block-end, var(--space-12))',
+      '--multiple-answer-tablet-hint-padding-inline': 'var(--multiple-answer-tablet-hint-padding-inline-start, 0) var(--multiple-answer-tablet-hint-padding-inline-end, 0)',
+    },
+  },
 };
 
 const Template = (args) => ({
-  components: {
-    UiMultipleAnswer,
-  },
+  components: { UiMultipleAnswer },
   setup() {
     const modelValue = ref(args.initModelValue);
     const invalid = ref(args.initInvalid);
@@ -109,20 +115,21 @@ const Template = (args) => ({
 
 export const WithMultipleChoices = Template.bind({});
 
-export const WithButtonInfo = Template.bind({
-});
+export const WithError = Template.bind({});
+WithError.args = { touched: true };
+
+export const WithButtonInfo = Template.bind({});
 WithButtonInfo.args = {
   hint: 'Select all answers that apply',
   items: [
     {
       label: 'Fatigue',
       value: 'fatigue',
-      buttonInfoAttrs: {
-        ariaLabel: 'how to check it?',
-        onClick: events.onClickInfoButton,
-      },
-      iconInfoAttrs: { 'data-testid': 'info-icon' },
+      translation: { info: 'How to check it??' },
       textLabelAttrs: { 'data-testid': 'label-text' },
+      buttonInfoAttrs: { onClick: events.onClickInfoButton },
+      labelInfoAttrs: { 'data-testid': 'suffix-label' },
+      iconInfoAttrs: { 'data-testid': 'info-icon' },
     },
     {
       label: 'Fever',
@@ -131,28 +138,28 @@ WithButtonInfo.args = {
     {
       label: 'Illusion of surrounding objects being bigger or smaller than they actually are',
       value: 'illusion',
-      buttonInfoAttrs: {
-        ariaLabel: 'what does it mean?',
-        onClick: events.onClickInfoButton,
-      },
-      iconInfoAttrs: { 'data-testid': 'info-icon' },
+      translation: { info: 'What does it mean?' },
       textLabelAttrs: { 'data-testid': 'label-text' },
+      buttonInfoAttrs: { onClick: events.onClickInfoButton },
+      labelInfoAttrs: { 'data-testid': 'suffix-label' },
+      iconInfoAttrs: { 'data-testid': 'info-icon' },
     },
   ],
 };
 
 export const WithSingleChoice = Template.bind({});
 WithSingleChoice.args = {
-  initModelValue: {},
+  initModelValue: '',
   hint: 'Select one answer.',
   items: [
     {
       label: 'Fatigue',
       value: 'fatigue',
-      buttonInfoAttrs: {
-        ariaLabel: 'how to check it?',
-        onClick: events.onClickInfoButton,
-      },
+      translation: { info: 'How to check it?' },
+      textLabelAttrs: { 'data-testid': 'label-text' },
+      buttonInfoAttrs: { onClick: events.onClickInfoButton },
+      labelInfoAttrs: { 'data-testid': 'suffix-label' },
+      iconInfoAttrs: { 'data-testid': 'info-icon' },
     },
     {
       label: 'Fever',
@@ -161,10 +168,11 @@ WithSingleChoice.args = {
     {
       label: 'Illusion of surrounding objects being bigger or smaller than they actually are',
       value: 'illusion',
-      buttonInfoAttrs: {
-        ariaLabel: 'what does it mean?',
-        onClick: events.onClickInfoButton,
-      },
+      translation: { info: 'What does it mean?' },
+      textLabelAttrs: { 'data-testid': 'label-text' },
+      buttonInfoAttrs: { onClick: events.onClickInfoButton },
+      labelInfoAttrs: { 'data-testid': 'suffix-label' },
+      iconInfoAttrs: { 'data-testid': 'info-icon' },
     },
   ],
 };
@@ -196,13 +204,11 @@ export const WithHintSlot = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @update:invalid="onUpdateInvalid"
   >
-    <template 
-      #hint="{
-       hint,
-        hintType,
-        hintAlertAttrs
-      }"
-    >
+    <template #hint="{
+      hint,
+      hintType,
+      hintAlertAttrs
+    }">
       <UiAlert
         v-if="hint"
         v-bind="hintAlertAttrs"
@@ -219,7 +225,6 @@ export const WithListItemSlot = (args) => ({
   components: {
     UiMultipleAnswer,
     UiMultipleAnswerItem,
-    UiListItem,
   },
   setup() {
     const modelValue = ref(args.initModelValue);
@@ -243,23 +248,17 @@ export const WithListItemSlot = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @update:invalid="onUpdateInvalid"
   >
-    <template 
-      #list-item="{
-        value,
-        item,
-        name,
-        hasError
-      }"
-    >
-      <UiListItem class="ui-multiple-answer__list-item">
-        <UiMultipleAnswerItem
-          v-model="value"
-          v-bind="item"
-          :name="name"
-          :invalid="hasError"
-          class="ui-multiple-answer__choice"
-        />
-      </UiListItem>
+    <template #list-item="{
+      item,
+      name,
+      hasError,
+    }">
+      <UiMultipleAnswerItem
+        v-model="modelValue"
+        v-bind="item"
+        :name="name"
+        :invalid="hasError"
+      />
     </template>
   </UiMultipleAnswer>`,
 });
@@ -267,8 +266,7 @@ export const WithListItemSlot = (args) => ({
 export const WithChoiceSlot = (args) => ({
   components: {
     UiMultipleAnswer,
-    UiMultipleAnswerItem,
-    UiListItem,
+    UiCheckbox,
   },
   setup() {
     const modelValue = ref(args.initModelValue);
@@ -292,32 +290,31 @@ export const WithChoiceSlot = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @update:invalid="onUpdateInvalid"
   >
-    <template
-        #choice="{
-          value,
-          item,
-          name,
-          hasError
-        }"
-    >
-      <UiMultipleAnswerItem
-        v-model="value"
-        v-bind="item"
-        :name="name"
-        :invalid="hasError"
-        class="ui-multiple-answer__choice"
-      />
+    <template #choice="{
+      id,
+      value,
+      invalid,
+      label,
+      component,
+    }">
+      <component
+        :id="id"
+        :is="component"
+        v-model="modelValue"
+        :value="value"
+        :class="[
+          'ui-list-item__content',
+          { 'ui-checkbox--has-error ui-list-item--has-error': invalid },
+        ]"
+      >
+        {{ label }}
+      </component>
     </template>
   </UiMultipleAnswer>`,
 });
 
 export const WithLabelChoiceIdSlot = (args) => ({
-  components: {
-    UiMultipleAnswer,
-    UiText,
-    UiButton,
-    UiIcon,
-  },
+  components: { UiMultipleAnswer },
   setup() {
     const modelValue = ref(args.initModelValue);
     const invalid = ref(args.initInvalid);
@@ -340,36 +337,8 @@ export const WithLabelChoiceIdSlot = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @update:invalid="onUpdateInvalid"
   >
-    <template 
-      #label-fever="{ 
-        id,
-        componentName,
-        textLabelAttrs,
-        label,
-        buttonInfoAttrs,
-        unfocusExplication,
-        iconInfoAttrs
-      }"
-    >
-      <div :class="['ui-multiple-answer-item__label', componentName+'__label']">
-        <UiText
-          v-bind="textLabelAttrs"
-        >
-          {{ label }}
-        </UiText>
-        <UiButton
-          v-if="buttonInfoAttrs"
-          v-bind="buttonInfoAttrs"
-          tabindex="-1"
-          class="ui-button--icon ui-multiple-answer-item__explication"
-          @keydown="unfocusExplication"
-        >
-          <UiIcon
-            v-bind="iconInfoAttrs"
-            class="ui-button__icon"
-          />
-        </UiButton>
-      </div>
+    <template #label-fever="{ label }">
+      {{ label }}
     </template>
   </UiMultipleAnswer>`,
 });

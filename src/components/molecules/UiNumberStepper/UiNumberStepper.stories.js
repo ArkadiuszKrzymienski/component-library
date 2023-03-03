@@ -11,7 +11,7 @@ import { toMobile } from '@/styles/exports/breakpoints.module.scss';
 
 const events = actions({
   onUpdateModelValue: 'update:modelValue',
-  onError: 'error',
+  onError: 'error:value',
 });
 
 export default {
@@ -44,6 +44,16 @@ export default {
     buttonIncrementAttrs: { table: { subcategory: 'Attrs props' } },
     iconIncrementAttrs: { table: { subcategory: 'Attrs props' } },
   },
+  parameters: {
+    cssProperties: {
+      '--number-stepper-decrement-margin-block': 'var(--number-stepper-decrement-margin-block-start, 0) var(--number-stepper-decrement-margin-block-end, 0)',
+      '--number-stepper-decrement-margin-inline': 'var(--number-stepper-decrement-margin-inline-start, 0) var(--number-stepper-decrement-margin-inline-end, var(--space-4))',
+      '--number-stepper-increment-margin-block': 'var(--number-stepper-increment-margin-block-start, 0) var(--number-stepper-increment-margin-block-end, 0)',
+      '--number-stepper-increment-margin-inline': 'var(--number-stepper-increment-margin-inline-start, var(--space-12)) var(--number-stepper-increment-margin-inline-end, 0)',
+      '--number-stepper-tablet-increment-margin-block': 'var(--number-stepper-tablet-increment-margin-block-start, 0) var(--number-stepper-tablet-increment-margin-block-end, 0)',
+      '--number-stepper-tablet-increment-margin-inline': 'var(--number-stepper-tablet-increment-margin-inline-start, var(--space-4)) var(--number-stepper-tablet-increment-margin-inline-end, 0)',
+    },
+  },
 };
 
 export const WithTextValue = (args) => ({
@@ -59,9 +69,9 @@ export const WithTextValue = (args) => ({
       modelValue,
     };
   },
-  template: `<UiNumberStepper 
-    v-model="modelValue" 
-    :min="min" 
+  template: `<UiNumberStepper
+    v-model="modelValue"
+    :min="min"
     :max="max"
     :step="step"
     :has-controls="hasControls"
@@ -69,7 +79,7 @@ export const WithTextValue = (args) => ({
     :icon-decrement-attrs="iconDecrementAttrs"
     :button-increment-attrs="buttonIncrementAttrs"
     :icon-increment-attrs="iconIncrementAttrs"
-    @error="onError"
+    @error:value="onError"
     @update:modelValue="onUpdateModelValue"
   >
     <template #default="{
@@ -115,25 +125,25 @@ export const WithControlsOnMobile = (args) => ({
     :icon-decrement-attrs="iconDecrementAttrs"
     :button-increment-attrs="buttonIncrementAttrs"
     :icon-increment-attrs="iconIncrementAttrs"
-    @error="onError"
+    @error:value="onError"
     @update:modelValue="onUpdateModelValue"
   >
-  <template #default="{
-    change,
-    value,
-    min,
-    max,
-    step,
-  }">
-    <input
-      type="range"
-      :value="value"
-      :min="min"
-      :max="max"
-      class="m-0 mb-6 tablet:m-0 flex-full tablet:flex-1"
-      @input="change(parseInt($event.target.value, 10))"
-    />
-  </template>
+    <template #default="{
+      change,
+      value,
+      min,
+      max,
+      step,
+    }">
+      <input
+        type="range"
+        :value="value"
+        :min="min"
+        :max="max"
+        class="m-0 mb-6 tablet:m-0 flex-full tablet:flex-1"
+        @input="change(parseInt($event.target.value, 10))"
+      />
+    </template>
   </UiNumberStepper>`,
 });
 WithControlsOnMobile.args = {
@@ -174,26 +184,26 @@ export const WithDecrementSlot = (args) => ({
     :icon-decrement-attrs="iconDecrementAttrs"
     :button-increment-attrs="buttonIncrementAttrs"
     :icon-increment-attrs="iconIncrementAttrs"
-    @error="onError"
+    @error:value="onError"
     @update:modelValue="onUpdateModelValue"
   >
     <template #decrement="{
-      decrement, 
+      decrement,
       hasControls,
       isMin,
       attrs,
-      iconDecrementAttrs, 
+      iconDecrementAttrs,
     }">
       <UiButton
         v-if="hasControls"
         v-bind="attrs"
-        class="ui-button--outlined ui-button--circled ui-number-stepper__decrement"
-        :class="{
-          'ui-button--is-disabled': isMin
-        }"
+        :class="[
+          'ui-button--outlined ui-button--circled ui-number-stepper__decrement',
+          { 'ui-button--is-disabled': isMin },
+        ]"
         @click="decrement"
       >
-        <UiIcon 
+        <UiIcon
           v-bind="iconDecrementAttrs"
           class="ui-button__icon"
         />
@@ -224,6 +234,7 @@ export const WithIncrementSlot = (args) => ({
     const modelValue = ref(args.initModelValue);
     return {
       ...args,
+      ...events,
       modelValue,
     };
   },
@@ -237,26 +248,26 @@ export const WithIncrementSlot = (args) => ({
     :icon-decrement-attrs="iconDecrementAttrs"
     :button-increment-attrs="buttonIncrementAttrs"
     :icon-increment-attrs="iconIncrementAttrs"
-    @error="onError"
+    @error:value="onError"
     @update:modelValue="onUpdateModelValue"
   >
     <template #increment="{
-      increment, 
+      increment,
       hasControls,
-      isMax, 
+      isMax,
       attrs,
       iconIncrementAttrs
     }">
       <UiButton
         v-if="hasControls"
         v-bind="attrs"
-        class="ui-button--outlined ui-button--circled ui-number-stepper__increment"
-        :class="{
-          'ui-button--is-disabled': isMax
-        }"
+        :class="[
+          'ui-button--outlined ui-button--circled ui-number-stepper__increment',
+          { 'ui-button--is-disabled': isMax },
+        ]"
         @click="increment"
       >
-        <UiIcon 
+        <UiIcon
           v-bind="iconIncrementAttrs"
           class="ui-button__icon"
         />
@@ -285,6 +296,7 @@ export const WithRange = (args) => ({
     const modelValue = ref(args.initModelValue);
     return {
       ...args,
+      ...events,
       modelValue,
     };
   },
@@ -298,16 +310,16 @@ export const WithRange = (args) => ({
     :icon-decrement-attrs="iconDecrementAttrs"
     :button-increment-attrs="buttonIncrementAttrs"
     :icon-increment-attrs="iconIncrementAttrs"
-    @error="onError"
+    @error:value="onError"
     @update:modelValue="onUpdateModelValue"
   >
-  <template #default="{
-    change,
-    value,
-    min,
-    max,
-    step,
-  }">
+    <template #default="{
+      change,
+      value,
+      min,
+      max,
+      step,
+    }">
       <input
         type="range"
         :value="value"

@@ -99,12 +99,8 @@ export default {
         'zh-hans',
       ],
     },
-    modelValue: {
-      control: false,
-    },
-    invalid: {
-      control: false,
-    },
+    modelValue: { control: false },
+    invalid: { control: false },
     'calendar-open': {
       description: 'Use this event to detect when calendar is open.',
       table: { category: 'events' },
@@ -134,13 +130,23 @@ export default {
     inputYearAttrs: { table: { subcategory: 'Attrs props' } },
     datepickerCalendarAttrs: { table: { subcategory: 'Attrs props' } },
   },
-  decorators: [ () => ({ template: '<div style="min-height: 430px" class="max-w-80"><story /></div>' }) ],
+  decorators: [ () => ({
+    template: `<div class="min-h-115 max-w-80">
+      <story />
+    </div>`,
+  }) ],
+  parameters: {
+    cssProperties: {
+      '--datepicker-dropdown-margin-block': 'var(--datepicker-dropdown-margin-block-start, var(--space-32)) var(--datepicker-dropdown-margin-block-end, 0)',
+      '--datepicker-dropdown-margin-inline': 'var(--datepicker-dropdown-margin-inline-start, var(--space-24)) var(--datepicker-dropdown-margin-inline-end, 0)',
+      '--datepicker-fields-gap': 'var(--space-8)',
+      '--datepicker-group-field-gap': 'var(--space-8)',
+    },
+  },
 };
 
 export const FullConfiguration = (args) => ({
-  components: {
-    UiDatepicker,
-  },
+  components: { UiDatepicker },
   setup() {
     const modelValue = ref(args.initModelValue);
     const invalid = ref(args.initInvalid);
@@ -152,47 +158,49 @@ export const FullConfiguration = (args) => ({
     };
   },
   template: `<UiDatepicker
-      v-model="modelValue"
-      v-model:invalid="invalid"
-      :error="error"
-      :order="order"
-      :touched="touched"
-      :lang="lang"
-      :translation="translation"
-      :min-limit="minLimit"
-      :max-limit="maxLimit"
-      :alert-attrs="alertAttrs"
-      :text-day-attrs="textDayAttrs"
-      :text-month-attrs="textMonthAttrs"
-      :text-year-attrs="textYearAttrs"
-      :input-day-attrs="inputDayAttrs"
-      :input-month-attrs="inputMonthAttrs"
-      :input-year-attrs="inputYearAttrs"
-      :datepicker-calendar-attrs="datepickerCalendarAttrs"
-      @calendar-open="onCalendarOpen"
-      @calendar-select="onCalendarSelect"
-      @update:invalid="onUpdateInvalid"
-      @field-insert="onFieldInsert"
-      @field-error="onFieldError"
-      @field-focus="onFieldFocus"
+    v-model="modelValue"
+    v-model:invalid="invalid"
+    :error="error"
+    :order="order"
+    :touched="touched"
+    :lang="lang"
+    :translation="translation"
+    :min-limit="minLimit"
+    :max-limit="maxLimit"
+    :alert-attrs="alertAttrs"
+    :text-day-attrs="textDayAttrs"
+    :text-month-attrs="textMonthAttrs"
+    :text-year-attrs="textYearAttrs"
+    :input-day-attrs="inputDayAttrs"
+    :input-month-attrs="inputMonthAttrs"
+    :input-year-attrs="inputYearAttrs"
+    :datepicker-calendar-attrs="datepickerCalendarAttrs"
+    @calendar-open="onCalendarOpen"
+    @calendar-select="onCalendarSelect"
+    @update:invalid="onUpdateInvalid"
+    @field-insert="onFieldInsert"
+    @field-error="onFieldError"
+    @field-focus="onFieldFocus"
   />`,
 });
 
-export const NoConfiguration = () => ({
-  components: {
-    UiDatepicker,
-  },
+export const NoConfiguration = (args) => ({
+  components: { UiDatepicker },
   setup() {
-    const modelValue = ref('');
-    const invalid = ref(true);
+    const modelValue = ref(args.initModelValue);
+    const invalid = ref(args.initInvalid);
     return {
       modelValue,
       invalid,
     };
   },
   template: `<UiDatepicker
-      v-model="modelValue"
-      v-model:invalid="invalid"
-      error="Sorry, the date of birth cannot be a future date"
+    v-model="modelValue"
+    v-model:invalid="invalid"
+    error="Sorry, the date of birth cannot be a future date"
   />`,
 });
+NoConfiguration.args = {
+  initModelValue: '',
+  initInvalid: false,
+};

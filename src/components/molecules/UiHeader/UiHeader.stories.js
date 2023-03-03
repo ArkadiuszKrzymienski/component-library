@@ -7,6 +7,7 @@ import { defineAsyncComponent } from 'vue';
 import { actions } from '@storybook/addon-actions';
 import { modifiers } from '@sb/helpers/argTypes';
 import { toMobile } from '../../../styles/exports/breakpoints.module.scss';
+import docs from './UiHeader.mdx';
 
 const events = actions({
   onClickBrandButton: 'click:brand-button',
@@ -49,7 +50,7 @@ export default {
     navigationAttrs: { 'data-testid': 'navigation' },
   },
   argTypes: {
-    modifiers: modifiers({ options: [ 'ui-header--full' ] }),
+    modifiers: modifiers({ options: [ 'ui-header--full-width' ] }),
     logo: {
       description: 'Use this prop to set the logo.',
       control: false,
@@ -85,6 +86,20 @@ export default {
     iconHamburgerAttrs: { table: { subcategory: 'Attrs props' } },
     iconLogoAttrs: { table: { subcategory: 'Attrs props' } },
     navigationAttrs: { table: { subcategory: 'Attrs props' } },
+  },
+  parameters: {
+    docs: { page: docs },
+    cssProperties: {
+      '--header-background': 'var(--color-background-brand)',
+      '--header-padding-block': 'var(--header-padding-block-start, var(--space-20)) var(--header-padding-block-end, var(--space-20))',
+      '--header-padding-inline': 'var(--header-padding-inline-start, var(--space-20)) var(--header-padding-inline-end, var(--space-20))',
+      '--header-margin-block': 'var(--header-margin-block-start, auto) var(--header-margin-block-end, auto)',
+      '--header-margin-inline': 'var(--header-margin-inline-start, auto) var(--header-margin-inline-end, auto)',
+      '--header-max-width': '61.25rem',
+      '--header-gap': 'var(--space-16)',
+      '--header-logo-width': 'fit-content',
+      '--header-logo-height': '1.5rem',
+    },
   },
 };
 
@@ -312,28 +327,21 @@ export const WithCustomBrand = (args) => ({
       logo,
     };
   },
-  template: `<div :style="{
-    '--color-background-brand': '#FFF', 
-    '--color-icon-on-brand': '#1F262C', 
-    '--color-icon-on-brand-hover': '#1F262C',
-    '--color-icon-on-brand-active': '#1F262C',
-    '--color-text-on-brand': '#1F262C',
-    '--color-text-on-brand-hover': '#1F262C', 
-    '--color-text-on-brand-active': '#1F262C'
-  }">
-    <UiHeader
-      :title="title"
-      :logo="logo"
-      :hamburgerMatchMedia="hamburgerMatchMedia"
-      :navigation="navigation"
-      :button-brand-attrs="buttonBrandAttrs"
-      :button-hamburger-attrs="buttonHamburgerAttrs"
-      :icon-hamburger-attrs="iconHamburgerAttrs"
-      :icon-logo-attrs="iconLogoAttrs"
-      :navigation-attrs="navigationAttrs"
-      :class="modifiers"
-      @hamburger:close="onHamburgerClose"
-      @hamburger:open="onHamburgerOpen"
-    />
-  </div>`,
+  template: `<UiHeader
+    :title="title"
+    :logo="logo"
+    :hamburgerMatchMedia="hamburgerMatchMedia"
+    :navigation="navigation"
+    :button-brand-attrs="buttonBrandAttrs"
+    :button-hamburger-attrs="buttonHamburgerAttrs"
+    :icon-hamburger-attrs="iconHamburgerAttrs"
+    :icon-logo-attrs="iconLogoAttrs"
+    :navigation-attrs="navigationAttrs"
+    :class="[
+      'header-custom-brand', 
+      modifiers,
+    ]"
+    @hamburger:close="onHamburgerClose"
+    @hamburger:open="onHamburgerOpen"
+  />`,
 });

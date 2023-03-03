@@ -1,7 +1,9 @@
 import UiIcon from '@/components/atoms/UiIcon/UiIcon.vue';
 import UiText from '@/components/atoms/UiText/UiText.vue';
 import { defineAsyncComponent } from 'vue';
+import './UiIcon.stories.scss';
 import icons from '@/components/atoms/UiIcon/icons.ts';
+import docs from './UiIcon.mdx';
 
 export default {
   title: 'Atoms/Icon',
@@ -12,6 +14,10 @@ export default {
       control: { type: 'select' },
       options: icons,
     },
+  },
+  parameters: {
+    docs: { page: docs },
+    cssProperties: { '--icon-size': 'var(--icon-height, 1.5rem)' },
   },
 };
 
@@ -46,23 +52,43 @@ export const IconAsIllustration = (args) => ({
     return { ...args };
   },
   template: `<UiIcon
-      :icon="icon"
-      style="--icon-size: 15rem;"
+    :icon="icon"
+    class="icon-as-illustration"
   />`,
 });
-IconAsIllustration.args = { icon: 'agreement' };
+IconAsIllustration.args = { icon: 'boy' };
 IconAsIllustration.argTypes = {
   icon: {
     control: { type: 'select' },
     options: [
       'agreement',
+      'agreement-rtl',
       'boy',
+      'boy-rtl',
       'no-internet-illustration',
+      'no-internet-illustration-rtl',
       'podium',
+      'podium-rtl',
+      'lock',
     ],
   },
 };
 
+export const IconAsCustomIllustration = (args) => ({
+  components: { UiIcon },
+  setup() {
+    return { ...args };
+  },
+  template: `<UiIcon
+    :icon="icon"
+    class="icon-as-illustration icon-as-custom-illustration"
+  />`,
+});
+IconAsCustomIllustration.args = { icon: 'boy' };
+IconAsCustomIllustration.argTypes = { icon: { control: false } };
+
+// TODO: add copy to clipboard
+// TODO: group icons by usage (illustration, ui, triage, etc.)
 export const ListOfIcons = () => ({
   components: {
     UiIcon,
@@ -75,17 +101,15 @@ export const ListOfIcons = () => ({
     <div
       v-for="icon in icons"
       :key="icon"
-      class="flex flex-col justify-center items-center"
+      class="grid place-items-center"
     >
-      <div class="flex justify-center items-center h-10">
-        <UiIcon 
-          :icon="icon"
-        />
-      </div>
-      <UiText 
-        class="ui-text--2-compact"
-        style="white-space: nowrap"
-      >{{ icon }}</UiText>
+      <UiIcon
+        :icon="icon"
+        class="place-self-center my-0.5"
+      />
+      <UiText class="ui-text--2-compact whitespace-nowrap">
+        {{ icon }}
+      </UiText>
     </div>
   </div>`,
 });

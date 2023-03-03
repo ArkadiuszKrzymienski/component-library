@@ -33,46 +33,43 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { PropType } from 'vue';
 import UiIcon from '../../atoms/UiIcon/UiIcon.vue';
+import type { IconAttrsProps } from '../../atoms/UiIcon/UiIcon.vue';
 import UiText from '../../atoms/UiText/UiText.vue';
+import type { TextAttrsProps } from '../../atoms/UiText/UiText.vue';
+import type {
+  DefineAttrsProps,
+  IconName,
+} from '../../../types';
 
-export type BasicAlertIcon = 'success' | 'info' | 'warning' | 'error';
-export type AlertType = BasicAlertIcon | 'default';
-export type AlertIcon = `${BasicAlertIcon}-filled` | '';
-const props = defineProps({
+export interface AlertProps {
   /**
    * Use this props to set alert type.
    */
-  type: {
-    type: String as PropType<AlertType>,
-    required: false,
-    default: 'error',
-  },
+  type?: 'success' | 'info' | 'warning' | 'error' | 'default';
   /**
    * Use this props to hide icon.
    */
-  hasIcon: {
-    type: Boolean,
-    default: true,
-  },
+  hasIcon?: boolean;
   /**
    * Use this props to pass attrs for UiIcon
    */
-  iconAlertAttrs: {
-    type: Object,
-    default: () => ({}),
-  },
+  iconAlertAttrs?: IconAttrsProps;
   /**
    * Use this props to pass attrs for message UiText
    */
-  textMessageAttrs: {
-    type: Object,
-    default: () => ({}),
-  },
+  textMessageAttrs?: TextAttrsProps;
+}
+export type AlertAttrsProps = DefineAttrsProps<AlertProps>;
+
+const props = withDefaults(defineProps<AlertProps>(), {
+  type: 'error',
+  hasIcon: true,
+  iconAlertAttrs: () => ({}),
+  textMessageAttrs: () => ({}),
 });
-const rootClassModifier = computed<`ui-alert--${AlertType}`>(() => `ui-alert--${props.type}`);
-const icon = computed<AlertIcon>(() => ((!props.hasIcon || props.type === 'default') ? '' : `${props.type}-filled`));
+const rootClassModifier = computed(() => `ui-alert--${props.type}`);
+const icon = computed<IconName>(() => ((!props.hasIcon || props.type === 'default') ? '' : `${props.type}-filled`));
 const defaultProps = computed(() => ({
   iconAlertAttrs: {
     icon: icon.value,
@@ -92,17 +89,13 @@ const defaultProps = computed(() => ({
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
+  gap: functions.var($element, gap, var(--space-4));
   vertical-align: functions.var($element, vertical-align, top);
 
   &__icon {
     --icon-color: #{functions.var($element + "-icon", color)};
 
     flex: none;
-    margin: functions.var($element + "-icon", margin, 0 var(--space-4) 0 0);
-
-    [dir="rtl"] & {
-      margin: functions.var($element + "-rtl-icon", margin, 0 0 0 var(--space-4));
-    }
   }
 
   &__message {

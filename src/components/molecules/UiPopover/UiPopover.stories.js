@@ -8,6 +8,7 @@ import {
   content,
   modifiers,
 } from '@sb/helpers/argTypes';
+import './UiPopover.stories.scss';
 
 const events = actions({ onClose: 'close' });
 
@@ -33,7 +34,7 @@ export default {
     modifiers: modifiers({
       options: [
         'ui-popover--has-arrow',
-        'ui-popover--has-left-arrow',
+        'ui-popover--has-start-arrow',
         'ui-popover--unrounded',
         'ui-popover--has-mobile',
       ],
@@ -69,6 +70,44 @@ export default {
     buttonCloseAttrs: { table: { subcategory: 'Attrs props' } },
     iconCloseAttrs: { table: { subcategory: 'Attrs props' } },
   },
+  parameters: {
+    cssProperties: {
+      '--popover-border-start-start-radius': 'var(--border-radius-form)',
+      '--popover-border-start-end-radius': 'var(--border-radius-form)',
+      '--popover-border-end-start-radius': 'var(--border-radius-form)',
+      '--popover-border-end-end-radius': 'var(--border-radius-form)',
+      '--popover-transition': 'border-color 150ms ease-in-out',
+      '--popover-background': 'var(--color-background-subtle)',
+      '--popover-box-shadow': 'var(--box-shadow-high)',
+      '--popover-border-block': 'var(--popover-border-block-start, var(--popover-border)) var(--popover-border-block-end, var(--popover-border))',
+      '--popover-border-inline': 'var(--popover-border-inline-start, var(--popover-border)) var(--popover-border-inline-end, var(--popover-border))',
+      '--popover-border-block-style': 'var(--popover-border-block-start-style, solid) var(--popover-border-block-end-style, solid)',
+      '--popover-border-inline-style': 'var(--popover-border-inline-start-style, solid) var(--popover-border-inline-end-style, solid)',
+      '--popover-border-block-color': 'var(--popover-border-block-start-color, var(--color-border-subtle)) var(--popover-border-block-end-color, var(--color-border-subtle))',
+      '--popover-border-inline-color': 'var(--popover-border-inline-start-color, var(--color-border-subtle)) var(--popover-border-inline-end-color, var(--color-border-subtle))',
+      '--popover-border-block-width': 'var(--popover-border-block-start-width, var(--_popover-arrow-border-width)) var(--popover-border-block-end-width, var(--_popover-arrow-border-width))',
+      '--popover-border-inline-width': 'var(--popover-border-inline-start-width, var(--_popover-arrow-border-width)) var(--popover-border-inline-end-width, var(--_popover-arrow-border-width))',
+      '--popover-header-padding-block': 'var(--popover-header-padding-block-start, var(--space-12)) var(--popover-header-padding-block-end, var(--space-12))',
+      '--popover-header-padding-inline': 'var(--popover-header-padding-inline-start, var(--space-16)) var(--popover-header-padding-inline-end, var(--space-16))',
+      '--popover-header-border-start-start-radius': 'inherit',
+      '--popover-header-border-start-end-radius': 'inherit',
+      '--popover-header-border-end-start-radius': '0',
+      '--popover-header-border-end-end-radius': '0',
+      '--popover-content-padding-block': 'var(--popover-content-padding-block-start, var(--space-16)) var(--popover-content-padding-block-end, var(--space-16))',
+      '--popover-content-padding-inline': 'var(--popover-content-padding-inline-start, var(--space-16)) var(--popover-content-padding-inline-end, var(--space-16))',
+      '--popover-content-border-start-start-radius': '0',
+      '--popover-content-border-start-end-radius': '0',
+      '--popover-content-border-end-start-radius': 'inherit',
+      '--popover-content-border-end-end-radius': 'inherit',
+      '--popover-arrow-size': '0.75rem',
+      '--popover-arrow-border-width': '1px',
+      '--popover-header-background': 'var(--color-background-subtle)',
+      '--popover-mobile-border-start-start-radius': '0',
+      '--popover-mobile-border-start-end-radius': '0',
+      '--popover-mobile-border-end-start-radius': '0',
+      '--popover-mobile-border-end-end-radius': '0',
+    },
+  },
 };
 
 const Template = (args) => ({
@@ -87,10 +126,15 @@ const Template = (args) => ({
     :heading-title-attrs="headingTitleAttrs"
     :button-close-attrs="buttonCloseAttrs"
     :icon-close-attrs="iconCloseAttrs"
-    :class="['max-w-80', modifiers]"
+    :class="[ 
+      'popover', 
+      modifiers, 
+    ]"
     @close="onClose"
   >
-    <UiText>{{ content }}</UiText>
+    <UiText>
+      {{ content }}
+    </UiText>
   </UiPopover>`,
 });
 
@@ -100,8 +144,8 @@ export const Common = Template.bind({
 export const HasArrow = Template.bind({});
 HasArrow.args = { modifiers: [ 'ui-popover--has-arrow' ] };
 
-export const HasLeftArrow = Template.bind({});
-HasLeftArrow.args = { modifiers: [ 'ui-popover--has-left-arrow' ] };
+export const HasStartArrow = Template.bind({});
+HasStartArrow.args = { modifiers: [ 'ui-popover--has-start-arrow' ] };
 
 export const Unrounded = Template.bind({});
 Unrounded.args = { modifiers: [ 'ui-popover--unrounded' ] };
@@ -122,11 +166,15 @@ export const AsBottomPanelOnMobile = (args) => ({
     :heading-title-attrs="headingTitleAttrs"
     :button-close-attrs="buttonCloseAttrs"
     :icon-close-attrs="iconCloseAttrs"
-    class="tablet:max-w-80"
-    :class="modifiers"
+    :class="[ 
+      'popover', 
+      modifiers,
+    ]"
     @close="onClose"
   >
-    <UiText>{{content}}</UiText>
+    <UiText>
+      {{ content }}
+    </UiText>
   </UiPopover>`,
 });
 AsBottomPanelOnMobile.args = {
@@ -136,7 +184,11 @@ AsBottomPanelOnMobile.args = {
   ],
 };
 AsBottomPanelOnMobile.parameters = { viewport: { defaultViewport: 'mobile2' } };
-AsBottomPanelOnMobile.decorators = [ () => ({ template: '<div style="min-height: 568px"><story /></div>' }) ];
+AsBottomPanelOnMobile.decorators = [ () => ({
+  template: `<div class="min-h-135">
+    <story />
+  </div>`,
+}) ];
 
 export const AsDropdown = Template.bind({});
 AsDropdown.args = { title: '' };
@@ -158,7 +210,10 @@ export const WithTitleSlot = (args) => ({
     :heading-title-attrs="headingTitleAttrs"
     :button-close-attrs="buttonCloseAttrs"
     :icon-close-attrs="iconCloseAttrs"
-    :class="['tablet:max-w-80', modifiers]"
+    :class="[
+      'popover',
+      modifiers,
+    ]"
     @close="onClose"
   >
     <template #title="{
@@ -171,7 +226,9 @@ export const WithTitleSlot = (args) => ({
         {{ title }}
       </UiHeading>
     </template>
-    <UiText>{{ content }}</UiText>
+    <UiText>
+      {{ content }}
+    </UiText>
   </UiPopover>`,
 });
 
@@ -193,7 +250,10 @@ export const WithCloseSlot = (args) => ({
       :heading-title-attrs="headingTitleAttrs"
       :button-close-attrs="buttonCloseAttrs"
       :icon-close-attrs="iconCloseAttrs"
-      :class="['tablet:max-w-80', modifiers]"
+      :class="[ 
+        'popover', 
+        modifiers,
+      ]"
       @close="onClose"
   >
     <template #close="{
@@ -212,6 +272,8 @@ export const WithCloseSlot = (args) => ({
         />
       </UiButton>
     </template>
-    <UiText>{{ content }}</UiText>
+    <UiText>
+      {{ content }}
+    </UiText>
   </UiPopover>`,
 });

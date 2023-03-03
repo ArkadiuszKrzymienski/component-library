@@ -9,20 +9,34 @@
         v-for="(item, key) in itemsToRender"
         :key="key"
       >
-        <UiListItem v-bind="(item as ListRenderItemWithChildren).listItemAttrs">
+        <UiListItem
+          v-bind="listItemAttrs(item)"
+        >
+          <template
+            v-for="(_, name) in $slots"
+            #[name]="data"
+          >
+            <slot
+              v-bind="data"
+              :name="name"
+            />
+          </template>
           <!-- @slot Use this slot to replace list item content -->
           <slot
             :name="item.name"
             v-bind="{ item }"
           >
-            <UiText>{{ item.text }}</UiText>
-            <template v-if="(item as ListRenderItemWithChildren).children?.items">
-              <component
-                :is="'ui-list'"
-                v-bind="(item as ListRenderItemWithChildren)?.children"
-              />
-            </template>
+            <UiText
+              v-if="item.label"
+            >
+              {{ item.label }}
+            </UiText>
           </slot>
+          <template v-if="item.children?.items">
+            <ui-list
+              v-bind="item.children"
+            />
+          </template>
         </UiListItem>
       </template>
     </slot>
@@ -31,71 +45,54 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { PropType } from 'vue';
+import type { HTMLAttributes } from 'vue';
 import UiListItem from './_internal/UiListItem.vue';
+import type { ListItemAttrsProps } from './_internal/UiListItem.vue';
 import UiText from '../../atoms/UiText/UiText.vue';
-import type { ListTag } from '../../../types/tag';
+import type {
+  DefineAttrsProps,
+  HTMLListTag,
+} from '../../../types';
 
-export type ListChildren = {tag?: ListTag, items?: ListChildren, listAttrs: Record<string, unknown>}
-export interface ListItemAsObj {
+export interface ListRenderItem extends ListItemAttrsProps {
   name: string;
-  children?: ListChildren | ListChildren[];
+  label?: string;
+  // eslint-disable-next-line no-use-before-define
+  children?: ListAttrsProps;
 }
-export type ListItem = string | ListItemAsObj;
-export interface ListRenderItem {
-  name: string;
-  text: string;
-}
-export interface ListRenderItemWithChildren {
-  name: string;
-  text?: string;
-  children?: {
-    tag?: ListTag;
-    items?: ListChildren | ListChildren[];
-  };
-  listItemAttrs?: Record<string, unknown>
-}
-export type ListRender = ListRenderItem | ListRenderItemWithChildren;
-const props = defineProps({
+export type ListItem = string | ListRenderItem;
+export interface ListProps {
   /**
    * Use this props to pass list tag.
    */
-  tag: {
-    type: String as PropType<ListTag>,
-    default: 'ul',
-  },
+  tag?: HTMLListTag;
   /**
    * Use this props to pass list items.
    */
-  items: {
-    type: Array as PropType<ListItem[]>,
-    default: () => ([]),
-  },
+  items?: ListItem[];
+}
+export type ListAttrsProps<HTMLAttrs = HTMLAttributes> = DefineAttrsProps<ListProps, HTMLAttrs>;
+
+const props = withDefaults(defineProps<ListProps>(), {
+  tag: 'ul',
+  items: () => ([]),
 });
-const itemsToRender = computed<ListRender[]>(() => (props.items.map((item, key) => {
+const itemsToRender = computed<ListRenderItem[]>(() => (props.items.map((item, key) => {
   if (typeof item === 'string') {
     return {
       name: `list-item-${key}`,
-      text: item,
+      label: item,
     };
   }
-  const {
-    name, children,
-  } = item;
   return {
     ...item,
-    name: name || `list-item-${key}`,
-    children: Array.isArray(children)
-      ? {
-        tag: props.tag,
-        items: children,
-      }
-      : {
-        items: children?.items,
-        ...(children?.listAttrs || { tag: props.tag }),
-      },
+    name: item.name || `list-item-${key}`,
   };
 })));
+const listItemAttrs = ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  name, label, children, ...rest
+}: ListRenderItem) => rest;
 </script>
 
 <style lang="scss">

@@ -1,24 +1,40 @@
+@use "../functions";
+
 @mixin no-highlight {
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: rgb(0 0 0 / 0%);
   -webkit-tap-highlight-color: transparent;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  user-select: none;
+  user-select: none;
+  user-select: none;
   user-select: none;
 }
 
 @mixin with-focus {
   body:not(.focus-hidden) & {
-    @content
+    @content;
   }
 }
 
 @mixin focus {
   @include with-focus {
     &:focus {
-      @content
+      @content;
     }
   }
 }
 
+@mixin pointer-area ($element, $size, $pseudo-element: before) {
+  position: relative;
+
+  &::#{$pseudo-element} {
+    --_#{element}-pointer-area-size: #{functions.var($element + "-pointer-area", size, $size)};
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: functions.var($element + "-pointer-area", width, var(--_#{element}-pointer-area-size));
+    height: functions.var($element + "-pointer-area", height, var(--_#{element}-pointer-area-size));
+    content: "";
+    transform: translate(-50%, -50%);
+  }
+}

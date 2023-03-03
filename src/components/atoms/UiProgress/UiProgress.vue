@@ -12,29 +12,28 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import type { DefineAttrsProps } from '../../../types';
 
-const props = defineProps({
+export interface ProgressProps {
   /**
    * Use this props to set the progress value.
    */
-  value: {
-    type: Number,
-    default: 0,
-  },
+  value?: number;
   /**
    * Use this props to set the minimum value.
    */
-  min: {
-    type: Number,
-    default: 0,
-  },
+  min?: number;
   /**
    * Use this props to set the maximum value.
    */
-  max: {
-    type: Number,
-    default: 100,
-  },
+  max?: number;
+}
+export type ProgressAttrsProps = DefineAttrsProps<ProgressProps>;
+
+const props = withDefaults(defineProps<ProgressProps>(), {
+  value: 0,
+  min: 0,
+  max: 100,
 });
 const progressValue = computed(() => {
   const progress = (props.value - props.min) / (props.max - props.min);
@@ -50,6 +49,7 @@ const progressValue = computed(() => {
 
 <style lang="scss">
 @use "../../../styles/functions";
+@use "../../../styles/mixins";
 
 .ui-progress {
   $element: progress;
@@ -58,18 +58,20 @@ const progressValue = computed(() => {
   --_progress-padding: #{functions.var($element, padding, calc(var(--_progress-height) * 0.5))};
   --_progress-border-radius: #{functions.var($element, border-radius, calc(var(--_progress-height) * 0.5))};
 
+  @include mixins.use-logical($element, border-radius, var(--_progress-border-radius));
+
   overflow: hidden;
   width: 100%;
   height: var(--_progress-height);
   background: functions.var($element + "track", background, var(--color-progress-track));
-  border-radius: var(--_progress-border-radius);
 
   &__inner {
+    @include mixins.use-logical($element, border-radius, 0);
+
     position: relative;
     width: calc(var(--_progress-value) * 100%);
     height: 100%;
-    background: functions.var($element + "indicator", background, var(--color-progress-indicator));
-    border-radius: 0;
+    background: functions.var($element + "-indicator", background, var(--color-progress-indicator));
 
     &::before,
     &::after {
@@ -77,20 +79,18 @@ const progressValue = computed(() => {
       display: block;
       width: var(--_progress-padding);
       height: 100%;
-      background: functions.var($element + "indicator", background, arg var(--color-progress-indicator));
+      background: functions.var($element + "-indicator", background, var(--color-progress-indicator));
       content: "";
     }
 
     &::before {
-      right: 100%;
-      border-bottom-left-radius: var(--_progress-border-radius);
-      border-top-left-radius: var(--_progress-border-radius);
+      @include mixins.use-logical($element + "-indicator", border-radius, var(--_progress-border-radius) 0);
+      @include mixins.use-logical($element + "-indicator", inset, auto 100% auto auto);
     }
 
     &::after {
-      left: 100%;
-      border-bottom-right-radius: var(--_progress-border-radius);
-      border-top-right-radius: var(--_progress-border-radius);
+      @include mixins.use-logical($element + "-indicator", border-radius, 0 var(--_progress-border-radius));
+      @include mixins.use-logical($element + "-indicator", inset, auto auto auto 100%);
     }
   }
 }

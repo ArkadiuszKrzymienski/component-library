@@ -4,7 +4,9 @@ import UiCheckbox from '../../atoms/UiCheckbox/UiCheckbox.vue';
 import UiRadio from '../../atoms/UiRadio/UiRadio.vue';
 
 describe('UiMultipleAnswer.vue', () => {
-  const choiceErrorClass = '.ui-multiple-answer-item--has-error';
+  const choiceErrorClass = '.ui-list-item--has-error';
+  const checkboxErrorClass = '.ui-checkbox--has-error';
+  const radioErrorClass = '.ui-radio--has-error';
   const items = [
     { label: 'Fatigue' },
     { label: 'Fever' },
@@ -12,8 +14,7 @@ describe('UiMultipleAnswer.vue', () => {
   ];
   describe('Component with Radioses', () => {
     test('renders a component with radio buttons when modelValue is a string', () => {
-      const selected = {
-      };
+      const selected = {};
       const wrapper = mount(UiMultipleAnswer, {
         props: {
           modelValue: selected,
@@ -23,8 +24,7 @@ describe('UiMultipleAnswer.vue', () => {
       expect(wrapper.findComponent(UiRadio).exists()).toBe(true);
     });
     test('renders a component with radio buttons when modelValue is an object', () => {
-      const selected = {
-      };
+      const selected = {};
       const wrapper = mount(UiMultipleAnswer, {
         props: {
           modelValue: selected,
@@ -34,8 +34,7 @@ describe('UiMultipleAnswer.vue', () => {
       expect(wrapper.findComponent(UiRadio).exists()).toBe(true);
     });
     test('renders a component with correct number of radioses', () => {
-      const selected = {
-      };
+      const selected = {};
       const wrapper = mount(UiMultipleAnswer, {
         props: {
           modelValue: selected,
@@ -45,9 +44,7 @@ describe('UiMultipleAnswer.vue', () => {
       expect(wrapper.findAllComponents(UiRadio).length).toBe(items.length);
     });
     test('renders a component and radioses with error styles when invalid and touched prop is true', () => {
-      const radioErrorClass = '.ui-radio--has-error';
-      const selected = {
-      };
+      const selected = {};
       const wrapper = mount(UiMultipleAnswer, {
         props: {
           modelValue: selected,
@@ -62,9 +59,7 @@ describe('UiMultipleAnswer.vue', () => {
       expect(wrapper.findAll(radioErrorClass).length).toBe(items.length);
     });
     test('renders a component and radioses with error styles when invalid prop is false and touched prop is true', () => {
-      const radioErrorClass = '.ui-radio--has-error';
-      const selected = {
-      };
+      const selected = {};
       const wrapper = mount(UiMultipleAnswer, {
         props: {
           modelValue: selected,
@@ -101,9 +96,7 @@ describe('UiMultipleAnswer.vue', () => {
       expect(wrapper.findAllComponents(UiCheckbox).length).toBe(items.length);
     });
     test('renders a component and checkboxes with error styles when invalid and touched prop is true', () => {
-      const radioErrorClass = '.ui-radio--has-error';
-      const selected = {
-      };
+      const selected = [];
       const wrapper = mount(UiMultipleAnswer, {
         props: {
           modelValue: selected,
@@ -113,12 +106,11 @@ describe('UiMultipleAnswer.vue', () => {
         },
       });
       expect(wrapper.find(choiceErrorClass).exists()).toBe(true);
-      expect(wrapper.find(radioErrorClass).exists()).toBe(true);
+      expect(wrapper.find(checkboxErrorClass).exists()).toBe(true);
       expect(wrapper.findAll(choiceErrorClass).length).toBe(items.length);
-      expect(wrapper.findAll(radioErrorClass).length).toBe(items.length);
+      expect(wrapper.findAll(checkboxErrorClass).length).toBe(items.length);
     });
     test('renders a component and checkboxes with error styles when invalid prop is false and touched prop is true', () => {
-      const checkboxErrorClass = '.ui-checkbox--has-error';
       const selected = [];
       const wrapper = mount(UiMultipleAnswer, {
         props: {

@@ -42,55 +42,30 @@
       >
         <!-- @slot Use this slot to replace list-item template.-->
         <slot
-          name="list-item"
           v-bind="{
             value,
             item,
             name,
             hasError,
           }"
+          name="list-item"
         >
-          <!-- @slot Use this slot to replace list-item template. -->
-          <slot
-            name="list-item"
-            v-bind="{
-              component,
-              item,
-              value,
-              name,
-              errorClass,
-              focusExplication,
-              componentName,
-              unfocusExplication
-            }"
+          <UiMultipleAnswerItem
+            v-model="value"
+            v-bind="item"
+            :invalid="hasError"
           >
-            <!-- @slot Use this slot to replace choice template.-->
-            <slot
-              v-bind="{
-                value,
-                item,
-                name,
-                hasError,
-              }"
-              :name="choiceItem && 'choice-item' || 'choice'"
+            <template
+              v-for="(_, slotName) in $slots"
+              #[slotName]="data"
             >
-              <UiMultipleAnswerItem
-                v-model="value"
-                v-bind="item"
-                :name="name"
-                :invalid="hasError"
-                class="ui-multiple-answer__choice"
-              >
-                <template #label="data">
-                  <slot
-                    v-bind="data"
-                    :name="`label-${data.id}`"
-                  />
-                </template>
-              </UiMultipleAnswerItem>
-            </slot>
-          </template>
-        </component>
+              <slot
+                v-bind="data"
+                :name="slotName"
+              />
+            </template>
+          </UiMultipleAnswerItem>
+        </slot>
       </template>
     </UiList>
   </component>
@@ -99,117 +74,95 @@
 <script setup lang="ts">
 import {
   computed,
-  useAttrs,
-  useSlots,
   watch,
+  useAttrs,
 } from 'vue';
-import type { PropType } from 'vue';
-import UiMultipleAnswerItem from './_internal/UiMultipleAnswerItem.vue';
-import UiList from '../UiList/UiList.vue';
-import UiListItem from '../UiList/_internal/UiListItem.vue';
 import UiAlert from '../../molecules/UiAlert/UiAlert.vue';
+import type { AlertAttrsProps } from '../../molecules/UiAlert/UiAlert.vue';
+import UiList from '../UiList/UiList.vue';
+import UiMultipleAnswerItem from './_internal/UiMultipleAnswerItem.vue';
+import type { MultipleAnswerItemAttrsProps } from './_internal/UiMultipleAnswerItem.vue';
+import type {
+  DefineAttrsProps,
+  HTMLTag,
+} from '../../../types';
 
-export interface MultipleAnswerItem {
-  id?: string;
-  label?: string;
-  value?: string | Record<string, unknown>,
-  name?:string, // TODO: remove in 0.6.0
-  buttonInfoAttrs?: Record<string, unknown>,
-  iconInfoAttrs?: Record<string, unknown>,
-  textLabelAttrs?: Record<string, unknown>
-}
-export type MultipleAnswerValue = string | MultipleAnswerItem | MultipleAnswerItem[] | unknown[];
-
-const props = defineProps({
+export type MultipleAnswerModelValue = string | (string | Record<string, unknown>)[];
+export interface MultipleAnswerProps {
   /**
    *  Use this props or v-model to set checked.
    */
-  modelValue: {
-    type: [
-      String,
-      Object,
-      Array,
-    ],
-    default: () => ([]),
-  },
+  modelValue?: MultipleAnswerModelValue;
   /**
-   *  Use this props to set possible choices.
+   *  Use this props to set possible items.
    */
-  items: {
-    type: Array as PropType<MultipleAnswerItem[]>,
-    default: () => ([]),
-  },
+  items?: (string | MultipleAnswerItemAttrsProps)[];
   /**
    *  Use this props to group inputs with name attribute
    */
-  name: {
-    type: String,
-    default: '',
-  },
+  name?: string;
   /**
    * Use this props to set invalid state of component.
    */
-  invalid: {
-    type: Boolean,
-    default: true,
-  },
+  invalid?: boolean;
   /**
    * Use this props to set hint for question.
    */
-  hint: {
-    type: String,
-    default: '',
-  },
+  hint?: string;
   /**
    * Use this props to touch component and show validation errors.
    */
-  touched: {
-    type: Boolean,
-    default: false,
-  },
+  touched?: boolean;
   /**
    * Use this props to pass attrs for hint UiAlert
    */
-  hintAlertAttrs: {
-    type: Object,
-    default: () => ({}),
-  },
+  hintAlertAttrs?: AlertAttrsProps;
   /**
    * Use this props to set multiple answer tag.
    */
-  tag: {
-    type: String,
-    default: 'fieldset',
-  },
+  tag?: HTMLTag;
   /**
    * Use this props to set legend.
    */
-  legend: {
-    type: String,
-    default: '',
-  },
+  legend?: string;
+}
+export type MultipleAnswerAttrsProps = DefineAttrsProps<MultipleAnswerProps>;
+export interface MultipleAnswerEmits {
+  (e:'update:modelValue', value: MultipleAnswerModelValue): void;
+  (e: 'update:invalid', value: boolean): void;
+}
+
+const props = withDefaults(defineProps<MultipleAnswerProps>(), {
+  modelValue: () => ([]),
+  items: () => ([]),
+  name: '',
+  invalid: true,
+  hint: '',
+  touched: false,
+  hintAlertAttrs: () => ({}),
+  tag: 'fieldset',
+  legend: '',
 });
-const emit = defineEmits<{(e:'update:modelValue', value: MultipleAnswerValue): void,
-  (e: 'update:invalid', value: boolean): void
-}>();
-const isCheckbox = computed(() => (Array.isArray(props.modelValue)));
-const valid = computed(() => (isCheckbox.value
-  ? (props.modelValue as string).length > 0
-  : Object.keys(props.modelValue as MultipleAnswerItem).length > 0));
+const emit = defineEmits<MultipleAnswerEmits>();
+const valid = computed(() => (Array.isArray(props.modelValue)
+  ? !!props.modelValue.length
+  : !!Object.keys(props.modelValue).length));
 const hasError = computed(() => (props.touched && !valid.value));
 const hintType = computed<'error'|'default'>(() => (props.touched && props.invalid ? 'error' : 'default'));
 watch(valid, (value) => {
   emit('update:invalid', !value);
 }, { immediate: true });
+const handleValueUpdate = (newValue: MultipleAnswerModelValue) => {
+  emit('update:modelValue', newValue);
+};
 const value = computed({
   get: () => (props.modelValue),
   set: (newValue) => {
-    console.log(newValue);
-    emit('update:modelValue', newValue);
+    handleValueUpdate(newValue);
   },
 });
 const itemsToRender = computed(() => (props.items.map((item) => {
-  if (typeof item === 'string' || typeof item === 'number') {
+  if (typeof item === 'string') {
     return {
       label: item,
       value: item,
@@ -223,24 +176,17 @@ const itemsToRender = computed(() => (props.items.map((item) => {
   }
   // END
   return {
+    value: JSON.parse(JSON.stringify(item)),
+    label: item.name as string,
     ...item,
-    value: item.value || JSON.parse(JSON.stringify(item)),
-    label: item.name || item.label,
   };
 })));
 // TODO: remove in 0.6.0 / BEGIN
 const attrs = useAttrs();
-const choices = computed(() => (attrs.choices as MultipleAnswerItem[]));
+const choices = computed(() => (attrs.choices as MultipleAnswerProps['items']));
 if (choices.value) {
   if (process.env.NODE_ENV === 'development') {
     console.warn('[@infermedica/component-library warn][UiMultipleAnswer]: The `choices` props will be removed in 0.6.0. Please use `items` props instead.');
-  }
-}
-const slots = useSlots();
-const choiceItem = computed(() => (slots['choice-item']));
-if (choiceItem.value) {
-  if (process.env.NODE_ENV === 'development') {
-    console.warn('[@infermedica/component-library warn][UiMultipleAnswer]: The `choice-item` slot will be removed in 0.6.0. Please use `choice` slot instead.');
   }
 }
 // END
@@ -261,26 +207,10 @@ if (choiceItem.value) {
   }
 
   &__hint {
-    padding: functions.var($element + "-hint", padding, 0 var(--space-20) var(--space-12));
+    @include mixins.use-logical($element + "-hint", padding, 0 var(--space-20) var(--space-12));
 
     @include mixins.from-tablet {
-      padding: functions.var($element + "-tablet-hint", padding, 0 0 var(--space-12) 0);
-    }
-  }
-
-  &__list-item {
-    @include mixins.inner-border(
-      $element: multiple-answer-list-item,
-      $color: var(--color-border-divider),
-      $width: 1px 0 0 0
-    );
-
-    --list-item-padding: 0;
-
-    &:last-of-type {
-      &::after {
-        border-width: functions.var($element, border-width, 1px 0);
-      }
+      @include mixins.use-logical($element + "-tablet-hint", padding, 0 0 var(--space-12) 0);
     }
   }
 }

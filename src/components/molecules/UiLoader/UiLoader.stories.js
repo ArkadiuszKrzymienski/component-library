@@ -68,8 +68,8 @@ export default {
     transitionAttrs: { table: { subcategory: 'Attrs props' } },
   },
   decorators: [ () => ({
-    template: `<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 2.5rem">
-        <story />
+    template: `<div class="flex flex-wrap items-center gap-10">
+      <story />
     </div>`,
   }) ],
   parameters: { docs: { page: docs } },
@@ -290,15 +290,18 @@ const SpinnerTemplate = () => ({
     :tag="tag"
     :loader-attrs="loaderAttrs"
     :transition-attrs="transitionAttrs"
-    :style="{
-      width: type === 'skeleton' && '100%',
-    }"
+    :class="[
+      'loading-common',
+      { 'loading-common--is-skeleton': type === 'skeleton' },
+    ]"
   >
-    <UiText>Place the content to be loaded.</UiText>
+    <UiText>
+      Place the content to be loaded.
+    </UiText>
   </UiLoader>`,
 });
 
-const ComponentWithOnMountedEvent = {
+const LoadingPopoverOfflineMessage = {
   components: {
     UiText,
     UiButton,
@@ -310,35 +313,29 @@ const ComponentWithOnMountedEvent = {
     });
   },
   template: `<UiMessage
-      title="No internet connection"
-      illustration="no-internet"
-      :heading-title-attrs="{
-          level: '4',
-        }"
-      class="loading-popover__message"
-      :style="{
-          '--message-flex-direction': 'row-reverse',
-          '--message-tablet-flex-direction': 'row-reverse',
-          '--message-aside-margin': '0 var(--space-12) 0 0',
-          '--message-tablet-aside-margin': '0 var(--space-12) 0 0',
-          '--message-content-align-self': 'flex-start',
-          '--message-illustration-size': '1.5rem',
-        }"
+    title="No internet connection"
+    illustration="no-internet"
+    :heading-title-attrs="{
+        level: '4',
+      }"
+    class="loading-popover__message"
   >
-  <UiText>It seems you’re offline right now. Please check your connection and try again.</UiText>
-  <UiButton
-      class="ui-button--text loading-popover__try-again"
-  >Try again</UiButton>
+    <UiText>
+      It seems you’re offline right now. Please check your connection and try again.
+    </UiText>
+    <UiButton class="ui-button--text loading-popover__try-again">
+      Try again
+    </UiButton>
   </UiMessage>`,
 };
 
 export const IfTransitionType = () => ({
   components: {
     UiLoader,
-    ComponentWithOnMountedEvent,
+    LoadingPopoverOfflineMessage,
   },
   setup() {
-    const isLoading = inject('isLoading');
+    const isLoading = inject('isLoading', true);
     return { isLoading };
   },
   template: `<UiLoader
@@ -348,7 +345,7 @@ export const IfTransitionType = () => ({
       label: 'Loading...',
     }"
   >
-    <ComponentWithOnMountedEvent />
+    <LoadingPopoverOfflineMessage />
   </UiLoader>`,
 });
 IfTransitionType.decorators = [ (story) => ({
@@ -362,24 +359,24 @@ IfTransitionType.decorators = [ (story) => ({
 
     return { isLoading };
   },
-  template: `<div style="flex: 1">
-      <UiSwitch
-        v-model="isLoading"
-        style="margin: 0 0 1rem 0;"
-      >
-        {{ isLoading ? 'on' : 'off' }}
-      </UiSwitch>
-      <story />
-    </div>`,
+  template: `<div class="flex-1">
+    <UiSwitch
+      v-model="isLoading"
+      class="mb-4"
+    >
+      {{ isLoading ? 'on' : 'off' }}
+    </UiSwitch>
+    <story />
+  </div>`,
 }) ];
 
 export const ShowTransitionType = () => ({
   components: {
     UiLoader,
-    ComponentWithOnMountedEvent,
+    LoadingPopoverOfflineMessage,
   },
   setup() {
-    const isLoading = inject('isLoading');
+    const isLoading = inject('isLoading', true);
     return { isLoading };
   },
   template: `<UiLoader
@@ -389,7 +386,7 @@ export const ShowTransitionType = () => ({
       label: 'Loading...',
     }"
   >
-    <ComponentWithOnMountedEvent />
+    <LoadingPopoverOfflineMessage />
   </UiLoader>`,
 });
 ShowTransitionType.decorators = [ (story) => ({
@@ -403,15 +400,15 @@ ShowTransitionType.decorators = [ (story) => ({
 
     return { isLoading };
   },
-  template: `<div style="flex: 1">
-      <UiSwitch
-        v-model="isLoading"
-        style="margin: 0 0 1rem 0;"
-      >
-        {{ isLoading ? 'on' : 'off' }}
-      </UiSwitch>
-      <story />
-    </div>`,
+  template: `<div class="flex-1">
+    <UiSwitch
+      v-model="isLoading"
+      class="mb-4"
+    >
+      {{ isLoading ? 'on' : 'off' }}
+    </UiSwitch>
+    <story />
+  </div>`,
 }) ];
 
 export const OpacityTransitionType = () => ({
@@ -420,7 +417,7 @@ export const OpacityTransitionType = () => ({
     UiButton,
   },
   setup() {
-    const isLoading = inject('isLoading');
+    const isLoading = inject('isLoading', true);
     return { isLoading };
   },
   template: `<UiButton
@@ -447,15 +444,15 @@ OpacityTransitionType.decorators = [ (story) => ({
     provide('isLoading', isLoading);
     return { isLoading };
   },
-  template: `<div style="flex: 1">
-      <UiSwitch
-        v-model="isLoading"
-        style="margin: 0 0 1rem 0;"
-      >
-        {{ isLoading ? 'on' : 'off' }}
-      </UiSwitch>
-      <story />
-    </div>`,
+  template: `<div class="flex-1">
+    <UiSwitch
+      v-model="isLoading"
+      class="mb-4"
+    >
+      {{ isLoading ? 'on' : 'off' }}
+    </UiSwitch>
+    <story />
+  </div>`,
 }) ];
 
 const SpinnerTemplate = () => ({
@@ -463,7 +460,9 @@ const SpinnerTemplate = () => ({
     UiLoader,
     UiText,
   },
-  template: `<UiText tag="span">Large:</UiText>
+  template: `<UiText tag="span">
+    Large:
+  </UiText>
   <UiLoader
     :isLoading="true"
     type="spinner"
@@ -479,7 +478,9 @@ const SpinnerTemplate = () => ({
   >
     <!-- Place the content to be loaded. -->
   </UiLoader>
-  <UiText tag="span">Small:</UiText>
+  <UiText tag="span">
+    Small:
+  </UiText>
   <UiLoader
     :isLoading="true"
     type="spinner"
@@ -505,7 +506,7 @@ const SpinnerTemplate = () => ({
 export const SpinnerLoaderOnBrand = SpinnerTemplate.bind({});
 SpinnerLoaderOnBrand.parameters = { backgrounds: { default: 'brand' } };
 SpinnerLoaderOnBrand.decorators = [ () => ({
-  template: `<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 2.5rem" class="--theme-brand">
+  template: `<div class="flex flex-wrap items-center gap-10 --theme-brand">
     <story />
   </div>`,
 }) ];
@@ -515,8 +516,13 @@ export const SkeletonLoader = () => ({
     UiLoader,
     UiText,
   },
-  template: `<UiText tag="span">Common:</UiText>
-  <div style="min-width: 20rem">
+  template: `<UiText
+    tag="span"
+    class="self-start"
+  >
+    Common:
+  </UiText>
+  <div class="min-w-80 self-start">
     <UiLoader
       :isLoading="true"
       type="skeleton"
@@ -524,8 +530,13 @@ export const SkeletonLoader = () => ({
       <!-- Place the content to be loaded. -->
     </UiLoader>
   </div>
-  <UiText tag="span">Question:</UiText>
-  <div style="min-width: 20rem">
+  <UiText
+    tag="span"
+    class="self-start"
+  >
+    Question:
+  </UiText>
+  <div class="min-w-80 self-start">
     <UiLoader
       :isLoading="true"
       type="skeleton"
@@ -545,14 +556,16 @@ export const LoadingButton = (args) => ({
     UiText,
   },
   setup() {
-    const isLoading = inject('isLoading');
+    const isLoading = inject('isLoading', true);
     return {
       ...args,
       isLoading,
     };
   },
-  template: `<UiText tag="span">Contained:</UiText>
-  <UiButton>
+  template: `<UiText tag="span">
+    Contained:
+  </UiText>
+  <UiButton class="loading-button">
     <UiLoader
       :isLoading="isLoading"
       type="ellipsis"
@@ -561,11 +574,10 @@ export const LoadingButton = (args) => ({
       <span>Label</span>
     </UiLoader>
   </UiButton>
-  <UiText tag="span">Outlined:</UiText>
-  <UiButton
-    class="ui-button--outlined"
-    style="--loader-ellipsis-dot-background: var(--color-icon-primary);"
-  >
+  <UiText tag="span">
+    Outlined:
+  </UiText>
+  <UiButton class="ui-button--outlined loading-button loading-button--is-outlined">
     <UiLoader
       :isLoading="isLoading"
       type="ellipsis"
@@ -574,11 +586,10 @@ export const LoadingButton = (args) => ({
       <span>Label</span>
     </UiLoader>
   </UiButton>
-  <UiText tag="span">Without transition:</UiText>
-  <UiButton
-    class="ui-button--outlined"
-    style="--loader-ellipsis-dot-background: var(--color-icon-primary);"
-  >
+  <UiText tag="span">
+    Without transition:
+  </UiText>
+  <UiButton class="ui-button--outlined loading-button loading-button--is-outlined">
     <UiLoader
       :isLoading="isLoading"
       type="ellipsis"
@@ -594,12 +605,10 @@ export const LoadingPopover = () => ({
   components: {
     UiLoader,
     UiPopover,
-    UiText,
-    UiMessage,
-    UiButton,
+    LoadingPopoverOfflineMessage,
   },
   setup() {
-    const isLoading = inject('isLoading');
+    const isLoading = inject('isLoading', true);
     return { isLoading };
   },
   template: `<UiPopover
@@ -616,27 +625,7 @@ export const LoadingPopover = () => ({
         type: 'common'
       }"
     >
-      <UiMessage
-        title="No internet connection"
-        illustration="no-internet"
-        :heading-title-attrs="{
-          level: '4',
-        }"
-        class="loading-popover__message"
-        :style="{
-          '--message-flex-direction': 'row-reverse',
-          '--message-tablet-flex-direction': 'row-reverse',
-          '--message-aside-margin': '0 var(--space-12) 0 0',
-          '--message-tablet-aside-margin': '0 var(--space-12) 0 0',
-          '--message-content-align-self': 'flex-start',
-          '--message-illustration-size': '1.5rem',
-        }"
-      >
-        <UiText>It seems you’re offline right now. Please check your connection and try again.</UiText>
-        <UiButton
-            class="ui-button--text loading-popover__try-again"
-        >Try again</UiButton>
-      </UiMessage>
+      <LoadingPopoverOfflineMessage/>
     </UiLoader>
   </UiPopover>`,
 });
@@ -651,15 +640,15 @@ LoadingPopover.decorators = [ (story) => ({
 
     return { isLoading };
   },
-  template: `<div style="flex: 1">
-      <UiSwitch
-        v-model="isLoading"
-        style="margin: 0 0 1rem 0;"
-      >
-        {{ isLoading ? 'on' : 'off' }}
-      </UiSwitch>
-      <story />
-    </div>`,
+  template: `<div class="flex-1">
+    <UiSwitch
+      v-model="isLoading"
+      class="mb-4"
+    >
+      {{ isLoading ? 'on' : 'off' }}
+    </UiSwitch>
+    <story />
+  </div>`,
 }) ];
 
 export const LoadingContainer = (args) => ({
@@ -671,24 +660,33 @@ export const LoadingContainer = (args) => ({
     UiAccordion,
   },
   setup() {
-    const isLoading = inject('isLoading');
+    const isLoading = inject('isLoading', true);
     return {
       ...args,
       isLoading,
     };
   },
-  template: `<UiContainer style="max-width: 48.75rem; width: 100%; --container-padding: var(--space-40) var(--space-48)">
+  template: `<UiContainer class="loading-container">
     <UiLoader
       :isLoading="isLoading"
       type="skeleton"
       :loaderAttrs="{ type: 'common'}"
       :transitionAttrs="transitionAttrs"
     >
-      <UiHeading level="2">Lab tests</UiHeading>
-      <UiHeading level="4" style="margin: var(--space-16) 0 0 0">Recommended</UiHeading>
-      <UiText style="margin: var(--space-4) 0 0 0">Lab tests recommended in further diagnostic process.</UiText>
+      <UiHeading level="2">
+        Lab tests
+      </UiHeading>
+      <UiHeading
+        level="4"
+        class="loading-container__recommended"
+      >
+        Recommended
+      </UiHeading>
+      <UiText class="loading-container__description">
+        Lab tests recommended in further diagnostic process.
+      </UiText>
       <UiAccordion
-        style="margin: var(--space-24) 0 0  0"
+        class="loading-container__accordion"
         :items="['Morphology', 'Rheumatology blood tests panel', 'Inflammation panel']"/>
     </UiLoader>
   </UiContainer>`,
@@ -704,27 +702,25 @@ LoadingContainer.decorators = [ (story) => ({
 
     return { isLoading };
   },
-  template: `<div style="flex: 1">
+  template: `<div class="flex-1">
     <UiSwitch
-        v-model="isLoading"
-        style="margin: 0 0 1rem 0;"
+      v-model="isLoading"
+      class="mb-4"
     >
       {{ isLoading ? 'on' : 'off' }}
     </UiSwitch>
     <story />
-    </div>`,
+  </div>`,
 }) ];
 
 export const LoadingSidePanel = () => ({
   components: {
     UiLoader,
     UiSidePanel,
-    UiText,
-    UiMessage,
-    UiButton,
+    LoadingPopoverOfflineMessage,
   },
   setup() {
-    const isLoading = inject('isLoading');
+    const isLoading = inject('isLoading', true);
     return { isLoading };
   },
   template: `<UiSidePanel
@@ -741,29 +737,9 @@ export const LoadingSidePanel = () => ({
       :loaderAttrs="{
         type: 'common'
       }"
-      style="padding: var(--space-16);"
+      class="loading-side-panel__loader"
     >
-      <UiMessage
-          title="No internet connection"
-          illustration="no-internet"
-          :heading-title-attrs="{
-          level: '4',
-        }"
-          class="loading-side-panel__message"
-          :style="{
-          '--message-flex-direction': 'row-reverse',
-          '--message-tablet-flex-direction': 'row-reverse',
-          '--message-aside-margin': '0 var(--space-12) 0 0',
-          '--message-tablet-aside-margin': '0 var(--space-12) 0 0',
-          '--message-content-align-self': 'flex-start',
-          '--message-illustration-size': '1.5rem',
-        }"
-      >
-        <UiText>It seems you’re offline right now. Please check your connection and try again.</UiText>
-        <UiButton
-            class="ui-button--text loading-side-panel__try-again"
-        >Try again</UiButton>
-      </UiMessage>
+      <LoadingPopoverOfflineMessage/>
     </UiLoader>
   </UiSidePanel>`,
 });
@@ -778,15 +754,15 @@ LoadingSidePanel.decorators = [ (story) => ({
 
     return { isLoading };
   },
-  template: `<div style="flex: 1; min-height: 480px;">
+  template: `<div class="flex-1 min-h-135">
     <UiSwitch
-        v-model="isLoading"
-        style="position: relative; z-index: 1; margin: 0 0 1rem 0;"
+      v-model="isLoading"
+      class="relative z-10 mb-4"
     >
       {{ isLoading ? 'on' : 'off' }}
     </UiSwitch>
     <story />
-    </div>`,
+  </div>`,
 }) ];
 
 export const LoadingControls = () => ({
@@ -798,7 +774,7 @@ export const LoadingControls = () => ({
     UiButton,
   },
   setup() {
-    const isLoading = inject('isLoading');
+    const isLoading = inject('isLoading', true);
     const items = [
       {
         value: 'present',
@@ -822,16 +798,16 @@ export const LoadingControls = () => ({
     };
   },
   template: `<UiControls
-      to-next="#"
-      to-back="#"
-      :invalid="false"
-      style="max-width: 48.75rem; width: 100%;"
+    to-next="#"
+    to-back="#"
+    :invalid="false"
+    class="loading-controls"
   >
     <UiLoader
       :isLoading="isLoading"
       type="skeleton"
       :loader-attrs="{ type: 'question'}"
-      style="width: 100%"
+      class="loading-controls__loader"
     >
       <UiQuestion
         title="Do you have a sore throat?"
@@ -843,10 +819,10 @@ export const LoadingControls = () => ({
           },
         }"
       >
-      <UiSimpleQuestion
-        model-value=""
-        :items="items"
-      />
+        <UiSimpleQuestion
+          model-value=""
+          :items="items"
+        />
       </UiQuestion>
     </UiLoader>
     <template #next>
@@ -874,15 +850,15 @@ LoadingControls.decorators = [ (story) => ({
 
     return { isLoading };
   },
-  template: `<div style="flex: 1">
+  template: `<div class="flex-1">
     <UiSwitch
-        v-model="isLoading"
-        style="margin: 0 0 1rem 0;"
+      v-model="isLoading"
+      class="mb-4"
     >
       {{ isLoading ? 'on' : 'off' }}
     </UiSwitch>
     <story />
-    </div>`,
+  </div>`,
 }) ];
 
 export const LoadingFullOnBrand = () => ({
@@ -900,14 +876,14 @@ export const LoadingFullOnBrand = () => ({
       label: 'Loading...',
       class: 'ui-loader-spinner--on-dark'
     }"
-    class="ui-loader--theme-brand"
-    style="position: absolute; inset: 0; background: var(--color-background-brand)"
+    class="loading-full-on-brand ui-loader--theme-brand"
   >
     <!-- Place the content to be loaded. -->
   </UiLoader>`,
 });
+LoadingFullOnBrand.parameters = { backgrounds: { default: 'brand' } };
 LoadingFullOnBrand.decorators = [ () => ({
-  template: `<div style="flex: 1; min-height: 480px;">
+  template: `<div class="flex-1 min-h-135">
     <story />
   </div>`,
 }) ];

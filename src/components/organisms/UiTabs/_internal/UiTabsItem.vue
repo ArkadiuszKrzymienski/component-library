@@ -36,7 +36,7 @@
             :aria-controls="id"
             v-bind="buttonTabAttrs"
             class="ui-button--text ui-tabs-item__tab-button"
-            @click="handleTabActive($event, id)"
+            @click="handleTabActive(id)"
           >
             {{ title }}
           </UiButton>
@@ -73,55 +73,60 @@ import {
   onMounted,
   inject,
   useAttrs,
+  watch,
 } from 'vue';
 import type { Ref } from 'vue';
 import { uid } from 'uid/single';
 import UiButton from '../../../atoms/UiButton/UiButton.vue';
-import type { PropsAttrs } from '../../../../types/attrs';
+import type {
+  TabsHandleTabActive,
+  TabsSetActiveElement,
+} from '../UiTabs.vue';
+import type { ButtonAttrsProps } from '../../../atoms/UiButton/UiButton.vue';
+import type { DefineAttrsProps } from '../../../../types';
 
-const props = defineProps({
+export interface TabsItemProps {
   /**
    * Use this props to set item title.
    */
-  title: {
-    type: String,
-    default: '',
-  },
+  title?: string;
   /**
    * Use this props to set item name, it used to toggle.
    */
-  name: {
-    type: String,
-    default: '',
-  },
+  name?: string;
   /**
    * Use this props to pass attrs for toggle UiButton.
    */
-  buttonTabAttrs: {
-    type: Object as PropsAttrs,
-    default: () => ({
-    }),
-  },
+  buttonTabAttrs?: ButtonAttrsProps;
   /**
    * Use this props to pass attrs for content element.
    */
-  contentAttrs: {
-    type: Object,
-    default: () => ({
-    }),
-  },
+  contentAttrs?: DefineAttrsProps<null>,
+}
+export type TabsItemAttrsProps = DefineAttrsProps<TabsItemProps>;
+
+const props = withDefaults(defineProps<TabsItemProps>(), {
+  title: '',
+  name: '',
+  buttonTabAttrs: () => ({}),
+  contentAttrs: () => ({}),
 });
-const attrs = useAttrs() as {id: string};
-const activeTab = inject('activeTab') as Ref<string>;
+const attrs: TabsItemAttrsProps = useAttrs();
+const activeTab = inject<Ref<string>>('activeTab', ref(''));
 const hasActiveTab = computed(() => (!!activeTab.value));
-
 const id = computed(() => (props.name || attrs.id || `tab-${uid()}`));
-const isActive = computed(() => (id.value === activeTab.value));
-const handleTabActive = inject('handleTabActive') as (event: Event, name: string) => void;
-
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const setActiveHTMLElement = inject<TabsSetActiveElement>('setActiveHTMLElement', () => {});
 const tab = ref<HTMLElement | null>(null);
-const setActiveHTMLElement = inject('setActiveHTMLElement') as (element: HTMLElement | null) => void;
-onMounted(async () => {
+const isActive = computed(() => (id.value === activeTab.value));
+watch(() => isActive.value, (value) => {
+  if (value) {
+    setActiveHTMLElement(tab.value);
+  }
+});
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const handleTabActive = inject<TabsHandleTabActive>('handleTabActive', () => {});
+onMounted(() => {
   if (isActive.value) {
     setActiveHTMLElement(tab.value);
     return;
@@ -135,6 +140,7 @@ onMounted(async () => {
 
 <style lang="scss">
 @use "../../../../styles/functions";
+@use "../../../../styles/mixins";
 
 .ui-tabs-item {
   $this: &;
@@ -143,13 +149,10 @@ onMounted(async () => {
   display: contents;
 
   &__tab {
-    flex: functions.var($element + "-tab", flex, 0 0 auto);
-    padding: functions.var($element + "-tab", padding, var(--space-16) 0);
-    margin: functions.var($element + "-tab", margin, 0 var(--space-24) 0 0);
+    @include mixins.use-logical($element + "-tab", padding, var(--space-16) 0);
+    @include mixins.use-logical($element + "-tab", margin, 0 var(--space-24) 0 0);
 
-    [dir="rtl"] & {
-      margin: functions.var($element + "-rtl-tab", margin, 0 0 0 var(--space-24));
-    }
+    flex: functions.var($element + "-tab", flex, 0 0 auto);
 
     #{$this}:first-of-type & {
       position: relative;
@@ -173,7 +176,7 @@ onMounted(async () => {
     }
 
     #{$this}:last-of-type & {
-      margin: functions.var($element + "-tab", margin, 0);
+      @include mixins.use-logical($element + "-tab", margin, 0);
     }
   }
 
@@ -198,19 +201,22 @@ onMounted(async () => {
   }
 
   &__content {
+    @include mixins.use-logical($element + "-content", padding, var(--space-16) var(--space-20));
+    @include mixins.use-logical($element + "-content", margin, 0 calc(var(--space-20) * -1));
+
     position: relative;
     flex: 0 0 100%;
     order: 1;
-    padding: functions.var($element + "-content", padding, var(--space-16) var(--space-20));
-    margin: functions.var($element + "-content", margin, 0 calc(var(--space-20) * -1));
 
     &::before {
+      @include mixins.use-logical($element + "-content", border-style, solid);
+      @include mixins.use-logical($element + "-content", border-color, var(--color-border-divider));
+      @include mixins.use-logical($element + "-content", border-width, 1px 0 0);
+
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
-      border: solid functions.var($element + "-content", border-color, var(--color-border-divider));
-      border-width: functions.var($element + "-content", border-width, 1px 0 0);
       content: "";
     }
   }

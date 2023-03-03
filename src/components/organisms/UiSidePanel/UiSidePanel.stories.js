@@ -20,6 +20,7 @@ import {
   scrollTabindex,
   keyboardFocus,
 } from '@/utilities/directives';
+import './UiSidePanel.stories.scss';
 
 const events = actions({
   onUpdateModelValue: 'update:modelValue',
@@ -118,26 +119,102 @@ export default {
         title: args.title,
       };
     },
-    template: `<div class="max-w-32" style="min-height: 320px;">
+    template: `<div class="max-w-32 min-h-80">
       <UiButton
         class="ui-button--text ui-button--theme-secondary"
         @click="toggleSidePanel"
-      >{{ title }}</UiButton>
+      >
+        {{ title }}
+      </UiButton>
       <story/>
     </div>`,
   }) ],
-  parameters: { docs: { description: { component: 'SidePanel use `v-body-scroll-lock`. Only works on Canvas mode.' } } },
+  parameters: {
+    docs: { description: { component: 'SidePanel use `v-body-scroll-lock`. Only works on Canvas mode.' } },
+    cssProperties: {
+      '--side-panel-max-width': '100%',
+      '--side-panel-background': 'var(--color-background-white)',
+      '--side-panel-box-shadow': 'var(--box-shadow-high)',
+      '--side-panel-tablet-max-width': '40rem',
+      '--side-panel-header-padding-block': 'var(--side-panel-header-padding-block-start, var(--space-20)) var(--side-panel-header-padding-block-end, var(--space-24))',
+      '--side-panel-header-padding-inline': 'var(--side-panel-header-padding-inline-start, var(--space-20)) var(--side-panel-header-padding-inline-end, var(--space-20))',
+      '--side-panel-header-background': 'var(--color-background-subtle)',
+      '--side-panel-header-gap': 'var(--space-32)',
+      '--side-panel-tablet-header-padding-block': 'var(--side-panel-tablet-header-padding-block-start, var(--space-40)) var(--side-panel-tablet-header-padding-block-end, var(--space-32))',
+      '--side-panel-tablet-header-padding-inline': 'var(--side-panel-tablet-header-padding-inline-start, var(--space-40)) var(--side-panel-tablet-header-padding-inline-end, var(--space-40))',
+      '--side-panel-label-padding-block': 'var(--side-panel-label-padding-block-start, 0) var(--side-panel-label-padding-block-end, 0)',
+      '--side-panel-label-padding-inline': 'var(--side-panel-label-padding-inline-start, 0) var(--side-panel-label-padding-inline-end, 0)',
+      '--side-panel-tablet-label-padding-block': 'var(--side-panel-tablet-label-padding-block-start, 0) var(--side-panel-tablet-label-padding-block-end, 0)',
+      '--side-panel-tablet-label-padding-inline': 'var(--side-panel-tablet-label-padding-inline-start, var(--space-8)) var(--side-panel-tablet-label-padding-inline-end, var(--space-8))',
+      '--side-panel-subtitle-margin-block': 'var(--side-panel-subtitle-margin-block-start, var(--space-8)) var(--side-panel-subtitle-margin-block-end, 0)',
+      '--side-panel-subtitle-margin-inline': 'var(--side-panel-subtitle-margin-inline-start, 0) var(--side-panel-subtitle-margin-inline-end, 0)',
+      '--side-panel-content-padding-block': 'var(--side-panel-content-padding-block-start, var(--space-24)) var(--side-panel-content-padding-block-end, var(--space-24))',
+      '--side-panel-content-padding-inline': 'var(--side-panel-content-padding-inline-start, var(--space-20)) var(--side-panel-content-padding-inline-end, var(--space-20))',
+      '--side-panel-tablet-content-padding-block': 'var(--side-panel-tablet-content-padding-block-start, var(--space-32)) var(--side-panel-tablet-content-padding-block-end, var(--space-32))',
+      '--side-panel-tablet-content-padding-inline': 'var(--side-panel-tablet-content-padding-inline-start, var(--space-48)) var(--side-panel-tablet-content-padding-inline-end, var(--space-48))',
+    },
+  },
 };
-
+const TOS = {
+  components: {
+    UiBulletPoints,
+    UiBulletPointsItem,
+    UiLink,
+  },
+  template: `<UiBulletPoints 
+    tag="ol"
+    class="tos"
+  >
+    <UiBulletPointsItem>
+      These Terms of Service specify:
+      <UiBulletPoints
+        tag="ol"
+        type="a"
+        class="ui-bullet-points--nested tos__sub-points"
+      >
+        <UiBulletPointsItem>
+          principles of operation of the website and the mobile application "<UiLink href="#">Triage.com</UiLink>",
+        </UiBulletPointsItem>
+        <UiBulletPointsItem>
+          rules on the provision of services by electronic means,
+        </UiBulletPointsItem>
+        <UiBulletPointsItem>
+          the rights and obligations of the Service Provider and the Service Recipients.
+        </UiBulletPointsItem>
+      </UiBulletPoints>
+    </UiBulletPointsItem>
+    <UiBulletPointsItem>
+      Whenever these Terms of Service refer to:
+      <UiBulletPoints
+        tag="ol"
+        type="a"
+        class="ui-bullet-points--nested tos__sub-points"
+      >
+        <UiBulletPointsItem>
+          Application, this means the software for portable devices, made available free of charge by the Service Provider referred to in sec. 2(l) below, enabling the use of the Services referred to in sec. 2(k) below,
+        </UiBulletPointsItem>
+        <UiBulletPointsItem>
+          Articles, this means articles referring to medical and pharmaceutical topics,
+        </UiBulletPointsItem>
+        <UiBulletPointsItem>
+          License, this means a non-exclusive, royalty-free license granted to Users referred to in sec. 2(m) below to use the Application or Website referred to in sec. 2(j) below,
+        </UiBulletPointsItem>
+        <UiBulletPointsItem>
+          Terms of Service, this means these Terms of Service,
+        </UiBulletPointsItem>
+        <UiBulletPointsItem>
+          GDPR, this means Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 on the protection of individuals with regard to the processing of personal data and on the free movement of such data and repealing Directive 95/46/EC (General Data Protection Regulation) (OJ L 119, p. 1),
+        </UiBulletPointsItem>
+      </UiBulletPoints>
+    </UiBulletPointsItem>
+  </UiBulletPoints>`,
+};
 const Template = (args) => ({
   components: {
     UiSidePanel,
     UiButton,
     UiHeading,
-    UiBulletPoints,
-    UiBulletPointsItem,
-    UiText,
-    UiLink,
+    TOS,
   },
   setup() {
     const modelValue = inject('modelValue');
@@ -163,49 +240,10 @@ const Template = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @after-enter="onAfterEnter"
   >
-    <UiHeading>§1. General Provisions</UiHeading>
-    <UiBulletPoints tag="ol">
-      <UiBulletPointsItem style="margin: var(--space-32) 0">
-        <UiText>These Terms of Service specify:</UiText>
-        <UiBulletPoints
-          tag="ol"
-          type="a"
-        >
-          <UiBulletPointsItem>
-            <UiText>principles of operation of the website and the mobile application "<UiLink href="#">Triage.com</UiLink>",</UiText>
-          </UiBulletPointsItem>
-          <UiBulletPointsItem>
-            <UiText>rules on the provision of services by electronic means,</UiText>
-          </UiBulletPointsItem>
-          <UiBulletPointsItem>
-            <UiText>the rights and obligations of the Service Provider and the Service Recipients.</UiText>
-          </UiBulletPointsItem>
-        </UiBulletPoints>
-      </UiBulletPointsItem>
-      <UiBulletPointsItem style="margin: var(--space-32) 0">
-        <UiText>Whenever these Terms of Service refer to:</UiText>
-        <UiBulletPoints
-          tag="ol"
-          type="a"
-        >
-          <UiBulletPointsItem>
-            <UiText>Application, this means the software for portable devices, made available free of charge by the Service Provider referred to in sec. 2(l) below, enabling the use of the Services referred to in sec. 2(k) below,</UiText>
-          </UiBulletPointsItem>
-          <UiBulletPointsItem>
-            <UiText>Articles, this means articles referring to medical and pharmaceutical topics,</UiText>
-          </UiBulletPointsItem>
-          <UiBulletPointsItem>
-            <UiText>License, this means a non-exclusive, royalty-free license granted to Users referred to in sec. 2(m) below to use the Application or Website referred to in sec. 2(j) below,</UiText>
-          </UiBulletPointsItem>
-          <UiBulletPointsItem>
-            <UiText>Terms of Service, this means these Terms of Service,</UiText>
-          </UiBulletPointsItem>
-          <UiBulletPointsItem>
-            <UiText>GDPR, this means Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 on the protection of individuals with regard to the processing of personal data and on the free movement of such data and repealing Directive 95/46/EC (General Data Protection Regulation) (OJ L 119, p. 1),</UiText>
-          </UiBulletPointsItem>
-        </UiBulletPoints>
-      </UiBulletPointsItem>
-    </UiBulletPoints>
+    <UiHeading>
+      §1. General Provisions
+    </UiHeading>
+    <TOS/>
   </UiSidePanel>`,
 });
 
@@ -247,14 +285,12 @@ export const WithBackdropSlot = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @after-enter="onAfterEnter"
   >
-    <template
-      #backdrop="{
-        transitionBackdropAttrs,
-        modelValue,
-        backdropAttrs,
-        closeHandler,
-      }"
-    >
+    <template #backdrop="{
+      transitionBackdropAttrs,
+      modelValue,
+      backdropAttrs,
+      closeHandler,
+    }">
       <transition v-bind="transitionBackdropAttrs">
         <UiBackdrop
           v-if="modelValue"
@@ -263,7 +299,9 @@ export const WithBackdropSlot = (args) => ({
         />
       </transition>
     </template>
-    <UiText>Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:</UiText>
+    <UiText>
+      Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:
+    </UiText>
   </UiSidePanel>`,
 });
 
@@ -303,21 +341,19 @@ export const WithContainerSlot = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @after-enter="onAfterEnter"
   >
-    <template
-      #container="{
-        transitionDialogAttrs,
-        modelValue,
-        afterEnterHandler,
-        buttonCloseAttrs,
-        closeHandler,
-        title,
-        subtitle,
-        iconCloseAttrs,
-        headingTitleAttrs,
-        textSubtitleAttrs,
-        dialogAttrs,
-      }"
-    >
+    <template #container="{
+      transitionDialogAttrs,
+      modelValue,
+      afterEnterHandler,
+      buttonCloseAttrs,
+      closeHandler,
+      title,
+      subtitle,
+      iconCloseAttrs,
+      headingTitleAttrs,
+      textSubtitleAttrs,
+      dialogAttrs,
+    }">
       <transition
         v-bind="transitionDialogAttrs"
       >
@@ -363,7 +399,9 @@ export const WithContainerSlot = (args) => ({
           <div
             class="ui-side-panel__content"
           >
-            <UiText>Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:</UiText>
+            <UiText>
+              Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:
+            </UiText>
           </div>
         </dialog>
       </transition>
@@ -403,17 +441,15 @@ export const WithHeaderSlot = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @after-enter="onAfterEnter"
   >
-    <template
-      #header="{
-        buttonCloseAttrs,
-        closeHandler,
-        title,
-        subtitle,
-        headingTitleAttrs,
-        textSubtitleAttrs,
-        iconCloseAttrs,
-      }"
-    >
+    <template #header="{
+      buttonCloseAttrs,
+      closeHandler,
+      title,
+      subtitle,
+      headingTitleAttrs,
+      textSubtitleAttrs,
+      iconCloseAttrs,
+    }">
       <div class="ui-side-panel__header">
         <UiButton
           v-bind="buttonCloseAttrs"
@@ -446,7 +482,9 @@ export const WithHeaderSlot = (args) => ({
         </div>
       </div>
     </template>
-    <UiText>Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:</UiText>
+    <UiText>
+      Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:
+    </UiText>
   </UiSidePanel>`,
 });
 
@@ -482,13 +520,11 @@ export const WithCloseSlot = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @after-enter="onAfterEnter"
   >
-    <template
-      #close="{
-        buttonCloseAttrs,
-        closeHandler,
-        iconCloseAttrs,
-      }"
-    >
+    <template #close="{
+      buttonCloseAttrs,
+      closeHandler,
+      iconCloseAttrs,
+    }">
       <UiButton
         v-bind="buttonCloseAttrs"
         ref="button"
@@ -501,7 +537,9 @@ export const WithCloseSlot = (args) => ({
         />
       </UiButton>
     </template>
-    <UiText>Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:</UiText>
+    <UiText>
+      Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:
+    </UiText>
   </UiSidePanel>`,
 });
 
@@ -536,14 +574,12 @@ export const WithLabelSlot = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @after-enter="onAfterEnter"
   >
-    <template
-      #label="{
-        title,
-        subtitle,
-        headingTitleAttrs,
-        textSubtitleAttrs,
-      }"
-    >
+    <template #label="{
+      title,
+      subtitle,
+      headingTitleAttrs,
+      textSubtitleAttrs,
+    }">
       <div
         v-if="title || subtitle"
         class="ui-side-panel__label"
@@ -563,7 +599,9 @@ export const WithLabelSlot = (args) => ({
         </UiText>
       </div>
     </template>
-    <UiText>Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:</UiText>
+    <UiText>
+      Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:
+    </UiText>
   </UiSidePanel>`,
 });
 
@@ -598,12 +636,10 @@ export const WithTitleSlot = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @after-enter="onAfterEnter"
   >
-    <template
-      #title="{
-        title,
-        headingTitleAttrs,
-      }"
-    >
+    <template #title="{
+      title,
+      headingTitleAttrs,
+    }">
       <UiHeading
         v-if="title"
         v-bind="headingTitleAttrs"
@@ -611,7 +647,9 @@ export const WithTitleSlot = (args) => ({
         {{ title }}
       </UiHeading>
     </template>
-    <UiText>Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:</UiText>
+    <UiText>
+      Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:
+    </UiText>
   </UiSidePanel>`,
 });
 
@@ -643,12 +681,10 @@ export const WithSubtitleSlot = (args) => ({
     @update:modelValue="onUpdateModelValue"
     @after-enter="onAfterEnter"
   >
-    <template
-      #subtitle="{
-        subtitle,
-        textSubtitleAttrs,
-      }"
-    >
+    <template #subtitle="{
+      subtitle,
+      textSubtitleAttrs,
+    }">
       <UiText
         v-if="subtitle"
         v-bind="textSubtitleAttrs"
@@ -657,7 +693,9 @@ export const WithSubtitleSlot = (args) => ({
         {{ subtitle }}
       </UiText>
     </template>
-    <UiText>Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:</UiText>
+    <UiText>
+      Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:
+    </UiText>
   </UiSidePanel>`,
 });
 
@@ -702,7 +740,9 @@ export const WithContentSlot = (args) => ({
         v-bind="contentAttrs"
         class="ui-side-panel__content"
       >
-        <UiText>Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:</UiText>
+        <UiText>
+          Triage is developed by Infermedica – the company that creates AI tools for preliminary medical diagnosis and triage:
+        </UiText>
       </div>
     </template>
   </UiSidePanel>`,
@@ -713,10 +753,7 @@ export const WithAsyncContent = (args) => ({
     UiSidePanel,
     UiButton,
     UiHeading,
-    UiBulletPoints,
-    UiBulletPointsItem,
-    UiText,
-    UiLink,
+    TOS,
   },
   setup() {
     const modelValue = inject('modelValue');
@@ -751,48 +788,7 @@ export const WithAsyncContent = (args) => ({
   >
     <template v-if="isLoaded">
       <UiHeading>§1. General Provisions</UiHeading>
-      <UiBulletPoints tag="ol">
-        <UiBulletPointsItem style="margin: var(--space-32) 0">
-          <UiText>These Terms of Service specify:</UiText>
-          <UiBulletPoints
-            tag="ol"
-            type="a"
-          >
-            <UiBulletPointsItem>
-              <UiText>principles of operation of the website and the mobile application "<UiLink href="#">Triage.com</UiLink>",</UiText>
-            </UiBulletPointsItem>
-            <UiBulletPointsItem>
-              <UiText>rules on the provision of services by electronic means,</UiText>
-            </UiBulletPointsItem>
-            <UiBulletPointsItem>
-              <UiText>the rights and obligations of the Service Provider and the Service Recipients.</UiText>
-            </UiBulletPointsItem>
-          </UiBulletPoints>
-        </UiBulletPointsItem>
-        <UiBulletPointsItem style="margin: var(--space-32) 0">
-          <UiText>Whenever these Terms of Service refer to:</UiText>
-          <UiBulletPoints
-            tag="ol"
-            type="a"
-          >
-            <UiBulletPointsItem>
-              <UiText>Application, this means the software for portable devices, made available free of charge by the Service Provider referred to in sec. 2(l) below, enabling the use of the Services referred to in sec. 2(k) below,</UiText>
-            </UiBulletPointsItem>
-            <UiBulletPointsItem>
-              <UiText>Articles, this means articles referring to medical and pharmaceutical topics,</UiText>
-            </UiBulletPointsItem>
-            <UiBulletPointsItem>
-              <UiText>License, this means a non-exclusive, royalty-free license granted to Users referred to in sec. 2(m) below to use the Application or Website referred to in sec. 2(j) below,</UiText>
-            </UiBulletPointsItem>
-            <UiBulletPointsItem>
-              <UiText>Terms of Service, this means these Terms of Service,</UiText>
-            </UiBulletPointsItem>
-            <UiBulletPointsItem>
-              <UiText>GDPR, this means Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 on the protection of individuals with regard to the processing of personal data and on the free movement of such data and repealing Directive 95/46/EC (General Data Protection Regulation) (OJ L 119, p. 1),</UiText>
-            </UiBulletPointsItem>
-          </UiBulletPoints>
-        </UiBulletPointsItem>
-      </UiBulletPoints>
+      <TOS/>
     </template>
   </UiSidePanel>`,
 });

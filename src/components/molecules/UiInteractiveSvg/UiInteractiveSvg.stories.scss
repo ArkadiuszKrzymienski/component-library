@@ -1,10 +1,14 @@
 @use "../../../styles/mixins";
 
+//<Code id="map">
 .map {
+  max-width: 40.75rem;
+  width: 100%;
+
   &__region {
     cursor: pointer;
-    fill: #2f91ea;
-    stroke: #1471c9;
+    fill: var(--color-regions-fill);
+    stroke: var(--color-regions-stroke);
 
     &:focus {
       outline: none;
@@ -12,17 +16,16 @@
     }
 
     @include mixins.hover {
-      fill: #a2cff5;
+      fill: var(--color-regions-fill-hover);
     }
 
     &--is-checked {
-      fill: #0b3d6d;
-      stroke: #2f91ea;
+      fill: var(--color-regions-fill-selection);
+      stroke: var(--color-regions-stroke-selection);
 
       @include mixins.hover {
-        fill: #082c4d;
+        fill: var(--color-regions-fill-selection-hover);
       }
-
     }
   }
 
@@ -38,7 +41,7 @@
     }
 
     path:last-of-type {
-      stroke: #2f91ea;
+      stroke: var(--color-regions-stroke-selection);
       stroke-width: 2px;
     }
 
@@ -51,27 +54,31 @@
     fill: white;
   }
 }
+//</Code>
 
+//<Code id="abdominal-pain">
 .abdominal-pain {
+  max-width: 21.25rem;
+  width: 100%;
+
   &__part {
     cursor: pointer;
-    fill: #2f91ea;
+    fill: var(--color-abdominal-model-fill);
 
     &:focus {
       outline: none;
     }
 
     @include mixins.hover {
-      fill: #1471c9;
+      fill: var(--color-abdominal-model-fill-hover);
     }
 
     &--is-checked {
-      fill: #0b3d6d;
+      fill: var(--color-abdominal-model-fill-selection);
 
       @include mixins.hover {
-        fill: #082c4d;
+        fill: var(--color-abdominal-model-fill-selection-hover);
       }
-
     }
   }
 
@@ -89,35 +96,40 @@
 
   &__outline {
     pointer-events: none;
-    fill: #0f5496;
+    fill: var(--color-abdominal-model-outline);
   }
 }
+//</Code>
 
+//<Code id="body-model">
 .body-model {
+  max-width: 10.5rem;
+  width: 100%;
+
   &__part {
     cursor: pointer;
-    fill: #c2e0f8;
+    fill: var(--color-body-model-subtle-highlight);
 
     @include mixins.from-tablet {
       fill: transparent;
     }
 
     @include mixins.hover {
-      fill: #71b5f0;
+      fill: var(--color-body-model-strong-highlight);
     }
 
     &--is-selected {
-      fill: #c2e0f8;
+      fill: var(--color-body-model-subtle-highlight);
     }
 
     &--is-highlighted {
-      fill: #71b5f0;
+      fill: var(--color-body-model-strong-highlight);
     }
   }
 
   &__outline {
     pointer-events: none;
-    fill: #1471c9;
+    fill: var(--color-body-model-outline);
   }
 }
-
+//</Code>

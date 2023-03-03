@@ -22,32 +22,30 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { PropsAttrs } from '../../../types/attrs';
 import UiProgress from '../../atoms/UiProgress/UiProgress.vue';
+import type { ProgressAttrsProps } from '../../atoms/UiProgress/UiProgress.vue';
+import type { DefineAttrsProps } from '../../../types';
 
-const props = defineProps({
+export interface ProgressbarProps {
   /**
    * Use this props to set steps.
    */
-  steps: {
-    type: Number,
-    default: 0,
-  },
+  steps?: number;
   /**
    * Use this props to set current step.
    */
-  currentStep: {
-    type: Number,
-    default: 0,
-  },
+  currentStep?: number;
   /**
    * Use this props to pass attrs for UiProgress
    */
-  progressAttrs: {
-    type: Object as PropsAttrs,
-    default: () => ({
-    }),
-  },
+  progressAttrs?: ProgressAttrsProps;
+}
+export type ProgressbarAttrsProps = DefineAttrsProps<ProgressbarProps>;
+
+const props = withDefaults(defineProps<ProgressbarProps>(), {
+  steps: 0,
+  currentStep: 0,
+  progressAttrs: () => ({}),
 });
 const value = computed(() => ((100 / props.steps) * props.currentStep));
 const stepsDots = computed(() => (props.steps - 1));
@@ -55,6 +53,7 @@ const stepsDots = computed(() => (props.steps - 1));
 
 <style lang="scss">
 @use "../../../styles/functions";
+@use "../../../styles/mixins";
 
 .ui-progressbar {
   $element: progressbar;
@@ -73,13 +72,14 @@ const stepsDots = computed(() => (props.steps - 1));
   &__step {
     --_progressbar-step-size: #{functions.var($element + "-step", size, 0.625rem)};
 
+    @include mixins.use-logical($element + "-step", margin, 3px 0);
+    @include mixins.use-logical($element + "-step", border-radius, var(--border-radius-circle));
+
     position: absolute;
     left: var(--_progressbar-step-left);
     width: var(--_progressbar-step-size);
     height: var(--_progressbar-step-size);
-    margin: functions.var($element + "-step", margin, 3px 0);
     background: functions.var($element + "-step", background, var(--color-icon-on-selection));
-    border-radius: functions.var($element + "-step", border-radius, var(--border-radius-circle));
     transform: translateX(-50%);
   }
 }

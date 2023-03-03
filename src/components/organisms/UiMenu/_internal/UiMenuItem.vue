@@ -1,22 +1,21 @@
 <template>
   <UiListItem
-    v-bind="attrs"
-    class="ui-menu-item"
+    :list-item-attrs="defaultProps.listItemAttrs"
+    :tag="UiButton"
+    :class="[
+      'ui-button--outlined ui-menu-item__button', buttonClass
+    ]"
   >
-    <UiButton
-      v-bind="defaultProps.buttonMenuItemAttrs"
-      :class="[
-        'ui-button--outlined ui-menu-item__button', buttonClass
-      ]"
-    >
+    <!-- @slot Use this slot to replace label template. -->
+    <slot name="label">
       <!-- @slot Use this slot to replace label template. -->
-      <slot name="label">
-        <!-- @slot Use this slot to replace label template. -->
-        <span class="ui-menu-item__label">
-          <!-- @slot Use this slot to place label content inside menu-item. -->
-          <slot />
-        </span>
-      </slot>
+      <span class="ui-menu-item__label">
+        <!-- @slot Use this slot to place label content inside menu-item. -->
+        <slot />
+      </span>
+    </slot>
+
+    <template #suffix>
       <!-- @slot Use this slot to replace suffix template -->
       <slot
         name="suffix"
@@ -31,98 +30,93 @@
           class="ui-menu-item__suffix"
         />
       </slot>
-    </UiButton>
+    </template>
   </UiListItem>
 </template>
 
-<script lang="ts">
-export default { inheritAttrs: false };
-</script>
-
 <script setup lang="ts">
-import {
-  computed,
-  useAttrs,
-} from 'vue';
-import type { PropType } from 'vue';
-import type { PropsAttrs } from '../../../../types/attrs';
-import type { Icon } from '../../../../types/icon';
-import type {
-  MenuSuffixVisible,
-  SuffixAttrs,
-} from '../UiMenu.vue';
+import { computed } from 'vue';
 import UiButton from '../../../atoms/UiButton/UiButton.vue';
 import UiListItem from '../../UiList/_internal/UiListItem.vue';
+import type { ListItemAttrsProps } from '../../UiList/_internal/UiListItem.vue';
 import UiMenuItemSuffix from './UiMenuItemSuffix.vue';
+import type { MenuItemSuffixAttrsProps } from './UiMenuItemSuffix.vue';
 import useAttributes from '../../../../composable/useAttributes';
+import type {
+  DefineAttrsProps,
+  Icon,
+} from '../../../../types';
 
-const props = defineProps({
+export interface MenuItemProps {
   /**
    * Use this props to set icon.
    */
-  icon: {
-    type: [
-      String,
-      Object,
-    ] as PropType<Icon>,
-    default: 'checkmark',
-  },
+  icon?: Icon;
   /**
    * Use this props to set suffix visibility.
    */
-  suffixVisible: {
-    type: String as PropType<MenuSuffixVisible>,
-    default: 'default',
-  },
+  suffixVisible?: 'default' | 'always' | 'never';
   /**
    * Use this props to pass attrs for UIMenuItemSuffix
    */
-  suffixAttrs: {
-    type: Object as PropType<SuffixAttrs>,
-    default: () => ({}),
-  },
+  suffixAttrs?: MenuItemSuffixAttrsProps;
   /**
-   * Use this props to pass attrs for menu item UiButton
+   * Use this props to pass attrs for list item element
    */
-  buttonMenuItemAttrs: {
-    type: Object as PropsAttrs,
-    default: () => ({}),
-  },
+  listItemAttrs?: ListItemAttrsProps;
+}
+export type MenuItemAttrsProps = DefineAttrsProps<MenuItemProps, ListItemAttrsProps>;
+
+const props = withDefaults(defineProps<MenuItemProps>(), {
+  icon: 'checkmark',
+  suffixVisible: 'default',
+  suffixAttrs: () => ({ class: 'ui-button--text ui-menu-item__suffix' }),
+  listItemAttrs: () => ({ class: 'ui-menu-item' }),
 });
-const {
-  attrs, listeners,
-} = useAttributes();
-const isSelected = computed(() => (attrs.value.class && (attrs.value.class as string).includes('ui-menu-item--is-selected')));
-const hasSuffix = computed(() => props.suffixVisible === 'always' || (props.suffixVisible === 'default' && isSelected.value));
+const { attrs } = useAttributes();
+const isSelected = computed(() => (attrs.value.class && attrs.value.class.includes('ui-menu-item--is-selected')));
+const hasSuffix = computed(() => !!(props.suffixVisible === 'always' || (props.suffixVisible === 'default' && isSelected.value)));
 const buttonClass = computed(() => ({ 'ui-button--is-selected': isSelected.value }));
 const defaultProps = computed(() => ({
-  buttonMenuItemAttrs: {
-    ...listeners.value,
-    ...props.buttonMenuItemAttrs,
-  },
   suffixAttrs: {
-    icon: props.icon as Icon,
+    icon: props.icon,
+    class: 'ui-button--text ui-menu-item__suffix',
     ...props.suffixAttrs,
+  },
+  listItemAttrs: {
+    class: 'ui-menu-item',
+    ...props.listItemAttrs,
   },
 }));
 </script>
 
 <style lang="scss">
 @use "../../../../styles/functions";
+@use "../../../../styles/mixins";
 
 .ui-menu-item {
   $this: &;
   $element: menu-item;
 
-  --list-item-padding: #{functions.var($element, padding, var(--space-8) )};
+  --list-item-border-block-width: 0;
+  --list-item-border-inline-width: 0;
+
+  @include mixins.use-logical($element, padding, var(--space-4) var(--space-8));
 
   &__button {
-    --button-padding: #{functions.var($element + '-button', padding, var(--space-8))};
-    --button-border-width: #{functions.var($element + "button", border-width, 0)};
-    --button-font: #{functions.var($element + "button", font, var(--font-body-1))};
-    --button-letter-spacing: #{functions.var($element + "button", letter-spacing, var(--letter-spacing-body-1))};
+    --_list-item-content-padding-block: #{functions.var($element + "-button", padding-block, var(--space-8))};
+    --_list-item-content-padding-inline: #{functions.var($element + "-button", padding-inline, var(--space-8))};
+    --list-item-content-padding-block: var(--_list-item-content-padding-block);
+    --list-item-content-padding-inline: var(--_list-item-content-padding-inline);
+    --list-item-tablet-content-padding-block: var(--_list-item-content-padding-block);
+    --list-item-tablet-content-padding-inline: var(--_list-item-content-padding-inline);
+    --button-padding-block: var(--_list-item-content-padding-block);
+    --button-padding-inline: var(--_list-item-content-padding-inline);
+    --button-border-block-width: #{functions.var($element + "-button", border--block-width, 0)};
+    --button-border-inline-width: #{functions.var($element + "-button", border-inline-width, 0)};
+    --button-font: #{functions.var($element + "-button", font, var(--font-body-1))};
+    --button-letter-spacing: #{functions.var($element + "-button", letter-spacing, var(--letter-spacing-body-1))};
 
-    width: 100%;
     justify-content: space-between;
   }
 
@@ -133,16 +127,12 @@ const defaultProps = computed(() => ({
   }
 
   &__suffix {
-    margin: functions.var($element, margin, 0 0 0 var(--space-12));
-
-    [dir="rtl"] & {
-      margin: functions.var($element + "rtl", margin, 0 var(--space-12) 0 0);
-    }
+    @include mixins.use-logical($element + "-suffix", margin, 0 0 0 var(--space-12));
   }
 
   &--is-selected {
     #{$this}__label {
-      color: functions.var($element + "-label", color, unset);
+      color: functions.var($element + "-label", color, unset);;
     }
   }
 }

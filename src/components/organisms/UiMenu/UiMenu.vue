@@ -33,52 +33,30 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { PropType } from 'vue';
-import type { HTMLTag } from '../../../types/tag';
-import type { Icon } from '../../../types/icon';
 import UiList from '../UiList/UiList.vue';
+import type { ListAttrsProps } from '../UiList/UiList.vue';
 import UiMenuItem from './_internal/UiMenuItem.vue';
+import type { MenuItemAttrsProps } from './_internal/UiMenuItem.vue';
+import type { DefineAttrsProps } from '../../../types';
 
-export type MenuSuffixVisible = 'default' | 'always' | 'never';
-export interface SuffixAttrs {
-  label?: string;
-  icon?: Icon;
-  iconSuffixAttrs?: Record<string, unknown>;
-  [key: string]: unknown;
-}
-export interface MenuItem {
-  label: string;
+export interface MenuRenderItem extends MenuItemAttrsProps {
   name?: string;
-  icon?: Icon;
-  suffixVisible?: MenuSuffixVisible;
-  suffixAttrs?: SuffixAttrs;
-  buttonMenuItemAttrs?: Record<string, unknown>;
-  [key: string]: unknown;
+  label?: string;
 }
-
-const props = defineProps({
-  /**
-   * Use this to set menu tag.
-   */
-  tag: {
-    type: String as PropType<HTMLTag>,
-    default: 'ul',
-  },
+export interface MenuProps {
   /**
    * Use this props to pass list of menu items.
    */
-  items: {
-    type: Array as PropType<MenuItem[]>,
-    default: () => ([]),
-  },
-});
-const menuItemAttrs = (item: MenuItem) => {
-  const {
-    name, ...rest
-  } = item;
-  return rest;
-};
-const itemsToRender = computed(() => (props.items.map((item, key) => {
+  items?: (string | MenuRenderItem)[];
+}
+export type MenuAttrsProps = DefineAttrsProps<MenuProps, ListAttrsProps>;
+
+const props = withDefaults(defineProps<MenuProps>(), { items: () => ([]) });
+const menuItemAttrs = ({
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  name, label, ...itemAttrs
+}: MenuRenderItem) => itemAttrs;
+const itemsToRender = computed<MenuRenderItem[]>(() => (props.items.map((item, key) => {
   if (typeof item === 'string') {
     return {
       name: `menu-item-${key}`,
@@ -86,7 +64,7 @@ const itemsToRender = computed(() => (props.items.map((item, key) => {
     };
   }
   return {
-    name: item.name || `menu-item-${key}`,
+    name: `menu-item-${key}`,
     ...item,
   };
 })));
@@ -94,13 +72,19 @@ const itemsToRender = computed(() => (props.items.map((item, key) => {
 
 <style lang="scss">
 @use "../../../styles/functions";
+
 .ui-menu {
   &--compact {
     .ui-menu-item {
-      --list-item-padding: #{functions.var('menu-iitem', padding, var(--space-4) var(--space-8) )};
-
       &__button {
-        --button-padding: #{functions.var('menu-item-button', padding, var(--space-4) var(--space-8) )};
+        --_list-item-content-padding-block: #{functions.var("menu-item-button", padding-block, var(--space-4))};
+        --_list-item-content-padding-inline: #{functions.var("menu-item-button", padding-inline, var(--space-8))};
+        --list-item-content-padding-block: var(--_list-item-content-padding-block);
+        --list-item-content-padding-inline: var(--_list-item-content-padding-inline);
+        --list-item-tablet-content-padding-block: var(--_list-item-content-padding-block);
+        --list-item-tablet-content-padding-inline: var(--_list-item-content-padding-inline);
+        --button-padding-block: var(-_list-item-content-padding-block);
+        --button-padding-inline: var(-_list-item-content-padding-inline);
       }
     }
   }

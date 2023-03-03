@@ -3,6 +3,9 @@ import UiIcon from '@/components/atoms/UiIcon/UiIcon.vue';
 import UiRadio from '@/components/atoms/UiRadio/UiRadio.vue';
 import { ref } from 'vue';
 import { modifiers } from '@sb/helpers/argTypes';
+import { actions } from '@storybook/addon-actions';
+
+const events = actions({ onUpdateModelValue: 'update:modelValue' });
 
 export default {
   title: 'Molecules/Rating',
@@ -35,6 +38,23 @@ export default {
     modelValue: { control: false },
     radioOptionAttrs: { table: { subcategory: 'Attrs props' } },
   },
+  parameters: {
+    cssProperties: {
+      '--rating-option-gap': 'var(--space-24)',
+      '--rating-option-border-block-style': 'var(--rating-option-border-block-start-style, solid) var(--rating-option-border-block-end-style, solid)',
+      '--rating-option-border-inline-style': 'var(--rating-option-border-inline-start-style, solid) var(--rating-option-border-inline-end-style, solid)',
+      '--rating-option-border-block-color': 'var(--rating-option-border-block-start-color, transparent) var(--rating-option-border-block-end-color, transparent)',
+      '--rating-option-border-inline-color': 'var(--rating-option-border-inline-start-color, transparent) var(--rating-option-border-inline-end-color, transparent)',
+      '--rating-option-border-block-width': 'var(--rating-option-border-block-start-width, 0) var(--rating-option-border-block-end-width, 0)',
+      '--rating-option-border-inline-width': 'var(--rating-option-border-inline-start-width, 0) var(--rating-option-border-inline-end-width, var(--_rating-option-gap))',
+      '--rating-hover-icon-color': 'var(--color-icon-disabled)',
+      '--rating-checked-hover-icon-color': 'var(--color-icon-disabled)',
+      '--rating-active-icon-color': 'var(--color-icon-secondary-active)',
+      '--rating-checked-active-icon-color': 'var(--color-icon-disabled)',
+      '--rating-checked-icon-color': 'var(--color-icon-disabled)',
+      '--rating-icon-color': 'var(--color-icon-disabled)',
+    },
+  },
 };
 
 const Template = (args) => ({
@@ -45,6 +65,7 @@ const Template = (args) => ({
     const modelValue = ref(args.initModelValue);
     return {
       ...args,
+      ...events,
       modelValue,
     };
   },
@@ -58,7 +79,8 @@ const Template = (args) => ({
     :translation="translation"
     :radio-option-attrs="radioOptionAttrs"
     :class="modifiers"
-  />{{modelValue}}`,
+    @update:modelValue="onUpdateModelValue"
+  />`,
 });
 
 export const Common = Template.bind({
@@ -71,7 +93,7 @@ export const WithRadioOptionsAttrsAsArray = Template.bind({});
 WithRadioOptionsAttrsAsArray.args = {
   radioOptionAttrs: [
     { 'data-testid': 'first-option-radio-input' },
-    undefined,
+    {},
     {
       'data-testid': 'third-option-radio-input',
       iconDefaultAttrs: {
@@ -95,28 +117,28 @@ export const WithIconSlot = (args) => ({
     const modelValue = ref(args.initModelValue);
     return {
       ...args,
+      ...events,
       modelValue,
     };
   },
   template: `<UiRating
-      v-model="modelValue"
-      :max="max"
-      :name="name"
-      :tag="tag"
-      :legend="legend"
-      :settings="settings"
-      :translation="translation"
-      :radio-option-attrs="radioOptionAttrs"
-      :class="modifiers"
+    v-model="modelValue"
+    :max="max"
+    :name="name"
+    :tag="tag"
+    :legend="legend"
+    :settings="settings"
+    :translation="translation"
+    :radio-option-attrs="radioOptionAttrs"
+    :class="modifiers"
+    @update:modelValue="onUpdateModelValue"
   >
-    <template 
-      #icon="{
-        index,
-        finalScore,
-        iconActiveAttrs,
-        iconDefaultAttrs,
-      }"
-    >
+    <template #icon="{
+      index,
+      finalScore,
+      iconActiveAttrs,
+      iconDefaultAttrs,
+    }">
       <template v-if="index <= finalScore">
         <UiIcon
           v-bind="iconActiveAttrs"
@@ -125,8 +147,8 @@ export const WithIconSlot = (args) => ({
       </template>
       <template v-else>
         <UiIcon
-            v-bind="iconDefaultAttrs"
-            class="ui-rating__icon"
+          v-bind="iconDefaultAttrs"
+          class="ui-rating__icon"
         />
       </template>
     </template>

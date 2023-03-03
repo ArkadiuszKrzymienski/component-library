@@ -42,7 +42,7 @@
             class="ui-controls__next"
             :class="{ 'ui-button--is-disabled': invalid }"
           >
-            {{ defaultProps.translation.next }}
+            {{ defaultProps.translation?.next }}
           </UiButton>
           <span
             v-else
@@ -67,7 +67,7 @@
             <UiIcon
               v-bind="defaultProps.iconBackAttrs"
               class="ui-button__icon"
-            /> {{ defaultProps.translation.back }}
+            /> {{ defaultProps.translation?.back }}
           </UiButton>
         </slot>
       </div>
@@ -77,146 +77,112 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { PropType } from 'vue';
 import UiContainer from '../UiContainer/UiContainer.vue';
+import type { ContainerAttrsProps } from '../UiContainer/UiContainer.vue';
 import UiButton from '../../atoms/UiButton/UiButton.vue';
+import type { ButtonAttrsProps } from '../../atoms/UiButton/UiButton.vue';
 import UiIcon from '../../atoms/UiIcon/UiIcon.vue';
-import type { PropsAttrs } from '../../../types/attrs';
-import type { Icon } from '../../../types/icon';
+import type { IconAttrsProps } from '../../atoms/UiIcon/UiIcon.vue';
+import type { DefineAttrsProps } from '../../../types';
 
 export interface ControlsTranslation {
-  back?: string,
-  next?: string,
-  [key: string]: string | undefined
+  back?: string;
+  next?: string;
 }
 export type ControlsNavigation = string | Record<string, unknown>;
-const props = defineProps({
+export interface ControlsProps {
   /**
    * Use this props to move the responsibility to move to the next screen to question content.
    */
-  hideNextButton: {
-    type: Boolean,
-    default: false,
-  },
+  hideNextButton?: boolean;
   /**
    * Use this props to move the responsibility to move to the back screen to question content.
    */
-  hideBackButton: {
-    type: Boolean,
-    default: false,
-  },
+  hideBackButton?: boolean;
   /**
    * Use this props to set route to back screen.
    */
-  toBack: {
-    type: [
-      String,
-      Object,
-    ] as PropType<ControlsNavigation>,
-    default: '',
-  },
+  toBack?: ControlsNavigation;
   /**
    * Use this props to set route to next screen.
    */
-  toNext: {
-    type: [
-      String,
-      Object,
-    ] as PropType<ControlsNavigation>,
-    default: '',
-  },
+  toNext?: ControlsNavigation;
   /**
    * Use this props to set invalid state of the question.
    */
-  invalid: {
-    type: Boolean,
-    default: true,
-  },
+  invalid?: boolean;
   /**
    * Use this props to override labels inside component translation.
    */
-  translation: {
-    type: Object as PropType<ControlsTranslation>,
-    default: () => ({
-      back: 'Back',
-      next: 'Next',
-    }),
-  },
+  translation?: ControlsTranslation;
   /**
    *  Use this props to pass attrs to container element.
    */
-  containerAttrs: {
-    type: Object,
-    default: () => ({}),
-  },
+  containerAttrs?: DefineAttrsProps<null>;
   /**
    * Use this props to pass attrs for next UiButton.
    */
-  buttonNextAttrs: {
-    type: Object as PropsAttrs,
-    default: () => ({
-    }),
-  },
+  buttonNextAttrs?: ButtonAttrsProps;
   /**
    * Use this props to pass attrs for back UiButton.
    */
-  buttonBackAttrs: {
-    type: Object as PropsAttrs,
-    default: () => ({
-    }),
-  },
+  buttonBackAttrs?: ButtonAttrsProps;
   /**
    * Use this props to pass attrs for back UiIcon.
    */
-  iconBackAttrs: {
-    type: Object as PropsAttrs,
-    default: () => ({ icon: 'chevron-left' }),
-  },
+  iconBackAttrs?: IconAttrsProps;
+}
+export type ControlsAttrsProps = DefineAttrsProps<ControlsProps, ContainerAttrsProps>
+export interface ControlsEmits {
+  (e: 'has-error'): void;
+}
+
+const props = withDefaults(defineProps<ControlsProps>(), {
+  hideNextButton: false,
+  hideBackButton: false,
+  toBack: '',
+  toNext: '',
+  invalid: true,
+  translation: () => ({
+    back: 'Back',
+    next: 'Next',
+  }),
+  containerAttrs: () => ({}),
+  buttonNextAttrs: () => ({}),
+  buttonBackAttrs: () => ({ to: '' }),
+  iconBackAttrs: () => ({ icon: 'chevron-left' }),
 });
-const defaultProps = computed(() => ({
-  translation: {
-    back: 'Back',
-    next: 'Next',
-    ...props.translation,
-  },
-}));
-const emit = defineEmits<{(e: 'has-error'): void}>();
-function hasError(): void {
+const emit = defineEmits<ControlsEmits>();
+const hasError = () => {
   emit('has-error');
-}
-interface DefaultProps {
-  translation: ControlsTranslation,
-  buttonBackAttrs: Record<string, unknown>,
-  iconBackAttrs: {
-    icon: Icon,
-    [key: string]: unknown,
-  }
-  buttonNextAttrs: Record<string, unknown>,
-}
-const defaultProps = computed<DefaultProps>(() => ({
-  translation: {
-    back: 'Back',
-    next: 'Next',
-    ...props.translation,
-  },
-  buttonBackAttrs: {
-    to: props.toBack,
-    ...props.buttonBackAttrs,
-  },
-  iconBackAttrs: {
-    icon: 'chevron-left',
-    ...props.iconBackAttrs,
-  },
-  buttonNextAttrs: {
-    onClick: props.invalid
-      ? hasError
-      : undefined,
-    to: props.invalid
-      ? undefined
-      : props.toNext,
-    ...props.buttonNextAttrs,
-  },
-}));
+};
+const defaultProps = computed(() => {
+  const icon: IconAttrsProps['icon'] = 'chevron-left';
+  return {
+    translation: {
+      back: 'Back',
+      next: 'Next',
+      ...props.translation,
+    },
+    buttonBackAttrs: {
+      to: props.toBack,
+      ...props.buttonBackAttrs,
+    },
+    iconBackAttrs: {
+      icon,
+      ...props.iconBackAttrs,
+    },
+    buttonNextAttrs: {
+      onClick: props.invalid
+        ? hasError
+        : undefined,
+      to: props.invalid
+        ? undefined
+        : props.toNext,
+      ...props.buttonNextAttrs,
+    },
+  };
+});
 </script>
 
 <style lang="scss">
@@ -226,23 +192,28 @@ const defaultProps = computed<DefaultProps>(() => ({
 .ui-controls {
   $element: controls;
 
-  --container-padding: 0;
-  --container-tablet-padding: 0;
-  --container-desktop-padding: 0;
+  --container-padding-block: 0;
+  --container-padding-inline: 0;
+  --container-tablet-padding-block: 0;
+  --container-tablet-padding-inline: 0;
+  --container-desktop-padding-block: 0;
+  --container-desktop-padding-inline: 0;
 
   display: flex;
   flex-direction: column;
 
   &__container {
+    @include mixins.use-logical($element + "-container", padding, var(--space-32) var(--space-20));
+
     flex: 1;
-    padding: functions.var($element + "-container", padding, var(--space-32) var(--space-20));
 
     @include mixins.from-tablet {
-      padding: functions.var($element + "-tablet-container", padding, var(--space-48) var(--space-64));
+      @include mixins.use-logical($element + "-tablet-container", padding, var(--space-48) var(--space-64));
     }
   }
 
   &__bottom {
+    @include mixins.use-logical($element + "-bottom", padding, var(--space-12) var(--space-20));
     @include mixins.inner-border(
       $element: $element + "-bottom",
       $color:  var(--color-border-divider),
@@ -254,10 +225,9 @@ const defaultProps = computed<DefaultProps>(() => ({
     flex-direction: row-reverse;
     align-items: center;
     justify-content: space-between;
-    padding: functions.var($element + "-bottom", padding, var(--space-12) var(--space-20));
 
     @include mixins.from-tablet {
-      padding: functions.var($element + "-tablet-bottom", padding, var(--space-16) var(--space-32));
+      @include mixins.use-logical($element + "-tablet-bottom", padding, var(--space-16) var(--space-32));
     }
   }
 }

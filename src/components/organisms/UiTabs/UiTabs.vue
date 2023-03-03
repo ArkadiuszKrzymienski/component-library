@@ -31,43 +31,39 @@ import {
   computed,
   provide,
 } from 'vue';
-import type {
-  PropType,
-  CSSProperties,
-} from 'vue';
+import type { CSSProperties } from 'vue';
 import UiTabsItem from './_internal/UiTabsItem.vue';
+import type { TabsItemAttrsProps } from './_internal/UiTabsItem.vue';
+import type { DefineAttrsProps } from '../../../types';
 
-export interface TabsItem {
-    name: string;
-    title: string;
-    buttonAttrs?: Record<string, unknown>;
-    tabsItemAttrs?: Record<string, unknown>;
-    [key: string]: unknown;
-}
-const props = defineProps({
+export type TabsHandleTabActive = (name: string) => void;
+export type TabsSetActiveElement = (element: HTMLElement | null) => void;
+export interface TabsProps {
   /**
    * Use this props or v-model to set opened items.
    */
-  modelValue: {
-    type: String,
-    default: '',
-  },
+  modelValue?: string;
   /**
    * Use this props to pass tabs items.
    */
-  items: {
-    type: Array as PropType<TabsItem[]>,
-    default: () => ([]),
-  },
-});
-const activeTab = ref(props.modelValue);
-provide('activeTab', activeTab);
+  items?: TabsItemAttrsProps[];
+}
+export type TabsAttrsProps = DefineAttrsProps<TabsProps>;
+export interface TabsEmits {
+  (e:'update:modelValue', value: string): void
+}
 
-const emit = defineEmits<{(e:'update:modelValue', value: string): void}>();
-watch(activeTab, (name) => {
-  emit('update:modelValue', name);
+const props = withDefaults(defineProps<TabsProps>(), {
+  modelValue: '',
+  items: () => ([]),
 });
-const itemsToRender = computed(() => (props.items.map((item, key) => {
+const emit = defineEmits<TabsEmits>();
+const activeTab = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
+});
+provide('activeTab', activeTab);
+const itemsToRender = computed<TabsProps['items']>(() => (props.items.map((item, key) => {
   if (typeof item === 'string') {
     return {
       name: `tabs-item-${key}`,
@@ -80,7 +76,6 @@ const itemsToRender = computed(() => (props.items.map((item, key) => {
     name: name || `tabs-item-${key}`,
   };
 })));
-
 const tabs = ref<HTMLDivElement | null>(null);
 const activeTabHTMLElement = ref<HTMLElement | null>(null);
 const offsetX = computed(() => {
@@ -108,31 +103,32 @@ const style = computed<CSSProperties>(() => ({
 const setActiveHTMLElement = (element: HTMLElement | null): void => {
   activeTabHTMLElement.value = element;
 };
-provide('setActiveHTMLElement', setActiveHTMLElement);
-const handleTabActive = (event: Event, name: string): void => {
-  const target = event.target as HTMLElement;
-  setActiveHTMLElement(target.parentElement);
+provide<TabsSetActiveElement>('setActiveHTMLElement', setActiveHTMLElement);
+const handleTabActive = (name: string) => {
   activeTab.value = name;
 };
-provide('handleTabActive', handleTabActive);
+provide<TabsHandleTabActive>('handleTabActive', handleTabActive);
 </script>
 
 <style lang="scss">
 @use "../../../styles/functions";
+@use "../../../styles/mixins";
 
 .ui-tabs {
   $element: tabs;
 
+  @include mixins.use-logical($element, padding, 0 var(--space-20));
+
   position: relative;
   display: flex;
   flex-wrap: wrap;
-  padding: functions.var($element, padding, 0 var(--space-20));
 
   &--fixed {
-    --tabs-item-tab-flex: 1;
-    --tabs-item-content-margin: 0;
+    @include mixins.use-logical($element, padding, 0);
 
-    padding: functions.var($element, padding, 0);
+    --tabs-item-tab-flex: 1;
+    --tabs-item-content-margin-block: 0;
+    --tabs-item-content-margin-inline: 0;
   }
 }
 </style>

@@ -3,23 +3,27 @@
     :is="tag"
     class="ui-text"
   >
+    <!-- @slot Use this slot to place content inside text -->
     <slot />
   </component>
 </template>
 
 <script setup lang="ts">
-import type { PropType } from 'vue';
-import type { HTMLTag } from '../../../types/tag';
+import type { HTMLAttributes } from 'vue';
+import type {
+  DefineAttrsProps,
+  HTMLTag,
+} from '../../../types';
 
-defineProps({
+export interface TextProps {
   /**
    * Use this to set text tag.
    */
-  tag: {
-    type: String as PropType<HTMLTag>,
-    default: 'p',
-  },
-});
+  tag?: HTMLTag;
+}
+export type TextAttrsProps<T= HTMLAttributes> = DefineAttrsProps<TextProps, T>;
+
+withDefaults(defineProps<TextProps>(), { tag: 'p' });
 </script>
 
 <style lang="scss">
@@ -31,8 +35,8 @@ defineProps({
   $element: text;
 
   @include mixins.font(text, body-1);
+  @include mixins.use-logical($element, margin, 0);
 
-  margin: functions.var($element, margin, 0);
   color: functions.var($element, color, var(--color-text-body));
 
   $styles: "body-1-thick", "body-2-comfortable", "body-2-compact",

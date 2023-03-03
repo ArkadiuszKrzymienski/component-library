@@ -23,46 +23,48 @@ import {
   inject,
   useAttrs,
 } from 'vue';
-import type {
-  PropType,
-  ComputedRef,
-} from 'vue';
+import type { ComputedRef } from 'vue';
 import equal from 'fast-deep-equal';
 import UiIcon from '../../../atoms/UiIcon/UiIcon.vue';
+import type { IconAttrsProps } from '../../../atoms/UiIcon/UiIcon.vue';
 import UiButton from '../../../atoms/UiButton/UiButton.vue';
-import type { DropdownValue } from '../UiDropdown.vue';
-import type { Icon } from '../../../../types/icon';
+import type { ButtonAttrsProps } from '../../../atoms/UiButton/UiButton.vue';
+import type {
+  DropdownModelValue,
+  DropdownItemKeydownHandler,
+} from '../UiDropdown.vue';
+import type { DefineAttrsProps } from '../../../../types';
 
-const props = defineProps({
+export interface DropdownItemProps {
   /**
    * Use this props to set the value of the dropdown item.
    */
-  value: {
-    type: [
-      String,
-      Object,
-    ] as PropType<DropdownValue>,
-    default: '',
-  },
+  value?: DropdownModelValue;
   /**
    *  Use this props to pass attrs to UiIcon.
    */
-  iconItemAttrs: {
-    type: Object,
-    default: () => ({ icon: 'present' }),
-  },
+  iconItemAttrs?: IconAttrsProps;
+}
+export type DropdownItemAttrsProps = DefineAttrsProps<DropdownItemProps, ButtonAttrsProps>;
+
+const props = withDefaults(defineProps<DropdownItemProps>(), {
+  value: '',
+  iconItemAttrs: () => ({ icon: 'present' }),
 });
-const defaultProps = computed(() => ({
-  iconItemAttrs: {
-    icon: 'present' as Icon,
-    ...props.iconItemAttrs,
-  },
-}));
+const defaultProps = computed(() => {
+  const icon: IconAttrsProps['icon'] = 'present';
+  return {
+    iconItemAttrs: {
+      icon,
+      ...props.iconItemAttrs,
+    },
+  };
+});
 const attrs = useAttrs();
 const dropdownItem = ref<null | HTMLButtonElement>(null);
-const changeHandler = inject('changeHandler') as (value: DropdownValue) => void;
-const dropdownItemKeydownHandler = inject('dropdownItemKeydownHandler') as (e: { key: string }) => Promise<void>;
-const modelValue = inject('modelValue') as ComputedRef<DropdownValue>;
+const changeHandler = inject<(value: Required<DropdownModelValue>) => void>('changeHandler');
+const dropdownItemKeydownHandler = inject<DropdownItemKeydownHandler>('dropdownItemKeydownHandler', () => undefined);
+const modelValue = inject<ComputedRef<Required<DropdownModelValue>>>('modelValue', computed(() => ''));
 const isChecked = computed(() => {
   if (!modelValue.value) {
     return false;
@@ -70,11 +72,14 @@ const isChecked = computed(() => {
   if (typeof modelValue.value === 'string') {
     return props.value === modelValue.value;
   }
-  return equal(JSON.parse(JSON.stringify(modelValue.value)), JSON.parse(JSON.stringify(props.value)));
+  return equal(
+    JSON.parse(JSON.stringify(modelValue.value)),
+    JSON.parse(JSON.stringify(props.value)),
+  );
 });
 const isOption = computed(() => !!props.value);
 const tabindex = computed(() => {
-  if (isChecked.value) {
+  if (isChecked.value || !modelValue.value) {
     return 0;
   }
   if (typeof modelValue.value === 'string') {
@@ -82,12 +87,12 @@ const tabindex = computed(() => {
   }
   return !Object.keys(modelValue.value).length ? 0 : -1;
 });
-function optionChangeHandler(value: DropdownValue): void {
-  if (isOption.value) {
+const optionChangeHandler = (value: DropdownModelValue) => {
+  if (isOption.value && changeHandler) {
     changeHandler(value);
   }
-}
-const buttonItemAttrs = computed(() => ({
+};
+const buttonItemAttrs = computed<ButtonAttrsProps>(() => ({
   role: isOption.value ? 'radio' : undefined,
   'aria-checked': isOption.value ? `${isChecked.value}` : undefined,
   onClick: attrs.to ? undefined : optionChangeHandler.bind(this, props.value),
@@ -96,23 +101,26 @@ const buttonItemAttrs = computed(() => ({
 
 <style lang="scss">
 @use "../../../../styles/functions";
+@use "../../../../styles/mixins";
 
 .ui-dropdown-item {
   $element: dropdown-item;
 
-  --button-padding: #{functions.var($element, padding, var(--space-8))};
-  --button-border-width: 0;
+  @include mixins.override-logical(button, $element, padding, var(--space-8));
+  @include mixins.override-logical(button, null, border-width, 0);
+
   --button-color: #{functions.var($element, color, var(--color-text-body))};
   --button-hover-color: #{functions.var($element + "-hover", color, var(--color-text-body))};
   --button-active-color: #{functions.var($element + "-active", color, var(--color-text-body))};
   --button-font: #{functions.var($element, font, var(--font-body-1))};
   --button-letter-spacing: #{functions.var($element, letter-spacing, var(--letter-spacing-body-1))};
 
+  @include mixins.use-logical($element, margin, var(--space-8) 0 0);
+
   justify-content: space-between;
-  margin: functions.var($element, margin, var(--space-8) 0 0 0);
 
   &:first-of-type {
-    margin-top: 0;
+    @include mixins.use-logical($element, margin, 0);
   }
 
   /* fixme: do something to remove this hack */

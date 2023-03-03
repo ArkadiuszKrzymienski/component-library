@@ -2,8 +2,10 @@
   <div class="ui-backdrop" />
 </template>
 
-<script lang="ts">
-export default { name: 'UiBackdrop' };
+<script setup lang="ts">
+import type { DefineAttrsProps } from '../../../types';
+
+export type BackdropAttrsProps = DefineAttrsProps<null>;
 </script>
 
 <style lang="scss">

@@ -59,7 +59,17 @@ export default {
       },
     },
   },
-  decorators: [ () => ({ template: '<div style="min-height: 120px"><story /></div>' }) ],
+  decorators: [ () => ({
+    template: `<div class="min-h-30">
+      <story />
+    </div>`,
+  }) ],
+  parameters: {
+    cssProperties: {
+      '--tabs-padding-block': 'var(--tabs-padding-block-start, 0) var(--tabs-padding-block-end, 0)',
+      '--tabs-padding-inline': 'var(--tabs-padding-inline-start, 0) var(--tabs-padding-inline-end, 0)',
+    },
+  },
 };
 
 const Template = (args) => ({
@@ -86,7 +96,9 @@ const Template = (args) => ({
       #[item.name]="{item}"
       :key="key"
     >
-      <UiText>{{ content[item.name] }}</UiText>
+      <UiText>
+        {{ content[item.name] }}
+      </UiText>
     </template>
   </UiTabs>`,
 });
@@ -127,7 +139,9 @@ export const WithDefaultSlot = (args) => ({
           'data-testid': item['data-testid'],
         }"
       >
-        <UiText>{{ content[item.name] }}</UiText>
+        <UiText>
+          {{ content[item.name] }}
+        </UiText>
       </UiTabsItem>
     </template>
   </UiTabs>`,

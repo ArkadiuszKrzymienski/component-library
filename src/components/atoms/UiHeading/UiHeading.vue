@@ -11,33 +11,30 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { PropType } from 'vue';
-import type { HTMLTag } from '../../../types/tag';
+import type { HTMLAttributes } from 'vue';
+import type {
+  DefineAttrsProps,
+  HTMLTag,
+} from '../../../types';
 
-export type HeadingLevel ='1' | '2' | '3' | '4' | '5' | '6' | 1 | 2 | 3 | 4 | 5 | 6;
-export type HeadingTag =`h${HeadingLevel}`;
-export type HeadingClass =`ui-heading--${HeadingTag}`
-const props = defineProps({
+export interface HeadingProps {
   /**
    * Use this props to set heading HeadingLevel from 1-6
    */
-  level: {
-    type: [
-      Number,
-      String,
-    ] as PropType<HeadingLevel>,
-    default: '2',
-  },
+  level?: '1' | '2' | '3' | '4' | '5' | '6' | 1 | 2 | 3 | 4 | 5 | 6;
   /**
    * Use this props to set heading HTML HeadingTag
    */
-  tag: {
-    type: String as PropType<HTMLTag>,
-    default: '',
-  },
+  tag?: HTMLTag;
+}
+export type HeadingAttrsProps<T = HTMLAttributes> = DefineAttrsProps<HeadingProps, T>;
+
+const props = withDefaults(defineProps<HeadingProps>(), {
+  level: '2',
+  tag: undefined,
 });
-const headingTag = computed<HTMLTag>(() => (props.tag ? props.tag : `h${props.level}`));
-const headingClass = computed<HeadingClass>(() => `ui-heading--h${props.level}`);
+const headingTag = computed(() => (props.tag ? props.tag : `h${props.level}`));
+const headingClass = computed(() => `ui-heading--h${props.level}`);
 </script>
 
 <style lang="scss">
@@ -49,8 +46,8 @@ const headingClass = computed<HeadingClass>(() => `ui-heading--h${props.level}`)
   $element: heading;
 
   @include mixins.font($element, body-1);
+  @include mixins.use-logical($element, margin, 0);
 
-  margin: functions.var($element, margin, 0);
   color: functions.var($element, color, var(--color-text-heading));
 
   @for $i from 1 through 6 {

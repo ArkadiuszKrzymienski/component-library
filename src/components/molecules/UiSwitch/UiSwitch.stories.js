@@ -31,6 +31,15 @@ export default {
     modelValue: { control: false },
     controlAttrs: { table: { subcategory: 'Attrs props' } },
   },
+  parameters: {
+    cssProperties: {
+      '--switch-hover-color': 'var(--color-switch-disabled)',
+      '--switch-checked-hover-color': 'var(--color-switch-disabled)',
+      '--switch-active-color': 'var(--color-switch-disabled)',
+      '--switch-checked-active-color': 'var(--color-switch-disabled)',
+      '--switch-color': 'var(--color-switch-disabled)',
+    },
+  },
 };
 
 export const WithoutLabel = (args) => ({
@@ -143,21 +152,20 @@ export const AsGroup = (args) => ({
       ...args,
       ...events,
       modelValue,
+      UiSwitch,
     };
   },
-  template: `<UiList style="--list-item-padding: var(--space-12) 0;">
+  template: `<UiList>
     <UiListItem
       v-for="(value, key) in values"
       :key="key"
+      :tag="UiSwitch"
+      v-model="modelValue"
+      :value="value"
+      :control-attrs="value.controlAttrs"
+      @update:modelValue="onUpdateModelValue"
     >
-      <UiSwitch
-        v-model="modelValue"
-        :value="value"
-        :control-attrs="value.controlAttrs"
-        @update:modelValue="onUpdateModelValue"
-      >
-        {{ value.label }}
-      </UiSwitch>
+      {{ value.label }}
     </UiListItem>
   </UiList>`,
 });
@@ -209,19 +217,18 @@ export const AsGroupWithPrimitiveTypes = (args) => ({
     return {
       ...args,
       modelValue,
+      UiSwitch,
     };
   },
-  template: `<UiList style="--list-item-padding: var(--space-12) 0;">
+  template: `<UiList>
     <UiListItem
       v-for="(value, key) in values"
       :key="key"
+      :tag="UiSwitch"
+      v-model="modelValue"
+      :value="value"
     >
-      <UiSwitch
-        v-model="modelValue"
-        :value="value"
-      >
-        {{ value }}
-      </UiSwitch>
+      {{ value }}
     </UiListItem>
   </UiList>`,
 });

@@ -15,6 +15,7 @@
         }"
       >
         <input
+          ref="input"
           v-keyboard-focus
           v-bind="defaultProps.inputAttrs"
           :value="modelValue"
@@ -48,97 +49,101 @@ export default { inheritAttrs: false };
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { HTMLTag } from '../../../types/tag';
-import type { PropsAttrs } from '../../../types/attrs';
-import UiText from '../UiText/UiText.vue';
+import {
+  ref,
+  computed,
+} from 'vue';
+import type {
+  HTMLAttributes,
+  InputHTMLAttributes,
+} from 'vue';
 import useAttributes from '../../../composable/useAttributes';
 import useKeyValidation from '../../../composable/useKeyValidation';
 import { keyboardFocus as vKeyboardFocus } from '../../../utilities/directives';
+import UiText from '../UiText/UiText.vue';
+import type { TextAttrsProps } from '../UiText/UiText.vue';
+import type { DefineAttrsProps } from '../../../types';
 
-const props = defineProps({
+export type InputModelValue = string;
+export interface InputProps {
   /**
    * Use this props to set input placeholder.
    */
-  placeholder: {
-    type: String,
-    default: '',
-  },
+  placeholder?: string;
   /**
    * Use this props to set input type.
    */
-  type: {
-    type: String,
-    default: 'text',
-  },
+  type?: string;
   /**
    * Use this props to disabled input.
    * Remember to use `ui-input--is-disabled` class to style disabled input.
    */
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
+  disabled?: boolean;
   /**
    * Use this props or v-model to set value.
    */
-  modelValue: {
-    type: String,
-    default: '',
-  },
+  modelValue?: InputModelValue;
   /**
    * Use this props to set suffix.
    */
-  suffix: {
-    type: String,
-    default: '',
-  },
+  suffix?: string;
   /**
    * Use this props to pass attrs for suffix UiText.
    */
-  textSuffixAttrs: {
-    type: Object,
-    default: () => ({ tag: 'span' }),
-  },
+  textSuffixAttrs?: TextAttrsProps;
   /**
    * Use this props to pass attrs for input element.
    */
-  inputAttrs: {
-    type: Object as PropsAttrs,
-    default: () => ({}),
-  },
+  inputAttrs?: DefineAttrsProps<InputProps, InputHTMLAttributes>;
+}
+export type InputAttrsProps = DefineAttrsProps<InputProps>;
+export interface InputEmits {
+  (e: 'update:modelValue', value: InputModelValue): void
+}
+
+const props = withDefaults(defineProps<InputProps>(), {
+  placeholder: '',
+  type: 'text',
+  disabled: false,
+  modelValue: '',
+  suffix: '',
+  textSuffixAttrs: () => ({ tag: 'span' }),
+  inputAttrs: () => ({}),
 });
-const emit = defineEmits<{(e: 'update:modelValue', value: string): void
-}>();
+const defaultProps = computed(() => {
+  const tag: TextAttrsProps['tag'] = 'span';
+  return {
+    textSuffixAttrs: {
+      tag,
+      ...props.textSuffixAttrs,
+    },
+    inputAttrs: {
+      type: props.type,
+      placeholder: props.placeholder,
+      disabled: props.disabled,
+      ...listeners.value,
+      ...props.inputAttrs,
+    },
+  };
+});
+const emit = defineEmits<InputEmits>();
 const {
   attrs, listeners,
-} = useAttributes();
-const defaultProps = computed(() => ({
-  textSuffixAttrs: {
-    tag: 'span' as HTMLTag,
-    ...props.textSuffixAttrs,
-  },
-  inputAttrs: {
-    type: props.type,
-    placeholder: props.placeholder,
-    disabled: props.disabled,
-    ...listeners.value,
-    ...props.inputAttrs,
-  },
-}));
+} = useAttributes<HTMLAttributes>();
 const { numbersOnly } = useKeyValidation();
-function keyValidation(event: Event): void {
+const keyValidation = (event: KeyboardEvent) => {
   switch (props.type) {
     case 'number':
       numbersOnly(event);
       break;
     default:
   }
-}
-function inputHandler(event: Event): void {
+};
+const inputHandler = (event: Event) => {
   const el = event.target as HTMLInputElement;
   emit('update:modelValue', el.value);
-}
+};
+const input = ref(null);
 </script>
 
 <style lang="scss">
@@ -158,7 +163,7 @@ function inputHandler(event: Event): void {
 
   @include mixins.hover {
     &::after {
-      border-color: functions.var($element + "-hover", border-color, var(--color-border-strong-hover));
+      @include mixins.use-logical($element + "-hover", border-color, var(--color-border-strong-hover));
     }
   }
 
@@ -191,10 +196,10 @@ function inputHandler(event: Event): void {
 
   &__input {
     @include mixins.font($element, body-1);
+    @include mixins.use-logical($element, padding, var(--space-12) var(--space-16));
+    @include mixins.use-logical($element, border-width, 0);
 
     width: 100%;
-    padding: functions.var($element, padding, var(--space-12) var(--space-16));
-    border: 0;
     background: transparent;
     border-radius: inherit;
     caret-color: functions.var($element, caret-color, var(--color-blue-500));
@@ -227,18 +232,10 @@ function inputHandler(event: Event): void {
   }
 
   &__aside {
-    margin: functions.var($element + "-aside", margin, 0 var(--space-16) 0 calc(var(--space-4) * -1));
-
-    [dir="rtl"] & {
-      margin: functions.var($element + "-rtl-aside", margin, 0 calc(var(--space-4) * -1) 0 var(--space-16));
-    }
+    @include mixins.use-logical($element + "-aside", margin, 0 var(--space-16) 0 calc(var(--space-4) * -1));
 
     &.ui-button {
-      margin: functions.var($element + "-aside", margin, 0 var(--space-12) 0 calc(var(--space-4) * -1));
-
-      [dir="rtl"] & {
-        margin: functions.var($element + "-rtl-aside", margin, 0 calc(var(--space-4) * -1) 0 var(--space-12));
-      }
+      @include mixins.use-logical($element + "-aside", margin, 0 var(--space-12) 0 calc(var(--space-4) * -1));
     }
   }
 

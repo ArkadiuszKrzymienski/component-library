@@ -12,39 +12,34 @@
 
 <script setup lang="ts">
 // https://www.figma.com/file/54rgvRJfBBagt4F34rrp1s/Core-Component-Library?node-id=2%3A3027
-import type { PropType } from 'vue';
-import type { HTMLTag } from '../../../types/tag';
+import type { HTMLAttributes } from 'vue';
 import useLink from '../../../composable/useLink';
 import { keyboardFocus as vKeyboardFocus } from '../../../utilities/directives';
+import type {
+  DefineAttrsProps,
+  HTMLTag,
+} from '../../../types';
 
-const props = defineProps({
+export interface LinkProps {
   /**
    * Use this props to set tag when a component shouldn't be a link.
    */
-  tag: {
-    type: [
-      String,
-      Object,
-    ] as PropType<HTMLTag | Record<string, unknown>>,
-    default: 'span',
-  },
+  tag?: HTMLTag;
   /**
    * Use this props to set route for internal link.
    */
-  to: {
-    type: [
-      String,
-      Object,
-    ] as PropType<string | Record<string, unknown>>,
-    default: '',
-  },
+  to?: string | Record<string, unknown>;
   /**
    * Use this props to set route for external link.
    */
-  href: {
-    type: String,
-    default: '',
-  },
+  href?: string;
+}
+export type LinkAttrsProps<T = HTMLAttributes> = DefineAttrsProps<LinkProps, T>;
+
+const props = withDefaults(defineProps<LinkProps>(), {
+  tag: 'span',
+  to: '',
+  href: '',
 });
 const {
   componentTag, routeAttrs,
@@ -62,8 +57,9 @@ const {
   @include mixins.inner-border($element, $color: transparent, $width: 0, $radius: var(--border-radius-button));
   @include mixins.font($element, body-1);
 
-  display: inline;
+  display: inline-flex;
   color: functions.var($element, color, var(--color-text-action-primary));
+  gap: functions.var($element, gap, var(--space-4));
   text-decoration: none;
   transition: color 150ms ease-in-out;
   vertical-align: top;
@@ -107,21 +103,8 @@ const {
     --icon-color: #{functions.var($element + "-icon", color, var(--color-icon-primary))};
 
     flex: none;
-    margin: functions.var($element + "-icon", margin, 0 var(--space-4) 0 0);
     transition: fill 150ms ease-in-out;
     vertical-align: top;
-
-    [dir="rtl"] & {
-      margin: functions.var($element + "-rtl-icon", margin, 0 0 0 var(--space-4));
-    }
-
-    &--right {
-      margin: functions.var($element + "-icon", margin, 0 0 0 var(--space-4));
-
-      [dir="rtl"] & {
-        margin: functions.var($element + "-rtl-icon", margin, 0 var(--space-4) 0 0);
-      }
-    }
   }
 
   @at-root [class*="-secondary"] {

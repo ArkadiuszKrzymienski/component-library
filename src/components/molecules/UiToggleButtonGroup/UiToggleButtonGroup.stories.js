@@ -53,7 +53,7 @@ export const Common = (args) => ({
       modelValue,
     };
   },
-  template: `<UiToggleButtonGroup 
+  template: `<UiToggleButtonGroup
     v-model="modelValue"
     :items="items"
   />`,
@@ -75,7 +75,7 @@ export const WithToggleButtonSlot = (args) => ({
     :items="items"
   >
     <template #first="{ item }">
-      {{item.text}}
+      {{ item.text }}
     </template>
   </UiToggleButtonGroup>`,
 });
@@ -113,7 +113,7 @@ Disabled.args = {
     {
       text: 'First',
       value: 'first',
-      toggleButtonAttrs: { class: 'ui-toggle-button--is-disabled' },
+      class: 'ui-toggle-button--is-disabled',
     },
     {
       text: 'Second',
@@ -138,7 +138,7 @@ PressedDisabled.args = {
     {
       text: 'Second',
       value: 'second',
-      toggleButtonAttrs: { class: 'ui-toggle-button--is-disabled' },
+      class: 'ui-toggle-button--is-disabled',
     },
     {
       text: 'Third',
@@ -230,13 +230,13 @@ WithIcon.args = {
     {
       text: 'First',
       value: 'first',
-      toggleButtonAttrs: { class: 'ui-toggle-button--has-icon' },
+      class: 'ui-toggle-button--has-icon',
       icon: 'dots',
     },
     {
       text: 'Second',
       value: 'second',
-      toggleButtonAttrs: { class: 'ui-toggle-button--has-icon' },
+      class: 'ui-toggle-button--has-icon',
       icon: 'plus',
     },
   ],
@@ -259,8 +259,8 @@ export const WithDefaultSlot = (args) => ({
     :deselectable="deselectable"
   >
     <template
-        v-for="(item, key) in items"
-        :key="key"
+      v-for="(item, key) in items"
+      :key="key"
     >
       <UiToggleButton :value="item">
         {{ item }}

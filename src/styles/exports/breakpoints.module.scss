@@ -1,12 +1,12 @@
 @use "../variables/breakpoints";
 
 :export {
-    mobileMaxWidth: breakpoints.$mobile-max-width;
-    tabletMinWidth: breakpoints.$tablet-min-width;
-    tabletMaxWidth: breakpoints.$tablet-max-width;
-    desktopMinWidth: breakpoints.$desktop-min-width;
-    toMobile: unquote("(max-width: #{breakpoints.$mobile-max-width})");
-    toTablet: unquote("(max-width: #{breakpoints.$tablet-max-width})");
-    fromTablet: unquote("(min-width: #{breakpoints.$tablet-min-width})");
-    fromDesktop: unquote("(min-width: #{breakpoints.$desktop-min-width})");
+  desktopMinWidth: breakpoints.$desktop-min-width;
+  fromDesktop: unquote("(min-width: #{breakpoints.$desktop-min-width})");
+  fromTablet: unquote("(min-width: #{breakpoints.$tablet-min-width})");
+  mobileMaxWidth: breakpoints.$mobile-max-width;
+  tabletMaxWidth: breakpoints.$tablet-max-width;
+  tabletMinWidth: breakpoints.$tablet-min-width;
+  toMobile: unquote("(max-width: #{breakpoints.$mobile-max-width})");
+  toTablet: unquote("(max-width: #{breakpoints.$tablet-max-width})");
 }

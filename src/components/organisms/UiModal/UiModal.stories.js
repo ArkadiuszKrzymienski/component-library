@@ -112,17 +112,40 @@ export default {
       provide('modelValue', modelValue);
       return { toggleModal };
     },
-    template: `<div style="minHeight: 320px">
+    template: `<div class="min-h-80">
       <UiButton
-          class="ui-button--theme-secondary ui-button--text"
-          @click='toggleModal'
+        class="ui-button--theme-secondary ui-button--text"
+        @click='toggleModal'
       >
         Show modal
       </UiButton>
       <story/>
     </div>`,
   }) ],
-  parameters: { docs: { description: { component: 'Modal use `v-body-scroll-lock`. Only works on Canvas mode.' } } },
+  parameters: {
+    docs: { description: { component: 'Modal use `v-body-scroll-lock`. Only works on Canvas mode.' } },
+    cssProperties: {
+      '--modal-padding-block': 'var(--modal-padding-block-start, var(--space-24)) var(--modal-padding-block-end, var(--space-24))',
+      '--modal-padding-inline': 'var(--modal-padding-inline-start, var(--space-24)) var(--modal-padding-inline-end, var(--space-24))',
+      '--modal-margin-block': 'var(--modal-margin-block-start, 0) var(--modal-margin-block-end, 0)',
+      '--modal-margin-inline': 'var(--modal-margin-inline-start, 0) var(--modal-margin-inline-end, 0)',
+      '--modal-border-start-start-radius': 'var(--border-radius-container)',
+      '--modal-border-start-end-radius': 'var(--border-radius-container)',
+      '--modal-border-end-start-radius': 'var(--border-radius-container)',
+      '--modal-border-end-end-radius': 'var(--border-radius-container)',
+      '--modal-max-width': '40rem',
+      '--modal-background': 'var(--color-background-white)',
+      '--modal-box-shadow': 'var(--box-shadow-high)',
+      '--modal-title-margin-block': 'var(--modal-title-margin-block-start, 0) var(--modal-title-margin-block-end, var(--space-12))',
+      '--modal-title-margin-inline': 'var(--modal-title-margin-inline-start, 0) var(--modal-title-margin-inline-end, 0)',
+      '--modal-actions-margin-block': 'var(--modal-actions-margin-block-start, var(--space-32)) var(--modal-actions-margin-block-end, 0)',
+      '--modal-actions-margin-inline': 'var(--modal-actions-margin-inline-start, 0) var(--modal-actions-margin-inline-end, 0)',
+      '--modal-confirm-margin-block': 'var(--modal-confirm-margin-block-start, 0) var(--modal-confirm-margin-block-end, var(--space-12))',
+      '--modal-confirm-margin-inline': 'var(--modal-confirm-margin-inline-start, 0) var(--modal-confirm-margin-inline-end, 0)',
+      '--modal-tablet-confirm-margin-block': 'var(--modal-tablet-confirm-margin-block-start, 0) var(--modal-tablet-confirm-margin-block-end, 0)',
+      '--modal-tablet-confirm-margin-inline': 'var(--modal-tablet-confirm-margin-inline-start, var(--space-12)) var(--modal-tablet-confirm-margin-inline-end, 0)',
+    },
+  },
 };
 
 const Template = (args) => ({
@@ -143,7 +166,7 @@ const Template = (args) => ({
     :has-cancel="hasCancel"
     :has-confirm="hasConfirm"
     :translation="translation"
-    :transition-backdrop-attrs="translationBackdropAttrs"
+    :transition-backdrop-attrs="transitionBackdropAttrs"
     :backdrop-attrs="backdropAttrs"
     :transition-dialog-attrs="transitionDialogAttrs"
     :heading-title-attrs="headingTitleAttrs"
@@ -191,7 +214,7 @@ export const WithBackdropSlot = (args) => ({
     :has-cancel="hasCancel"
     :has-confirm="hasConfirm"
     :translation="translation"
-    :transition-backdrop-attrs="translationBackdropAttrs"
+    :transition-backdrop-attrs="transitionBackdropAttrs"
     :backdrop-attrs="backdropAttrs"
     :transition-dialog-attrs="transitionDialogAttrs"
     :heading-title-attrs="headingTitleAttrs"
@@ -205,18 +228,16 @@ export const WithBackdropSlot = (args) => ({
     @confirm="onConfirm"
     @cancel="onCancel"
   >
-    <template 
-      #backdrop="{
-        transitionBackdropAttrs,
-        modelValue,
-        backdropAttrs,
-        closeHandler, 
-      }"
-    >
+    <template #backdrop="{
+      transitionBackdropAttrs,
+      modelValue,
+      backdropAttrs,
+      closeHandler,
+    }">
       <transition v-bind="transitionBackdropAttrs">
         <UiBackdrop
           v-if="modelValue"
-          v-bind="UiBackdrop"
+          v-bind="backdropAttrs"
           class="ui-modal__backdrop"
           @click="closeHandler"
         />
@@ -253,7 +274,7 @@ export const WithContainerSlot = (args) => ({
     :has-cancel="hasCancel"
     :has-confirm="hasConfirm"
     :translation="translation"
-    :transition-backdrop-attrs="translationBackdropAttrs"
+    :transition-backdrop-attrs="transitionBackdropAttrs"
     :backdrop-attrs="backdropAttrs"
     :transition-dialog-attrs="transitionDialogAttrs"
     :heading-title-attrs="headingTitleAttrs"
@@ -267,34 +288,32 @@ export const WithContainerSlot = (args) => ({
     @confirm="onConfirm"
     @cancel="onCancel"
   >
-    <template
-      #container="{
-        transitionDialogAttrs,
-        modelValue,
-        title,
-        hasHeader,
-        titleSlotName,
-        titleTag,
-        titleAttrs,
-        titleText,
-        description,
-        buttonCloseAttrs,
-        confirmHandler,
-        cancelHandler,
-        closeHandler,
-        iconCloseAttrs,
-        hasDescription,
-        textDescriptionAttrs,
-        isClosable,
-        hasActions,
-        hasConfirm,
-        buttonConfirmAttrs,
-        translation,
-        hasCancel,
-        buttonCancelAttrs,
-        dialogAttrs,
-      }"
-    >
+    <template #container="{
+      transitionDialogAttrs,
+      modelValue,
+      title,
+      hasHeader,
+      titleSlotName,
+      titleTag,
+      titleAttrs,
+      titleText,
+      description,
+      buttonCloseAttrs,
+      confirmHandler,
+      cancelHandler,
+      closeHandler,
+      iconCloseAttrs,
+      hasDescription,
+      textDescriptionAttrs,
+      isClosable,
+      hasActions,
+      hasConfirm,
+      buttonConfirmAttrs,
+      translation,
+      hasCancel,
+      buttonCancelAttrs,
+      dialogAttrs,
+    }">
       <transition
         v-bind="transitionDialogAttrs"
       >
@@ -303,10 +322,10 @@ export const WithContainerSlot = (args) => ({
           v-focus-trap
           v-body-scroll-lock
           v-bind="dialogAttrs"
-          class="ui-modal__dialog"
-          :class="{
-            'ui-modal__dialog--has-title': title
-          }"
+          :class="[
+            'ui-modal__dialog',
+            { 'ui-modal__dialog--has-title': title },
+          ]"
         >
           <div
             v-if="hasHeader"
@@ -391,6 +410,7 @@ export const WithHeaderSlot = (args) => ({
     UiText,
     UiHeading,
     UiIcon,
+    UiButton,
   },
   directives: {
     focusTrap,
@@ -412,7 +432,7 @@ export const WithHeaderSlot = (args) => ({
     :has-cancel="hasCancel"
     :has-confirm="hasConfirm"
     :translation="translation"
-    :transition-backdrop-attrs="translationBackdropAttrs"
+    :transition-backdrop-attrs="transitionBackdropAttrs"
     :backdrop-attrs="backdropAttrs"
     :transition-dialog-attrs="transitionDialogAttrs"
     :heading-title-attrs="headingTitleAttrs"
@@ -426,23 +446,21 @@ export const WithHeaderSlot = (args) => ({
     @confirm="onConfirm"
     @cancel="onCancel"
   >
-    <template 
-      #header="{
-        hasHeader,
-        titleSlotName,
-        titleTag,
-        titleAttrs,
-        titleText,
-        description,
-        isClosable,
-        buttonCloseAttrs,
-        closeHandler,
-        iconCloseAttrs,
-        title,
-        hasDescription,
-        textDescriptionAttrs,
-      }"
-    >
+    <template #header="{
+      hasHeader,
+      titleSlotName,
+      titleTag,
+      titleAttrs,
+      titleText,
+      description,
+      isClosable,
+      buttonCloseAttrs,
+      closeHandler,
+      iconCloseAttrs,
+      title,
+      hasDescription,
+      textDescriptionAttrs,
+    }">
       <div
         v-if="hasHeader"
         class="ui-modal__header"
@@ -502,7 +520,7 @@ export const WithTitleSlot = (args) => ({
     :has-cancel="hasCancel"
     :has-confirm="hasConfirm"
     :translation="translation"
-    :transition-backdrop-attrs="translationBackdropAttrs"
+    :transition-backdrop-attrs="transitionBackdropAttrs"
     :backdrop-attrs="backdropAttrs"
     :transition-dialog-attrs="transitionDialogAttrs"
     :heading-title-attrs="headingTitleAttrs"
@@ -516,14 +534,12 @@ export const WithTitleSlot = (args) => ({
     @confirm="onConfirm"
     @cancel="onCancel"
   >
-    <template 
-      #title="{
-        titleTag,
-        titleAttrs,
-        titleText,
-        description,
-      }"
-    >
+    <template #title="{
+      titleTag,
+      titleAttrs,
+      titleText,
+      description,
+    }">
       <component
         :is="titleTag"
         v-bind="titleAttrs"
@@ -561,7 +577,7 @@ export const WithCloseSlot = (args) => ({
     :has-cancel="hasCancel"
     :has-confirm="hasConfirm"
     :translation="translation"
-    :transition-backdrop-attrs="translationBackdropAttrs"
+    :transition-backdrop-attrs="transitionBackdropAttrs"
     :backdrop-attrs="backdropAttrs"
     :transition-dialog-attrs="transitionDialogAttrs"
     :heading-title-attrs="headingTitleAttrs"
@@ -575,14 +591,12 @@ export const WithCloseSlot = (args) => ({
     @confirm="onConfirm"
     @cancel="onCancel"
   >
-    <template 
-      #close="{
-        isClosable,
-        buttonCloseAttrs,
-        closeHandler,
-        iconCloseAttrs,
-      }"
-    >
+    <template #close="{
+      isClosable,
+      buttonCloseAttrs,
+      closeHandler,
+      iconCloseAttrs,
+    }">
       <UiButton
         v-if="isClosable"
         v-bind="buttonCloseAttrs"
@@ -623,7 +637,7 @@ export const WithDescriptionSlot = (args) => ({
     :has-cancel="hasCancel"
     :has-confirm="hasConfirm"
     :translation="translation"
-    :transition-backdrop-attrs="translationBackdropAttrs"
+    :transition-backdrop-attrs="transitionBackdropAttrs"
     :backdrop-attrs="backdropAttrs"
     :transition-dialog-attrs="transitionDialogAttrs"
     :heading-title-attrs="headingTitleAttrs"
@@ -637,16 +651,14 @@ export const WithDescriptionSlot = (args) => ({
     @confirm="onConfirm"
     @cancel="onCancel"
   >
-    <template 
-      #description="{ 
-        hasDescription,
-        textDescriptionAttrs,
-        description
-      }"
-    >
+    <template #description="{
+      hasDescription,
+      textDescriptionAttrs,
+      description
+    }">
       <UiText
         v-if="hasDescription"
-        v-bind="attrs"
+        v-bind="textDescriptionAttrs"
         class="ui-modal__description"
       >
         {{ description }}
@@ -691,7 +703,7 @@ export const WithActionsSlot = (args) => ({
     :has-cancel="hasCancel"
     :has-confirm="hasConfirm"
     :translation="translation"
-    :transition-backdrop-attrs="translationBackdropAttrs"
+    :transition-backdrop-attrs="transitionBackdropAttrs"
     :backdrop-attrs="backdropAttrs"
     :transition-dialog-attrs="transitionDialogAttrs"
     :heading-title-attrs="headingTitleAttrs"
@@ -705,20 +717,18 @@ export const WithActionsSlot = (args) => ({
     @confirm="onConfirm"
     @cancel="onCancel"
   >
-    <template 
-      #actions="{
-        hasActions,
-        isClosable,
-        hasConfirm,
-        buttonConfirmAttrs,
-        confirmHandler,
-        translation,
-        hasCancel,
-        buttonCancelAttrs,
-        cancelHandler,
-        iconCloseAttrs,
-      }"
-    >
+    <template #actions="{
+      hasActions,
+      isClosable,
+      hasConfirm,
+      buttonConfirmAttrs,
+      confirmHandler,
+      translation,
+      hasCancel,
+      buttonCancelAttrs,
+      cancelHandler,
+      iconCloseAttrs,
+    }">
       <div
         v-if="hasActions"
         class="ui-modal__actions"
@@ -789,7 +799,7 @@ export const WithConfirmSlot = (args) => ({
     :has-cancel="hasCancel"
     :has-confirm="hasConfirm"
     :translation="translation"
-    :transition-backdrop-attrs="translationBackdropAttrs"
+    :transition-backdrop-attrs="transitionBackdropAttrs"
     :backdrop-attrs="backdropAttrs"
     :transition-dialog-attrs="transitionDialogAttrs"
     :heading-title-attrs="headingTitleAttrs"
@@ -803,14 +813,12 @@ export const WithConfirmSlot = (args) => ({
     @confirm="onConfirm"
     @cancel="onCancel"
   >
-    <template
-      #confirm="{ 
-        hasConfirm,
-        buttonConfirmAttrs,
-        confirmHandler,
-        translation,
-      }"
-    >
+    <template #confirm="{
+      hasConfirm,
+      buttonConfirmAttrs,
+      confirmHandler,
+      translation,
+    }">
       <UiButton
         v-if="hasConfirm"
         v-bind="buttonConfirmAttrs"
@@ -848,7 +856,7 @@ export const WithCancelSlot = (args) => ({
     :has-cancel="hasCancel"
     :has-confirm="hasConfirm"
     :translation="translation"
-    :transition-backdrop-attrs="translationBackdropAttrs"
+    :transition-backdrop-attrs="transitionBackdropAttrs"
     :backdrop-attrs="backdropAttrs"
     :transition-dialog-attrs="transitionDialogAttrs"
     :heading-title-attrs="headingTitleAttrs"
@@ -862,14 +870,12 @@ export const WithCancelSlot = (args) => ({
     @confirm="onConfirm"
     @cancel="onCancel"
   >
-    <template 
-      #cancel="{
-        hasCancel,
-        buttonCancelAttrs,
-        cancelHandler,
-        translation,
-      }"
-    >
+    <template #cancel="{
+      hasCancel,
+      buttonCancelAttrs,
+      cancelHandler,
+      translation,
+    }">
       <UiButton
         v-if="hasCancel"
         v-bind="buttonCancelAttrs"

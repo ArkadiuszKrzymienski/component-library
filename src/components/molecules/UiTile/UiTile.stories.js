@@ -8,6 +8,8 @@ import {
   content,
   modifiers,
 } from '@sb/helpers/argTypes';
+import './UiTIle.stories.scss';
+import docs from './UiTile.mdx';
 
 const events = actions({ onUpdateModelValue: 'update:modelValue' });
 
@@ -58,6 +60,26 @@ export default {
     iconAttrs: { table: { subcategory: 'Attrs props' } },
     textLabelAttrs: { table: { subcategory: 'Attrs props' } },
   },
+  parameters: {
+    docs: { page: docs },
+    cssProperties: {
+      '--tile-padding-block': 'var(--space-16)',
+      '--tile-padding-inline': 'var(--space-16)',
+      '--tile-gap': 'var(--space-16)',
+      '--tile-tablet-padding-block': 'var(--space-24)',
+      '--tile-tablet-padding-inline': 'var(--space-16)',
+      '--tile-icon-size': '2rem',
+      '--tile-tablet-icon-size': '4rem',
+      '--tile-checked-border-block-width': '2px',
+      '--tile-checked-border-inline-width': '2px',
+      '--tile-checked-border-inline-color': 'var(--color-border-strong)',
+      '--tile-checked-border-block-color': 'var(--color-border-strong)',
+      '--tile-hover-checked-border-block-color': 'var(--color-border-strong)',
+      '--tile-hover-checked-border-inline-color': 'var(--color-border-strong)',
+      '--tile-active-checked-border-block-color': 'var(--color-border-strong)',
+      '--tile-active-checked-border-inline-color': 'var(--color-border-strong)',
+    },
+  },
 };
 
 const Template = (args) => ({
@@ -79,11 +101,13 @@ const Template = (args) => ({
     :icon="icon"
     :icon-attrs="iconAttrs"
     :text-label-attrs="textLabelAttrs"
-    :class="modifiers"
-    style="width: 100%; max-width: 320px;"
+    :class="[
+      'tile',
+      modifiers,
+    ]"
     @update:modelValue="onUpdateModelValue"
   >
-    {{content}}
+    {{ content }}
   </UiTile>`,
 });
 
@@ -116,8 +140,10 @@ export const WithIconSlot = (args) => ({
     :icon="icon"
     :icon-attrs="iconAttrs"
     :text-label-attrs="textLabelAttrs"
-    :class="modifiers"
-    style="width: 100%; max-width: 320px;"
+    :class="[
+      'tile',
+      modifiers,
+    ]"
     @update:modelValue="onUpdateModelValue"
   >
     <template #icon="{ iconAttrs }">
@@ -149,8 +175,10 @@ export const WithLabelSlot = (args) => ({
     :id="id"
     :icon-attrs="iconAttrs"
     :text-label-attrs="textLabelAttrs"
-    :class="modifiers"
-    style="width: 100%; max-width: 320px;"
+    :class="[
+      'tile',
+      modifiers,
+    ]"
     @update:modelValue="onUpdateModelValue"
   >
     <template #label="{ textLabelAttrs }">
@@ -176,10 +204,7 @@ export const AsGroup = (args) => ({
       modelValue,
     };
   },
-  template: `<div 
-    class="flex flex-col tablet:flex-row"
-    style="width: 100%; max-width: 1008px;"
-  >
+  template: `<div class="tile-as-group">
     <template 
       v-for="(item, index) in items" 
       :key="index"
@@ -191,8 +216,11 @@ export const AsGroup = (args) => ({
         :icon="item.icon"
         :icon-attrs="item.iconAttrs"
         :text-label-attrs="item.textLabelAttrs"
-        :class="[item.class, modifiers]"
-        style="flex: 1;"
+        :class="[
+          'tile-as-group__tile',
+          item.class,
+          modifiers,
+        ]"
         @update:modelValue="onUpdateModelValue"
       >
         {{ item.label }}

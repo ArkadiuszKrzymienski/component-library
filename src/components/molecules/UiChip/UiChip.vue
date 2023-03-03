@@ -8,7 +8,7 @@
       <!-- @slot Use this slot to place content inside chip. -->
       <UiText
         v-bind="textLabelAttrs"
-        class="body-2-comfortable ui-chip__label"
+        class="ui-text--body-2-comfortable ui-chip__label"
       >
         <slot />
       </UiText>
@@ -17,14 +17,13 @@
     <slot
       name="remove"
       v-bind="{
-        buttonAttrs,
         buttonRemoveAttrs,
         clickHandler,
         iconRemoveAttrs: defaultProps.iconRemoveAttrs
       }"
     >
       <UiButton
-        v-bind="buttonAttrs || buttonRemoveAttrs"
+        v-bind="buttonRemoveAttrs"
         class="ui-button--icon ui-button--circled ui-chip__remove"
         @click="clickHandler"
       >
@@ -43,78 +42,70 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  useAttrs,
-} from 'vue';
+import { computed } from 'vue';
 import UiButton from '../../atoms/UiButton/UiButton.vue';
+import type { ButtonAttrsProps } from '../../atoms/UiButton/UiButton.vue';
 import UiIcon from '../../atoms/UiIcon/UiIcon.vue';
+import type { IconAttrsProps } from '../../atoms/UiIcon/UiIcon.vue';
 import UiText from '../../atoms/UiText/UiText.vue';
-import type { PropsAttrs } from '../../../types/attrs';
-import type { Icon } from '../../../types/icon';
+import type { TextAttrsProps } from '../../atoms/UiText/UiText.vue';
+import type { DefineAttrsProps } from '../../../types';
 
-const props = defineProps({
+export interface ChipProps {
   /**
    * Use this props to pass attrs for remove UiButton
    */
-  textLabelAttrs: {
-    type: Object as PropsAttrs,
-    default: () => ({
-    }),
-  },
+  textLabelAttrs?: TextAttrsProps;
   /**
    * Use this props to pass attrs for remove UiButton
    */
-  buttonRemoveAttrs: {
-    type: Object as PropsAttrs,
-    default: () => ({}),
-  },
+  buttonRemoveAttrs?: ButtonAttrsProps;
   /**
    * Use this props to pass attrs for remove UiIcon
    */
-  iconRemoveAttrs: {
-    type: Object as PropsAttrs,
-    default: () => ({ icon: 'remove-filled' }),
-  },
+  iconRemoveAttrs?: IconAttrsProps;
+}
+export type ChipAttrsProps = DefineAttrsProps<ChipProps>;
+export interface ChipEmits {
+  (e:'remove'): void;
+}
+
+const props = withDefaults(defineProps<ChipProps>(), {
+  textLabelAttrs: () => ({}),
+  buttonRemoveAttrs: () => ({}),
+  iconRemoveAttrs: () => ({ icon: 'remove-filled' }),
 });
-const defaultProps = computed(() => ({
-  iconRemoveAttrs: {
-    icon: 'remove-filled' as Icon,
-    ...props.iconRemoveAttrs,
-  },
-}));
-const emit = defineEmits<{(e:'remove'): void}>();
-function clickHandler(): void {
+const defaultProps = computed(() => {
+  const icon: IconAttrsProps['icon'] = 'remove-filled';
+  return {
+    iconRemoveAttrs: {
+      icon,
+      ...props.iconRemoveAttrs,
+    },
+  };
+});
+const emit = defineEmits<ChipEmits>();
+const clickHandler = () => {
   emit('remove');
-}
-// TODO: remove in 0.6.0 / BEGIN
-const attrs = useAttrs();
-const buttonAttrs = computed(() => attrs.buttonAttrs || attrs['button-attrs']);
-if (buttonAttrs.value) {
-  if (process.env.NODE_ENV === 'development') {
-    console.warn('[@infermedica/component-library warn][UiChip]: The `buttonAttrs` props will be removed in 0.6.0. Please use `buttonRemoveAttrs` props instead.');
-  }
-}
-// END
+};
 </script>
 
 <style lang="scss">
 @use "../../../styles/functions";
+@use "../../../styles/mixins";
 
 .ui-chip {
   $this: &;
   $element: chip;
 
+  @include mixins.use-logical($element, padding, var(--space-4) var(--space-4) var(--space-4) var(--space-12));
+  @include mixins.use-logical($element, border-radius, var(--border-radius-form));
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: functions.var($element, padding, var(--space-4) var(--space-4) var(--space-4) var(--space-12));
   background: functions.var($element, background, var(--color-chip-background));
-  border-radius: functions.var($element, border-radius, var(--border-radius-pill));
-
-  [dir="rtl"] & {
-    padding: functions.var($element + "-rtl", padding, var(--space-4) var(--space-12) var(--space-4) var(--space-4));
-  }
+  gap: functions.var($element, gap, var(--space-8));
 
   &__label {
     --text-color: #{functions.var($element + "-label", color, var(--color-chip-text))};
@@ -135,21 +126,12 @@ if (buttonAttrs.value) {
         color,
         var(--color-chip-icon-background-active)
       )};
-
-    margin: functions.var($element + "-icon", margin, -2px);
   }
 
   &__remove {
-    margin: functions.var($element + "-remove", margin, var(--space-2) var(--space-2) var(--space-2) var(--space-4));
+    @include mixins.pointer-area($element + "-remove", var(--space-32));
 
-    [dir="rtl"] & {
-      margin:
-        functions.var(
-          $element + "-rtl-remove",
-          margin,
-          var(--space-2) var(--space-4) var(--space-2) var(--space-2)
-        );
-    }
+    align-self: flex-start;
   }
 }
 </style>

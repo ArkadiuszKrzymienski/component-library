@@ -1,206 +1,281 @@
 <template>
-  <component
-    :is="tag"
-    role="radiogroup"
-    :aria-labelledby="multipleChoicesItemId"
+  <UiListItem
+    :list-item-attrs="defaultProps.listItemAttrs"
     :class="[
-      'ui-multiple-choices-item', { 'ui-multiple-choices-item--has-error': invalid }
+      'ui-multiple-choices-item__content', {
+        'ui-list-item--has-error': invalid,
+        'ui-multiple-choices-item--has-error': invalid
+      }
     ]"
+    :tag="tag"
+    :aria-labelledby="multipleChoicesItemId"
+    role="radiogroup"
   >
     <!-- @slot Use this slot to replace legend template. -->
     <slot
+      v-bind="{ label, }"
       name="legend"
-      v-bind="{
-        label,
-        name,
-      }"
     >
       <legend class="visual-hidden">
-        {{ name || label }}
+        {{ label }}
       </legend>
     </slot>
-    <!-- @slot Use this slot to replace label template.-->
+    <!-- @slot Use this slot to replace header template.-->
     <slot
-      name="label"
       v-bind="{
         id: multipleChoicesItemId,
         textLabelAttrs,
-        name,
         label,
+        hasInfo,
         buttonInfoAttrs,
         iconInfoAttrs: defaultProps.iconInfoAttrs,
         translation,
       }"
+      name="header"
     >
       <div class="ui-multiple-choices-item__header">
-        <UiText
-          :id="multipleChoicesItemId"
-          v-bind="textLabelAttrs"
-          class="ui-multiple-choices-item__label"
-        >
-          {{ name || label }}
-        </UiText>
-        <UiButton
-          v-if="buttonInfoAttrs"
-          v-bind="buttonInfoAttrs"
-          class="ui-button--text ui-button--small ui-multiple-choices-item__info"
-        >
-          <UiIcon
-            v-bind="defaultProps.iconInfoAttrs"
-            class="ui-button__icon ui-multiple-choices-item__info-icon"
-          />
-          <span class="ui-multiple-choices-item__info-message">
-            {{ translation.info }}
-          </span>
-        </UiButton>
-      </div>
-    </slot>
-    <div class="ui-multiple-choices-item__options">
-      <template
-        v-for="(option, key) in optionsToRender"
-        :key="key"
-      >
-        <!-- @slot Use this slot to replace option template.-->
         <slot
-          name="option"
           v-bind="{
-            value,
-            option,
-            invalid,
+            multipleChoicesItemId,
+            textLabelAttrs,
+            label
+          }"
+          name="label"
+        >
+          <UiText
+            :id="multipleChoicesItemId"
+            v-bind="textLabelAttrs"
+            class="ui-multiple-choices-item__label"
+          >
+            {{ label }}
+          </UiText>
+        </slot>
+        <slot
+          name="info"
+          v-bind="{
+            hasInfo,
+            buttonInfoAttrs,
+            iconInfoAttrs: defaultProps.iconInfoAttrs,
+            labelInfoAttrs,
+            translation
           }"
         >
-          <UiRadio
-            v-model="value"
-            v-bind="option"
-            :class="[
-              'ui-multiple-choices-item__option', { 'ui-radio--has-error': invalid }
-            ]"
-            :name="multipleChoicesItemId"
+          <UiButton
+            v-if="hasInfo"
+            v-bind="buttonInfoAttrs"
+            class="ui-button--text ui-button--small ui-multiple-choices-item__info"
           >
-            {{ option.label }}
-          </UiRadio>
+            <UiIcon
+              v-bind="defaultProps.iconInfoAttrs"
+              class="ui-button__icon ui-multiple-choices-item__info-icon"
+            />
+            <span
+              v-bind="labelInfoAttrs"
+              class="ui-multiple-choices-item__info-label"
+            >
+              {{ translation.info }}
+            </span>
+          </UiButton>
         </slot>
-      </template>
+      </div>
+    </slot>
+    <div class="ui-multiple-choices-item__choices">
+      <!-- TODO: create MultipleChoicesItemOptions component -->
+      <UiList
+        class="ui-multiple-choices-item__options"
+      >
+        <template
+          v-for="(option, key) in optionsToRender"
+          :key="key"
+        >
+          <!-- @slot Use this slot to replace option template.-->
+          <slot
+            name="option"
+            v-bind="{
+              value,
+              listOptionItemAttrs: defaultProps.listOptionItemAttrs,
+              invalid,
+              option,
+            }"
+          >
+            <UiListItem
+              v-model="value"
+              v-bind="option"
+              :tag="UiRadio"
+              :name="multipleChoicesItemId"
+              :class="[
+                'ui-multiple-choices-item__option-content', {
+                  'ui-radio--has-error': invalid,
+                  'ui-list-item--has-error': invalid,
+                }
+              ]"
+              :list-item-attrs="defaultProps.listOptionItemAttrs"
+            >
+              {{ option.label }}
+            </UiListItem>
+          </slot>
+        </template>
+      </UiList>
+      <!-- @slot Use this slot to replace alert template. -->
+      <slot
+        name="alert"
+        v-bind="{
+          invalid,
+          alertAttrs,
+          translation: defaultProps.translation,
+        }"
+      >
+        <UiAlert
+          v-if="invalid"
+          v-bind="alertAttrs"
+          class="ui-multiple-choices-item__alert"
+        >
+          {{ defaultProps.translation.invalid }}
+        </UiAlert>
+      </slot>
     </div>
-  </component>
+  </UiListItem>
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  useAttrs,
-} from 'vue';
+import { computed } from 'vue';
 import { uid } from 'uid/single';
-import type { PropType } from 'vue';
-import type { HTMLTag } from '../../../../types/tag';
+import type {
+  MultipleChoicesModelValue,
+  MultipleChoicesOption,
+} from '../UiMultipleChoices.vue';
+import UiAlert from '../../../molecules/UiAlert/UiAlert.vue';
+import type { AlertAttrsProps } from '../../../molecules/UiAlert/UiAlert.vue';
+import UiButton from '../../../atoms/UiButton/UiButton.vue';
+import type { ButtonAttrsProps } from '../../../atoms/UiButton/UiButton.vue';
+import UiIcon from '../../../atoms/UiIcon/UiIcon.vue';
+import type { IconAttrsProps } from '../../../atoms/UiIcon/UiIcon.vue';
+import UiList from '../../UiList/UiList.vue';
+import UiListItem from '../../UiList/_internal/UiListItem.vue';
+import type { ListItemAttrsProps } from '../../UiList/_internal/UiListItem.vue';
 import UiRadio from '../../../atoms/UiRadio/UiRadio.vue';
 import UiText from '../../../atoms/UiText/UiText.vue';
-import UiButton from '../../../atoms/UiButton/UiButton.vue';
-import UiIcon from '../../../atoms/UiIcon/UiIcon.vue';
-import type { MultipleChoiceOption } from '../UiMultipleChoices.vue';
-import type { Icon } from '../../../../types/icon';
+import type { TextAttrsProps } from '../../../atoms/UiText/UiText.vue';
+import type {
+  DefineAttrsProps,
+  HTMLTag,
+  Icon,
+} from '../../../../types';
 
-const props = defineProps({
+export interface MultipleChoicesItemTranslation {
+  info?: string;
+  invalid?: string;
+}
+export interface MultipleChoicesItemProps {
   /**
    * Use this props to set multiple choices item tag.
    */
-  tag: {
-    type: String as PropType<HTMLTag>,
-    default: 'fieldset',
-  },
+  tag?: HTMLTag;
   /**
    * Use this props to set multiple choices item label.
    */
-  label: {
-    type: String,
-    default: '',
-  },
+  label?: string;
   /**
    * Use this props to set invalid state of choice item.
    */
-  invalid: {
-    type: Boolean,
-    default: true,
-  },
+  invalid?: boolean;
   /**
    *  Use this props or v-model to set checked.
    */
-  modelValue: {
-    type: [
-      String,
-      Object,
-    ] as PropType<string | Record<string, unknown>>,
-    default: '',
-  },
+  modelValue?: MultipleChoicesModelValue;
   /**
    * Use this props to set item of item.
    */
-  id: {
-    type: String,
-    default: '',
-  },
+  id?: string;
   /**
    * Use this props to pass labels inside component translation.
    */
-  translation: {
-    type: Object,
-    default: () => ({ info: 'What does it mean?' }),
-  },
+  translation?: MultipleChoicesItemTranslation;
   /**
    *  Use this props to pass options.
    */
-  options: {
-    type: Array as PropType<MultipleChoiceOption[]>,
-    default: () => ([]),
-  },
+  options?: MultipleChoicesOption[];
+  /**
+   * Use this props to pass attrs for hint UiAlert
+   */
+  alertAttrs?: AlertAttrsProps;
   /**
    * Use this props to pass attrs for info UiButton.
    */
-  buttonInfoAttrs: {
-    type: Object,
-    default: null,
-  },
+  buttonInfoAttrs?: ButtonAttrsProps;
+  /**
+   * Use this props to pass attrs for info label element.
+   */
+  labelInfoAttrs?: DefineAttrsProps<null>;
   /**
    * Use this props to pass attrs for info UiIcon.
    */
-  iconInfoAttrs: {
-    type: Object,
-    default: () => ({ icon: 'info' }),
-  },
+  iconInfoAttrs?: IconAttrsProps;
   /**
    * Use this props to pass attrs for label UiText.
    */
-  textLabelAttrs: {
-    type: Object,
-    default: () => ({ tag: 'span' }),
-  },
-});
-interface DefaultProps {
-  textLabelAttrs: {
-    tag: HTMLTag;
-    [key: string]: unknown
-  };
-  iconInfoAttrs: {
-    icon: Icon;
-    [key: string]: unknown
-  };
-  [key: string]: unknown
+  textLabelAttrs?: TextAttrsProps;
+  /**
+   * Use this props to pass attrs for list item.
+   */
+  listItemAttrs?: ListItemAttrsProps;
+  /**
+   * Use this props to pass attrs for list option item.
+   */
+  listOptionItemAttrs?: ListItemAttrsProps;
 }
-const defaultProps = computed<DefaultProps>(() => ({
-  translation: {
+export type MultipleChoicesItemAttrsProps = DefineAttrsProps<MultipleChoicesItemProps, ListItemAttrsProps>;
+export interface MultipleChoicesItemEmits {
+  (e: 'update:modelValue', value: MultipleChoicesModelValue): void;
+}
+
+const props = withDefaults(defineProps<MultipleChoicesItemProps>(), {
+  tag: 'fieldset',
+  label: '',
+  invalid: true,
+  modelValue: '',
+  id: '',
+  translation: () => ({
     info: 'What does it mean?',
-    ...props.translation,
-  },
-  textLabelAttrs: {
-    tag: 'span',
-    ...props.textLabelAttrs,
-  },
-  iconInfoAttrs: {
-    icon: 'info',
-    ...props.iconInfoAttrs,
-  },
-}));
-const emit = defineEmits<{(e: 'update:modelValue', value: string | Record<string, unknown>): void}>();
+    invalid: 'Please select one answer',
+  }),
+  options: () => ([]),
+  alertAttrs: () => ({}),
+  buttonInfoAttrs: () => ({}),
+  labelInfoAttrs: () => ({}),
+  iconInfoAttrs: () => ({ icon: 'info' }),
+  textLabelAttrs: () => ({ tag: 'span' }),
+  listItemAttrs: () => ({ class: 'ui-multiple-choices-item' }),
+  listOptionItemAttrs: () => ({ class: 'ui-multiple-choices-item__option' }),
+});
+const defaultProps = computed(() => {
+  const icon: Icon = 'info';
+  const tag: HTMLTag = 'span';
+  return {
+    translation: {
+      info: 'What does it mean?',
+      invalid: 'Please select one answer',
+      ...props.translation,
+    },
+    listItemAttrs: {
+      class: 'ui-multiple-choices-item',
+      ...props.listItemAttrs,
+    },
+    textLabelAttrs: {
+      tag,
+      ...props.textLabelAttrs,
+    },
+    iconInfoAttrs: {
+      icon,
+      ...props.iconInfoAttrs,
+    },
+    listOptionItemAttrs: {
+      class: 'ui-multiple-choices-item__option',
+      ...props.listOptionItemAttrs,
+    },
+  };
+});
+const emit = defineEmits<MultipleChoicesItemEmits>();
 const multipleChoicesItemId = computed(() => (props.id || `multiple-choices-item-${uid()}`));
 const value = computed({
   get: () => props.modelValue,
@@ -208,24 +283,8 @@ const value = computed({
     emit('update:modelValue', newValue);
   },
 });
-// TODO: remove in 0.6.0 / BEGIN
-const attrs = useAttrs();
-const name = computed(() => (attrs.name));
-if (name.value) {
-  if (process.env.NODE_ENV === 'development') {
-    console.warn('[@infermedica/component-library warn][UiMultipleChoicesItem]: The `name` props will be removed in 0.6.0. Please use `label` props instead.');
-  }
-}
-if (props.options.some((option) => option.name)) {
-  if (process.env.NODE_ENV === 'development') {
-    console.warn('[@infermedica/component-library warn][UiMultipleChoicesItem]: The option `name` props will be removed in 0.6.0. Please use option `label` props instead.');
-  }
-}
-const optionsToRender = computed(() => props.options.map((option) => ({
-  label: option.name || option.label,
-  ...option,
-})));
-// END
+const hasInfo = computed(() => (Object.keys(props.buttonInfoAttrs).length > 0));
+const optionsToRender = computed(() => props.options.map((option) => ({ ...option })));
 </script>
 
 <style lang="scss">
@@ -236,82 +295,61 @@ const optionsToRender = computed(() => props.options.map((option) => ({
   $this: &;
   $element: multiple-choices-item;
 
-  @at-root fieldset#{&} {
-    border: none;
-    margin: 0;
+  &:not(:first-of-type) {
+    --list-item-border-block-width: #{functions.var($element , border-block-width, 0)};
+    --list-item-border-inline-width: #{functions.var($element , border-inline-width, 0)};
   }
 
-  display: flex;
-  flex-direction: column;
-  padding: functions.var($element, padding, var(--space-20) 0 0 0);
-  background: functions.var($element, background, transparent);
-
   @include mixins.from-tablet {
-    flex-direction: row;
-    justify-content: space-between;
-    padding: functions.var($element + "-tablet-choice", padding, var(--space-12));
+    &:not(:first-of-type) {
+      --list-item-border-block-width: #{functions.var($element , border-block-width)};
+      --list-item-border-inline-width: #{functions.var($element , border-inline-width)};
+    }
+  }
 
-    @include mixins.hover {
-      background: functions.var($element + "-tablet-hover", background, var(--color-background-white-hover));
+  &__content {
+    @at-root fieldset#{&} {
+      border: none;
+      margin: 0;
+    }
+
+    --list-item-content-padding-block: #{functions.var($element + "-content", padding-block, 0)};
+    --list-item-content-padding-inline: #{functions.var($element + "-content", padding-inline, 0)};
+    --list-item-content-hover-background: #{functions.var($element + "-content-hover", background, transparent)};
+
+    display: block;
+
+    @include mixins.from-tablet {
+      --list-item-content-hover-background: #{functions.var($element + "-tablet-content-hover", background)};
+
+      display: flex;
+      gap: functions.var($element + "-tablet-content", gap, var(--space-24));
     }
   }
 
   &__header {
+    @include mixins.use-logical($element + "-header", padding, var(--space-12) var(--space-20));
+    @include mixins.use-logical($element + "-header", margin, var(--space-20) 0 0 0);
+
     display: flex;
-    flex: 1;
     justify-content: space-between;
-    padding: functions.var($element + "-header", padding, var(--space-12) var(--space-20));
+    gap: functions.var($element + "-header", gap, var(--space-12));
 
     @include mixins.from-tablet {
+      @include mixins.use-logical($element + "-tablet-header", padding, 0);
+      @include mixins.use-logical($element + "-tablet-header", margin, 0);
+
       flex-direction: column;
       align-items: flex-start;
-      justify-content: flex-start;
-      padding: functions.var($element + "-tablet-header", padding, 0);
-    }
-  }
-
-  &__options {
-    display: flex;
-    flex-direction: column;
-
-    @include mixins.from-tablet {
-      flex-direction: row;
-    }
-  }
-
-  &__option {
-    @include mixins.inner-border(
-      $element: multiple-answer-list-item,
-      $color: var(--color-border-divider),
-      $width: 1px 0 0 0
-    );
-
-    padding: functions.var($element + "-option", padding, var(--space-12) var(--space-20));
-    margin: functions.var($element + "-option", margin, 0);
-
-    @include mixins.from-tablet {
-      padding: functions.var($element + "-tablet-option", padding, 0);
-      margin: functions.var($element + "-tablet-option", margin, 0 0 0 var(--space-24));
-
-      [dir="rtl"] & {
-        margin: functions.var($element + "-rtl-tablet-option", margin, 0 var(--space-24) 0 0);
-      }
-
-      &::after {
-        border-width: 0;
-      }
+      gap: functions.var($element + "-tablet-header", gap, var(--space-8));
     }
   }
 
   &__info {
-    margin: functions.var($element + "-info", margin, 0);
-
-    @include mixins.from-tablet {
-      margin: functions.var($element + "-tablet-info", margin, var(--space-8) 0 0 0);
-    }
+    gap: functions.var($element + "-info", gap, var(--space-4));
   }
 
-  &__info-message {
+  &__info-label {
     @include mixins.to-mobile {
       position: absolute;
       overflow: hidden;
@@ -324,28 +362,61 @@ const optionsToRender = computed(() => props.options.map((option) => ({
   }
 
   &__info-icon {
-    --button-icon-margin: #{functions.var($element + "-info-icon", margin, 0)};
-    --button-rtl-icon-margin: #{functions.var($element + "-rtl-info-icon", margin, 0)};
+    --button-icon-margin-logical: 0;
+  }
+
+  &__choices {
+    display: flex;
+    flex-direction: column;
+    gap: functions.var($element + "-choices", gap, 0);
 
     @include mixins.from-tablet {
-      --button-icon-margin: #{functions.var($element + "-tablet-info-icon", margin, 0 var(--space-4) 0 0)};
-      --button-rtl-icon-margin: #{functions.var($element + "-rtl-tablet-info-icon", margin, 0 0 0 var(--space-4))};
+      gap: functions.var($element + "-tablet-choices", gap, var(--space-8));
+    }
+  }
+
+  &__options {
+    --list-item-border-block-width: #{functions.var($element + "-options" , border-block-width)};
+    --list-item-border-inline-width: #{functions.var($element + "-options" , border-inline-width)};
+
+    @include mixins.from-tablet {
+      --list-item-border-block-width: #{functions.var($element + "-tablet-options" , border-block-width, 0)};
+      --list-item-border-inline-width: #{functions.var($element + "-tablet-options" , border-inline-width, 0)};
+
+      display: flex;
+      gap: functions.var($element + "-options", gap, var(--space-24));
+    }
+  }
+
+  &__option-content {
+    --list-item-content-padding-block: #{functions.var($element + "-option-content", padding-block)};
+    --list-item-content-padding-inline: #{functions.var($element + "-option-content", padding-inline)};
+    --list-item-tablet-content-padding-block: #{functions.var($element + "-tablet-option-content", padding-block, 0)};
+    --list-item-tablet-content-padding-inline: #{functions.var($element + "-tablet-option-content", padding-inline, 0)};
+    --list-item-content-hover-background: #{functions.var($element + "-content-hover", background)};
+  }
+
+  &__alert {
+    @include mixins.use-logical($element + "-alert", padding, var(--space-12) var(--space-20) 0);
+
+    @include mixins.from-tablet {
+      @include mixins.use-logical($element + "-tablet-alert", padding, 0);
     }
   }
 
   &--has-error {
-    @include mixins.from-tablet {
-      background: functions.var($element + "-tablet", background, var(--color-background-error));
+    --_list-item-background: #{functions.var($element, background, transparent)};
+    --list-item-background: var(--_list-item-background);
+    --list-item-hover-background: var(--_list-item-background);
 
-      @include mixins.hover {
-        background: functions.var($element + "-tablet-hover", background, var(--color-background-error));
-      }
+    @include mixins.from-tablet {
+      --_list-item-background: #{functions.var($element + "-tablet", background)};
     }
 
     #{$this}__option {
-      @include mixins.to-mobile {
-        background: functions.var($element + "-option", background, var(--color-background-error));
-      }
+      --_list-item-option-background: #{functions.var($element + "-option", background)};
+      --list-item-background: var(--_list-item-option-background);
+      --list-item-hover-background: var(--_list-item-option-background);
     }
   }
 }

@@ -18,7 +18,6 @@
       <UiText
         v-else
         v-bind="defaultProps.textMarkerAttrs"
-        tag="span"
         class="ui-bullet-points-item__marker"
       />
     </slot>
@@ -43,60 +42,65 @@ import {
   inject,
 } from 'vue';
 import type {
-  PropType,
   ComputedRef,
+  LiHTMLAttributes,
 } from 'vue';
-import type { IconAsString } from '../../../../types/icon';
-import type { ListTag } from '../../../../types/tag';
 import UiIcon from '../../../atoms/UiIcon/UiIcon.vue';
+import type { IconAttrsProps } from '../../../atoms/UiIcon/UiIcon.vue';
 import UiText from '../../../atoms/UiText/UiText.vue';
+import type { TextAttrsProps } from '../../../atoms/UiText/UiText.vue';
+import type {
+  DefineAttrsProps,
+  Icon,
+  HTMLListTag,
+} from '../../../../types';
 
-const props = defineProps({
+export interface BulletPointsItemProps {
   /**
    * Use this props to set the bullet point icon.
    */
-  icon: {
-    type: String as PropType<IconAsString>,
-    default: 'bullet-common',
-  },
+  icon?: Icon;
   /**
    * Use this props to pass attrs for marker UiIcon
    */
-  iconMarkerAttrs: {
-    type: Object,
-    default: () => ({}),
-  },
+  iconMarkerAttrs?: IconAttrsProps;
   /**
    * Use this props to pass attrs for checkmark UiIcon
    */
-  textMarkerAttrs: {
-    type: Object,
-    default: () => ({ tag: 'span' }),
-  },
+  textMarkerAttrs?: TextAttrsProps;
   /**
    * Use this props to pass attrs for text content UiText
    */
-  textContentAttrs: {
-    type: Object,
-    default: () => ({ }),
-  },
+  textContentAttrs?: TextAttrsProps;
+}
+export type BulletPointsItemAttrsProps = DefineAttrsProps<BulletPointsItemProps, LiHTMLAttributes>;
+
+const props = withDefaults(defineProps<BulletPointsItemProps>(), {
+  icon: 'bullet-common',
+  iconMarkerAttrs: () => ({}),
+  textMarkerAttrs: () => ({ tag: 'span' }),
+  textContentAttrs: () => ({ }),
 });
-const tag = inject('tag') as ComputedRef<ListTag>;
+const defaultProps = computed(() => {
+  const tag: TextAttrsProps['tag'] = 'span';
+  return {
+    iconMarkerAttrs: {
+      icon: props.icon,
+      ...props.iconMarkerAttrs,
+    },
+    textMarkerAttrs: {
+      tag,
+      ...props.textMarkerAttrs,
+    },
+  };
+});
+const tag = inject<ComputedRef<HTMLListTag>>('tag', computed(() => 'ul'));
 const isUnordered = computed(() => tag.value === 'ul');
-const defaultProps = computed(() => ({
-  iconMarkerAttrs: {
-    icon: props.icon,
-    ...props.iconMarkerAttrs,
-  },
-  textMarkerAttrs: {
-    tag: 'span',
-    ...props.textMarkerAttrs,
-  },
-}));
 </script>
 
 <style lang="scss">
 @use "../../../../styles/functions";
+@use "../../../../styles/mixins";
 
 .ui-bullet-points-item {
   $element: bullet-points-item;
@@ -104,21 +108,12 @@ const defaultProps = computed(() => ({
   display: flex;
   align-items: functions.var($element, align-items, flex-start);
   justify-content: functions.var($element, justify-content, flex-start);
-  margin: functions.var($element, margin, var(--space-4) 0);
-
-  &:last-child {
-    margin: 0;
-  }
+  gap: functions.var($element, gap, var(--space-12));
 
   &__marker {
     --icon-color: #{functions.var($element + "-marker", color, var(--color-text-body))};
 
     flex: none;
-    margin: functions.var($element + "-marker", padding, 0 var(--space-12) 0 0);
-
-    [dir="rtl"] & {
-      margin: functions.var($element + "-rtl-marker", padding, 0 0 0 var(--space-12));
-    }
 
     &::before {
       display: block;

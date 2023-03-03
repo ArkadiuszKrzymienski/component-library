@@ -10,14 +10,14 @@
       <slot name="icon" />
     </template>
     <template
-      #message="{ textMessageAttrs, }"
+      #message="{ textMessageAttrs }"
     >
       <!-- @slot Use this slot to replace message template. -->
       <slot
         name="message"
         v-bind="{ textMessageAttrs }"
       >
-        <div class="notification__message">
+        <div class="ui-notification__message">
           <!-- @slot Use this slot to replace text template. -->
           <slot
             name="text"
@@ -50,7 +50,7 @@
               <UiIcon
                 v-bind="defaultProps.iconActionAttrs"
                 icon="chevron-right"
-                class="ui-button__icon ui-button__icon--right"
+                class="ui-button__icon"
               />
             </UiButton>
           </slot>
@@ -62,62 +62,63 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { PropType } from 'vue';
 import UiAlert from '../UiAlert/UiAlert.vue';
+import type { AlertAttrsProps } from '../UiAlert/UiAlert.vue';
 import UiText from '../../atoms/UiText/UiText.vue';
 import UiButton from '../../atoms/UiButton/UiButton.vue';
+import type { ButtonAttrsProps } from '../../atoms/UiButton/UiButton.vue';
 import UiIcon from '../../atoms/UiIcon/UiIcon.vue';
+import type { IconAttrsProps } from '../../atoms/UiIcon/UiIcon.vue';
+import type { DefineAttrsProps } from '../../../types';
 
-export type NotificationType = 'success' | 'info' | 'warning' | 'error';
-const props = defineProps({
+export interface NotificationTranslation {
+  action?: string;
+}
+export interface NotificationProps {
   /**
    * Use this props to set notification type.
    */
-  type: {
-    type: String as PropType<NotificationType>,
-    default: 'error',
-  },
+  type?: 'success' | 'info' | 'warning' | 'error';
   /**
    * Use this props to hide icon.
    */
-  hasIcon: {
-    type: Boolean,
-    default: true,
-  },
+  hasIcon?: boolean;
   /**
    * Use this props to pass labels inside component translation.
    */
-  translation: {
-    type: Object,
-    default: () => ({ action: 'Action' }),
-  },
+  translation?: NotificationTranslation;
   /**
    * Use this props to pass attrs for action UiButton.
    */
-  buttonActionAttrs: {
-    type: Object,
-    default: () => ({
-    }),
-  },
+  buttonActionAttrs?: ButtonAttrsProps;
   /**
    * Use this props to pass attrs for action UiIcon.
    */
-  iconActionAttrs: {
-    type: Object,
-    default: () => ({ icon: 'chevron-right' }),
-  },
+  iconActionAttrs?: IconAttrsProps;
+}
+export type NotificationAttrsProps = DefineAttrsProps<NotificationProps, AlertAttrsProps>
+
+const props = withDefaults(defineProps<NotificationProps>(), {
+  type: 'error',
+  hasIcon: true,
+  translation: () => ({ action: 'Action' }),
+  buttonActionAttrs: () => ({}),
+  iconActionAttrs: () => ({ icon: 'chevron-right' }),
 });
-const defaultProps = computed(() => ({
-  translation: {
-    action: 'Action',
-    ...props.translation,
-  },
-  iconActionAttrs: {
-    icon: 'chevron-right',
-    ...props.iconActionAttrs,
-  },
-}));
-const modifier = computed<`ui-notification--${NotificationType}`>(() => `ui-notification--${props.type}`);
+const defaultProps = computed(() => {
+  const icon: IconAttrsProps['icon'] = 'chevron-right';
+  return {
+    translation: {
+      action: 'Action',
+      ...props.translation,
+    },
+    iconActionAttrs: {
+      icon,
+      ...props.iconActionAttrs,
+    },
+  };
+});
+const modifier = computed(() => `ui-notification--${props.type}`);
 const hasAction = computed(() => (Object.keys(props.buttonActionAttrs).length > 0));
 </script>
 
@@ -129,17 +130,20 @@ const hasAction = computed(() => (Object.keys(props.buttonActionAttrs).length > 
   $element: notification;
   $types: "success", "info", "warning", "error";
 
-  @include mixins.inner-border($element, $radius: var(--border-radius-container), $color: var(--color-border-strong));
+  --alert-gap: #{functions.var($element, gap, var(--space-12))};
 
-  --alert-icon-margin: #{functions.var($element + "-icon", margin, 0 var(--space-12) 0 0)};
-  --alert-rtl-icon-margin: #{functions.var($element + "-rtl-icon", margin, 0 0 0 var(--space-12))};
+  @include mixins.use-logical($element, padding, var(--space-12));
+  @include mixins.inner-border(
+    $element,
+    $radius: var(--border-radius-container),
+    $color: var(--color-border-strong)
+  );
 
   display: flex;
-  padding: functions.var($element, padding, var(--space-12));
   background: functions.var($element, background);
 
   &__action {
-    margin: functions.var($element + "-action", margin, var(--space-4) 0 0 0);
+    @include mixins.use-logical($element + "-action", margin, var(--space-4) 0 0);
   }
 
   @each $type in $types {
@@ -147,7 +151,7 @@ const hasAction = computed(() => (Object.keys(props.buttonActionAttrs).length > 
       background: functions.var($element, background, var(--color-background-#{$type}));
 
       &::after {
-        border-color: functions.var($element, border-color, var(--color-border-#{$type}-subtle));
+        @include mixins.use-logical($element, border-color, var(--color-border-#{$type}-subtle));
       }
     }
   }

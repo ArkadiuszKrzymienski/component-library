@@ -3,6 +3,8 @@ import UiCheckbox from '@/components/atoms/UiCheckbox/UiCheckbox.vue';
 import UiInput from '@/components/atoms/UiInput/UiInput.vue';
 import UiText from '@/components/atoms/UiText/UiText.vue';
 import UiAlert from '@/components/molecules/UiAlert/UiAlert.vue';
+import './UiFormField.stories.scss';
+import docs from './UiFormField.mdx';
 
 export default {
   title: 'Molecules/FormField',
@@ -62,6 +64,13 @@ export default {
     textHintAttrs: { table: { subcategory: 'Attrs props' } },
     alertAttrs: { table: { subcategory: 'Attrs props' } },
   },
+  parameters: {
+    docs: { page: docs },
+    cssProperties: {
+      '--form-field-alert-margin-block': 'var(--form-field-alert-margin-block-start, var(--space-8)) var(--form-field-alert-margin-block-end, 0)',
+      '--form-field-alert-margin-inline': 'var(--form-field-alert-margin-inline-start, 0) var(--form-field-alert-margin-inline-end, 0)',
+    },
+  },
 };
 
 export const WithInput = (args) => ({
@@ -80,16 +89,17 @@ export const WithInput = (args) => ({
     :text-message-attrs="textMessageAttrs"
     :text-hint-attrs="textHintAttrs"
     :alert-attrs="alertAttrs"
+    class="form-field-with-input"
   >
     <template #default="{ id }">
       <UiInput
         :id="id"
         suffix="cm"
         type="number"
-        style="width: 100%"
-        :class="{
-          'ui-input--has-error': errorMessage
-        }"
+        :class="[
+          'form-field-with-input__input', 
+          { 'ui-input--has-error': errorMessage },
+        ]"
       />
     </template>
   </UiFormField>`,
@@ -104,9 +114,7 @@ export const WithCheckboxes = (args) => ({
   setup() {
     return { ...args };
   },
-  template: `<UiText
-    style="margin: 0 0 var(--space-24) 0;"
-  >
+  template: `<UiText class="form-field-with-checkboxes-description">
     What’s wrong with this question?
   </UiText>
   <UiFormField
@@ -117,21 +125,21 @@ export const WithCheckboxes = (args) => ({
     :text-message-attrs="textMessageAttrs"
     :text-hint-attrs="textHintAttrs"
     :alert-attrs="alertAttrs"
-    style="--form-field-alert-margin: 0;"
+    class="form-field-with-checkboxes"
   >
     <UiCheckbox
-      :class="{
-        'ui-checkbox--has-error': errorMessage
-      }"
-      style="margin: 0 0 var(--space-24) 0;"
+      :class="[
+        'form-field-with-checkboxes__checkbox',
+        { 'ui-checkbox--has-error': errorMessage },
+      ]"
     >
       I found a typo
     </UiCheckbox>
     <UiCheckbox
-      :class="{
-        'ui-checkbox--has-error': errorMessage
-      }"
-      style="margin: 0 0 var(--space-24) 0;"
+      :class="[
+        'form-field-with-checkboxes__checkbox',
+        { 'ui-checkbox--has-error': errorMessage },
+      ]"
     >
       Other (please comment below)
     </UiCheckbox>
@@ -160,6 +168,7 @@ export const WithLabelSlot = (args) => ({
     :text-message-attrs="textMessageAttrs"
     :text-hint-attrs="textHintAttrs"
     :alert-attrs="alertAttrs"
+    class="form-field-with-input"
   >
     <template #label="{
       message,
@@ -193,10 +202,10 @@ export const WithLabelSlot = (args) => ({
         :id="id"
         suffix="cm"
         type="number"
-        :class="{
-          'ui-input--has-error': errorMessage
-        }"
-        style="width: 100%"
+        :class="[
+          'form-field-with-input__input',
+          { 'ui-input--has-error': errorMessage },
+        ]"
       />
     </template>
   </UiFormField>`,
@@ -218,6 +227,7 @@ export const WithAlertSlot = (args) => ({
     :hint="hint"
     :alert-attrs="alertAttrs"
     :error-message="errorMessage"
+    class="form-field-with-input"
   >
     <template #alert="{
       alertAttrs,
@@ -236,10 +246,10 @@ export const WithAlertSlot = (args) => ({
         :id="id"
         suffix="cm"
         type="number"
-        :class="{
-          'ui-input--has-error': errorMessage
-        }"
-        style="width: 100%"
+        :class="[
+          'form-field-with-input__input',
+          { 'ui-input--has-error': errorMessage },
+        ]"
       />
     </template>
   </UiFormField>`,

@@ -1,66 +1,68 @@
 <template>
-  <UiListItem class="ui-accordion-item">
-    <!-- @slot Use this slot to replace toggler template. -->
-    <slot
-      name="toggler"
-      v-bind="{
-        buttonTogglerAttrs,
-        name,
-        isOpen,
-        toggle,
-        title,
-        iconOpen: defaultProps.settings.iconOpen,
-        iconClose: settings.iconClose,
-        iconTogglerAttrs: defaultProps.iconTogglerAttrs,
-      }"
-    >
-      <UiButton
-        v-bind="buttonTogglerAttrs"
-        :id="`toggler-${name}`"
-        :aria-expanded="`${isOpen}`"
-        :aria-controls="name"
-        class="ui-button--outlined ui-accordion-item__toggler"
-        @click="toggle(name)"
+  <UiListItem :list-item-attrs="defaultProps.listItemAttrs">
+    <template #content>
+      <!-- @slot Use this slot to replace toggler template. -->
+      <slot
+        v-bind="{
+          buttonTogglerAttrs,
+          name,
+          isOpen,
+          toggle,
+          title,
+          iconOpen: defaultProps.settings.iconOpen,
+          iconClose: settings.iconClose,
+          iconTogglerAttrs: defaultProps.iconTogglerAttrs,
+        }"
+        name="toggler"
       >
-        <!-- @slot Use this slot to replace chevron template. -->
-        <slot
-          name="chevron"
-          v-bind="{
-            iconTogglerAttrs: defaultProps.iconTogglerAttrs,
-            isOpen,
-            iconOpen: defaultProps.settings.iconOpen,
-            iconClose: settings.iconClose
-          }"
+        <UiButton
+          v-bind="buttonTogglerAttrs"
+          :id="`toggler-${name}`"
+          :aria-expanded="`${isOpen}`"
+          :aria-controls="name"
+          class="ui-button--outlined ui-accordion-item__toggler"
+          @click="toggle(name)"
         >
-          <UiIcon
-            v-bind="defaultProps.iconTogglerAttrs"
-            class="ui-button__icon ui-accordion-item__chevron"
-          />
-        </slot>
-        {{ title }}
-      </UiButton>
-    </slot>
-    <!-- @slot Use this slot to replace content template. -->
-    <slot
-      name="content"
-      v-bind="{
-        isOpen,
-        contentAttrs,
-        name
-      }"
-    >
-      <div
-        v-show="isOpen"
-        v-bind="contentAttrs"
-        :id="name"
-        role="region"
-        :aria-labelledby="`toggler-${name}`"
-        class="ui-accordion-item__content"
+          <!-- @slot Use this slot to replace chevron template. -->
+          <slot
+            name="chevron"
+            v-bind="{
+              iconTogglerAttrs: defaultProps.iconTogglerAttrs,
+              isOpen,
+              iconOpen: defaultProps.settings.iconOpen,
+              iconClose: settings.iconClose
+            }"
+          >
+            <UiIcon
+              v-bind="defaultProps.iconTogglerAttrs"
+              class="ui-button__icon ui-accordion-item__chevron"
+            />
+          </slot>
+          {{ title }}
+        </UiButton>
+      </slot>
+      <!-- @slot Use this slot to replace content template. -->
+      <slot
+        v-bind="{
+          isOpen,
+          contentAttrs,
+          name
+        }"
+        name="content"
       >
-        <!-- @slot Use this slot to place content inside accordion. -->
-        <slot />
-      </div>
-    </slot>
+        <div
+          v-show="isOpen"
+          v-bind="contentAttrs"
+          :id="name"
+          role="region"
+          :aria-labelledby="`toggler-${name}`"
+          class="ui-accordion-item__content"
+        >
+          <!-- @slot Use this slot to place content inside accordion. -->
+          <slot />
+        </div>
+      </slot>
+    </template>
   </UiListItem>
 </template>
 
@@ -69,94 +71,96 @@ import {
   computed,
   inject,
 } from 'vue';
-import type {
-  ComputedRef,
-  PropType,
-} from 'vue';
+import type { ComputedRef } from 'vue';
 import UiButton from '../../../atoms/UiButton/UiButton.vue';
+import type { ButtonAttrsProps } from '../../../atoms/UiButton/UiButton.vue';
 import UiIcon from '../../../atoms/UiIcon/UiIcon.vue';
+import type { IconAttrsProps } from '../../../atoms/UiIcon/UiIcon.vue';
 import UiListItem from '../../UiList/_internal/UiListItem.vue';
+import type { ListItemAttrsProps } from '../../UiList/_internal/UiListItem.vue';
 import type {
-  AccordionValue,
-  AccordionItemSettings,
+  AccordionModelValue,
+  AccordionToggle,
 } from '../UiAccordion.vue';
-import type { IconAsString } from '../../../../types/icon';
+import type {
+  DefineAttrsProps,
+  Icon,
+} from '../../../../types';
 
-const props = defineProps({
+export interface AccordionItemSettings {
+  iconOpen?: Icon;
+  iconClose?: Icon;
+}
+export interface AccordionItemProps {
   /**
     * Use this props to set item title.
     */
-  title: {
-    type: String,
-    default: '',
-  },
+  title?: string;
   /**
     * Use this props to set item name, it used to toggle.
     */
-  name: {
-    type: String,
-    default: '',
-  },
+  name?: string;
   /**
     * Use this props to setup item component.
     */
-  settings: {
-    type: Object as PropType<AccordionItemSettings>,
-    default: () => ({
-      iconOpen: 'chevron-up',
-      iconClose: 'chevron-down',
-    }),
-  },
+  settings?: AccordionItemSettings;
   /**
    *  Use this props to pass attrs to toggler UiButton.
    */
-  buttonTogglerAttrs: {
-    type: Object,
-    default: () => ({}),
-  },
+  buttonTogglerAttrs?: ButtonAttrsProps;
   /**
    *  Use this props to pass attrs to toggler UiIcon.
    */
-  iconTogglerAttrs: {
-    type: Object,
-    default: () => ({}),
-  },
+  iconTogglerAttrs?: IconAttrsProps;
+  /**
+   *  Use this props to pass attrs to list item.
+   */
+  listItemAttrs?: ListItemAttrsProps['listItemAttrs'];
   /**
    *  Use this props to pass attrs to content element.
    */
-  contentAttrs: {
-    type: Object,
-    default: () => ({}),
-  },
-});
-const defaultProps = computed(() => ({
-  settings: {
+  contentAttrs?: DefineAttrsProps<null>;
+}
+export type AccordionItemAttrsProps = DefineAttrsProps<AccordionItemProps, ListItemAttrsProps>;
+
+const props = withDefaults(defineProps<AccordionItemProps>(), {
+  title: '',
+  name: '',
+  settings: () => ({
     iconOpen: 'chevron-up',
     iconClose: 'chevron-down',
-    ...props.settings,
-  },
-}));
-const opened = inject('opened') as ComputedRef<AccordionValue>;
-const toggle = inject('toggle') as (name: string) => void;
-const isOpen = computed(() => {
-  if (opened.value === 'string') {
-    return props.name === opened.value;
-  }
-  return opened.value.includes(props.name);
+  }),
+  buttonTogglerAttrs: () => ({}),
+  iconTogglerAttrs: () => ({ icon: 'chevron-down' }),
+  contentAttrs: () => ({}),
+  listItemAttrs: () => ({ class: 'ui-accordion-item' }),
 });
-const defaultProps = computed(() => ({
-  settings: {
-    iconOpen: 'chevron-up' as IconAsString,
-    iconClose: 'chevron-down' as IconAsString,
-    ...props.settings,
-  },
-  iconTogglerAttrs: {
-    icon: isOpen.value
-      ? props.settings?.iconOpen || 'chevron-up'
-      : props.settings?.iconClose || 'chevron-down',
-    ...props.iconTogglerAttrs,
-  },
-}));
+const opened = inject<ComputedRef<AccordionModelValue>>('opened', computed(() => ''));
+const toggle = inject<AccordionToggle>('toggle', () => undefined);
+const isOpen = computed(() => (opened.value === 'string'
+  ? props.name === opened.value
+  : opened.value.includes(props.name)));
+const defaultProps = computed(() => {
+  const iconOpen: AccordionItemSettings['iconOpen'] = 'chevron-up';
+  const iconClose: AccordionItemSettings['iconClose'] = 'chevron-down';
+  return {
+    settings: {
+      iconOpen,
+      iconClose,
+      ...props.settings,
+    },
+    iconTogglerAttrs: {
+      icon: isOpen.value
+        ? props.settings.iconOpen || iconOpen
+        : props.settings.iconClose || iconClose,
+      ...props.iconTogglerAttrs,
+    },
+    listItemAttrs: {
+      class: 'ui-accordion-item',
+      ...props.listItemAttrs,
+    },
+  };
+});
 </script>
 
 <style lang="scss">
@@ -167,61 +171,44 @@ const defaultProps = computed(() => ({
   $this: &;
   $element: accordion-item;
 
-  @include mixins.inner-border($element: accordion-item, $color: var(--color-border-divider), $width: 1px 0 0 0);
-
-  --list-item-padding: #{functions.var($element, padding, 0)};
+  --list-item-padding-block: #{functions.var($element, padding-block, 0)};
+  --list-item-padding-inline: #{functions.var($element, padding-inline, 0)};
+  --list-item-tablet-block: #{functions.var($element + "-tablet", padding-block, 0)};
+  --list-item-tablet-inline: #{functions.var($element + "-tablet", padding-inline, 0)};
+  --list-item-hover-background: #{functions.var($element + "-hover", background, transparent)};
 
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
 
-  &:last-of-type {
-    &::after {
-      border-width: functions.var($element, border-width, 1px 0);
-    }
-  }
-
   &__toggler {
-    --button-padding: #{functions.var($element + "-toggler", padding, var(--space-12))};
-    --button-border-width: #{functions.var($element + "-toggler", border-width, 0)};
-    --button-border-radius: #{functions.var($element + "-toggler", border-radius, 0)};
+    @include mixins.override-logical(button, $element + "-toggler", padding, var(--space-12));
+    @include mixins.override-logical(button, $element + "-toggler", border-width, 0);
+    @include mixins.override-logical(button, $element + "-toggler", border-radius, 0);
     --button-font: #{functions.var($element, font, var(--font-body-1))};
     --button-letter-spacing: #{functions.var($element, letter-spacing, var(--letter-spacing-body-1))};
-    --button-icon-margin: #{functions.var($element + "-toggler", icon-margin,  0 var(--space-12) 0 0)};
-    --button-rtl-icon-margin: #{functions.var($element + "-rtl-toggler", icon-margin,  0 0 0 var(--space-12))};
+    --button-icon-margin-inline: #{functions.var($element + "-toggler", icon-margin-inline,  0)};
+    --button-gap: #{functions.var($element + "-toggler", gap, var(--space-12))};
 
     width: 100%;
     align-items: flex-start;
     justify-content: flex-start;
-    text-align: left;
+    text-align: start;
 
     @include mixins.focus {
       box-shadow: var(--focus-inner);
     }
-
-    [dir="rtl"] & {
-      text-align: right;
-    }
   }
 
   &__content {
-    width: 100%;
-    padding:
-      functions.var(
-        $element + "-content",
-        padding,
-        var(--space-12) var(--space-12) var(--space-12) var(--space-48)
-      );
+    @include mixins.use-logical(
+      $element + "-content",
+      padding,
+      var(--space-12) var(--space-12) var(--space-12) var(--space-48)
+    );
 
-    [dir="rtl"] & {
-      padding:
-        functions.var(
-          $element + "-rtl-content",
-          padding,
-          var(--space-12) var(--space-48) var(--space-12) var(--space-12)
-        );
-    }
+    width: 100%;
   }
 }
 </style>

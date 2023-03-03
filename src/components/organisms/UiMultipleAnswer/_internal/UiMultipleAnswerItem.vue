@@ -1,180 +1,248 @@
 <template>
-  <component
-    :is="component"
+  <UiListItem
     :id="id"
-    :value="value"
-    :class="[
-      'ui-multiple-answer-item', errorClass
-    ]"
-    :model-value="modelValue"
-    @update:model-value="handleUpdateModelValue"
-    @keydown="focusExplication"
+    :tag="component"
+    :has-suffix="hasInfo"
+    :suffix-attrs="suffixAttrs"
+    :list-item-attrs="listItemAttrs"
   >
-    <template #label>
+    <!-- @slot Use this slot to replace choice template.-->
+    <template
+      #content="{
+        tag,
+        hasSuffix,
+        suffixComponent,
+      }"
+    >
       <slot
-        name="label"
         v-bind="{
           id,
-          componentName,
-          textLabelAttrs: defaultProps.textLabelAttrs,
-          name:label,
+          value,
+          invalid,
           label,
-          buttonInfoAttrs,
-          unfocusExplication,
-          iconInfoAttrs: defaultProps.iconInfoAttrs,
+          component,
         }"
+        name="choice"
       >
-        <div
-          :class="[
-            'ui-multiple-answer-item__label',`${componentName}__label`
-          ]"
+        <component
+          :is="tag"
+          ref="content"
+          v-bind="$attrs"
+          :text-label-attrs="defaultProps.textLabelAttrs"
+          :value="value"
+          :model-value="modelValue"
+          class="ui-list-item__content"
+          :class="[ errorClass ]"
+          @update:model-value="handleValueUpdate"
+          @keydown="handleInfoFocus"
         >
-          <UiText
-            v-bind="defaultProps.textLabelAttrs"
+          <!-- @slot Use this slot to place content inside list-item. -->
+          <slot name="content" />
+          <!-- @slot Use this slot to replace label template.-->
+          <slot
+            :name="`label-${id}`"
+            v-bind="{ label }"
           >
             {{ label }}
-          </UiText>
-          <UiButton
-            v-if="buttonInfoAttrs"
-            v-bind="buttonInfoAttrs"
-            tabindex="-1"
-            class="ui-button--icon ui-multiple-answer-item__explication"
-            @keydown="unfocusExplication"
-          >
-            <UiIcon
-              v-bind="defaultProps.iconInfoAttrs"
-              class="ui-button__icon"
-            />
-          </UiButton>
-        </div>
+          </slot>
+        </component>
+      </slot>
+
+      <!-- @slot Use this slot to replace suffix template -->
+      <slot
+        name="suffix"
+        v-bind="{
+          hasSuffix,
+          suffixComponent,
+          suffixAttrs
+        }"
+      >
+        <component
+          :is="suffixComponent"
+          v-if="hasSuffix"
+          ref="suffix"
+          v-bind="suffixAttrs"
+          class="ui-list-item__suffix ui-multiple-answer-item__suffix"
+        />
       </slot>
     </template>
-  </component>
+  </UiListItem>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import UiRadio from '../../../atoms/UiRadio/UiRadio.vue';
-import UiCheckbox from '../../../atoms/UiCheckbox/UiCheckbox.vue';
-import UiText from '../../../atoms/UiText/UiText.vue';
-import UiButton from '../../../atoms/UiButton/UiButton.vue';
-import UiIcon from '../../../atoms/UiIcon/UiIcon.vue';
+import {
+  ref,
+  computed,
+  onMounted,
+  nextTick,
+} from 'vue';
 import { focusElement } from '../../../../utilities/helpers/index';
-import type { HTMLTag } from '../../../../types/tag';
-import type { Icon } from '../../../../types/icon';
+import type { TextAttrsProps } from '../../../atoms/UiText/UiText.vue';
+import type { ButtonAttrsProps } from '../../../atoms/UiButton/UiButton.vue';
+import type { IconAttrsProps } from '../../../atoms/UiIcon/UiIcon.vue';
+import type { MultipleAnswerModelValue } from '../UiMultipleAnswer.vue';
+import UiCheckbox from '../../../atoms/UiCheckbox/UiCheckbox.vue';
+import UiListItem from '../../UiList/_internal/UiListItem.vue';
+import type { ListItemAttrsProps } from '../../UiList/_internal/UiListItem.vue';
+import UiRadio from '../../../atoms/UiRadio/UiRadio.vue';
+import type {
+  DefineAttrsProps,
+  HTMLTag,
+  Icon,
+} from '../../../../types';
 
-export type ComponentName = 'ui-checkbox' | 'ui-radio';
-const props = defineProps({
+export interface MultipleAnswerItemTranslation {
+  info?: string;
+}
+export interface MultipleAnswerItemProps {
   /**
-   * Use this props to set invalid state of choice item.
+   * Use this props to set invalid state of item.
    */
-  invalid: {
-    type: Boolean,
-    default: true,
-  },
+  invalid?: boolean;
   /**
    *  Use this props or v-model to set checked.
    */
-  modelValue: {
-    type: [
-      String,
-      Object,
-      Array,
-    ],
-    default: () => ([]),
-  },
+  modelValue?: MultipleAnswerModelValue;
   /**
-   * Use this props to set value of choice item.
+   * Use this props to set value of item.
    */
-  value: {
-    type: [
-      String,
-      Object,
-    ],
-    default: '',
-  },
+  value?: MultipleAnswerModelValue;
   /**
    * Use this props to set label of item.
    */
-  label: {
-    type: String,
-    default: '',
-  },
+  label?: string;
   /**
-   * Use this props to set item of item.
+   * Use this props to set id of item.
    */
-  id: {
-    type: String,
-    default: '',
-  },
-  /**
-   * Use this props to pass attrs for info UiButton.
-   */
-  buttonInfoAttrs: {
-    type: Object,
-    default: null,
-  },
+  id?: string;
   /**
    * Use this props to pass attrs for label UiText.
    */
-  textLabelAttrs: {
-    type: Object,
-    default: () => ({ tag: 'span' }),
-  },
+  textLabelAttrs?: TextAttrsProps;
   /**
-   * Use this props to pass attrs for info UiIcon.
+   * Use this props to pass attrs for info UiButton.
    */
-  iconInfoAttrs: {
-    type: Object,
-    default: () => ({ icon: 'info' }),
-  },
-});
-interface DefaultProps {
-  textLabelAttrs: {
-    tag: HTMLTag;
-    [key:string]: unknown;
-  };
-  iconInfoAttrs: {
-    icon: Icon;
-    [key:string]: unknown;
-  };
+  buttonInfoAttrs?: ButtonAttrsProps;
+  /**
+   * Use this props to pass attrs for info label element.
+   */
+  labelInfoAttrs?: DefineAttrsProps<null>;
+  /**
+   *  Use this props to pass attrs for info UiIcon.
+   */
+  iconInfoAttrs?: IconAttrsProps;
+  /**
+   * Use this props to pass labels inside component translation.
+   */
+  translation?: MultipleAnswerItemTranslation;
 }
-const defaultProps = computed<DefaultProps>(() => ({
-  textLabelAttrs: {
+export type MultipleAnswerItemAttrsProps = DefineAttrsProps<MultipleAnswerItemProps, ListItemAttrsProps>
+export interface MultipleAnswerItemEmits {
+  (e: 'update:modelValue', value: MultipleAnswerModelValue): void;
+}
+
+const props = withDefaults(defineProps<MultipleAnswerItemProps>(), {
+  invalid: true,
+  modelValue: () => ([]),
+  value: '',
+  label: '',
+  id: '',
+  textLabelAttrs: () => ({
     tag: 'span',
-    ...props.textLabelAttrs,
-  },
-  iconInfoAttrs: {
-    icon: 'info',
-    ...props.iconInfoAttrs,
-  },
-}));
-const emit = defineEmits([ 'update:modelValue' ]);
+    class: 'ui-multiple-answer-item__label',
+  }),
+  buttonInfoAttrs: () => ({}),
+  labelInfoAttrs: () => ({}),
+  iconInfoAttrs: () => ({ icon: 'info' }),
+  translation: () => ({ info: 'What does it mean?' }),
+});
+const defaultProps = computed(() => {
+  const tag: HTMLTag = 'span';
+  const icon: Icon = 'info';
+  return {
+    translation: {
+      info: 'What does it mean?',
+      ...props.translation,
+    },
+    textLabelAttrs: {
+      tag,
+      class: 'ui-multiple-answer-item__label',
+      ...props.textLabelAttrs,
+    },
+    iconInfoAttrs: {
+      icon,
+      ...props.iconInfoAttrs,
+    },
+  };
+});
+const emit = defineEmits<MultipleAnswerItemEmits>();
 const isCheckbox = computed(() => (Array.isArray(props.modelValue)));
 const component = computed(() => (isCheckbox.value ? UiCheckbox : UiRadio));
-const componentName = computed<ComponentName>(() => (isCheckbox.value ? 'ui-checkbox' : 'ui-radio'));
-const errorClass = computed(() => ([
-  props.invalid ? `${componentName.value}--has-error` : '',
-  { 'ui-multiple-answer-item--has-error': props.invalid },
-]));
-function focusExplication(event: KeyboardEvent) {
+const componentName = computed(() => (isCheckbox.value ? 'ui-checkbox' : 'ui-radio'));
+const errorClass = computed(() => (props.invalid
+  ? [
+    `${componentName.value}--has-error`,
+    'ui-list-item--has-error',
+  ]
+  : []));
+const content = ref(null);
+const suffix = ref(null);
+const suffixSize = ref({
+  '--_label-suffix-width': '0',
+  '--_label-suffix-height': '0',
+});
+const handleInfoFocus = (event: KeyboardEvent) => {
   if (event.key !== 'ArrowRight') return;
-  const el = event.target as HTMLInputElement;
-  const explicationButton: HTMLInputElement | null | undefined = el.closest(`.${componentName.value}`)?.querySelector('.ui-multiple-answer-item__explication');
-  if (explicationButton) {
+  if (suffix.value?.$el) {
     event.preventDefault();
-    focusElement(explicationButton);
+    focusElement(suffix.value.$el);
   }
-}
-function unfocusExplication(event: KeyboardEvent) {
+};
+const handleInfoUnfocus = (event: KeyboardEvent) => {
   if (event.key !== 'ArrowLeft') return;
-  const el = event.target as HTMLInputElement;
-  const answerInput: HTMLInputElement | null | undefined = el.closest(`.${componentName.value}`)?.querySelector('input');
-  answerInput?.focus();
-}
-const handleUpdateModelValue = (newValue: Record<string, unknown> | Record<string, unknown>[] | string[]) => {
+  if (content.value?.$refs?.input) {
+    event.preventDefault();
+    focusElement(content.value?.$refs?.input);
+  }
+};
+const handleValueUpdate = (newValue: MultipleAnswerModelValue) => {
   emit('update:modelValue', newValue);
 };
+const suffixAttrs = computed(() => ({
+  label: defaultProps.value.translation.info,
+  tabindex: -1,
+  onKeydown: handleInfoUnfocus,
+  class: [ 'ui-multiple-answer-item__info' ],
+  iconSuffixAttrs: defaultProps.value.iconInfoAttrs,
+  labelSuffixAttrs: {
+    class: [
+      'visual-hidden',
+      props.labelInfoAttrs?.class,
+    ],
+    ...props.labelInfoAttrs,
+  },
+  ...props.buttonInfoAttrs,
+}));
+const hasInfo = computed(() => (Object.keys(props.buttonInfoAttrs).length > 0));
+onMounted(async () => {
+  await nextTick();
+  if (suffix.value?.$el) {
+    const {
+      width, height,
+    } = suffix.value?.$el.getBoundingClientRect();
+    suffixSize.value = {
+      '--_label-suffix-width': `${width}px`,
+      '--_label-suffix-height': `${height}px`,
+    };
+  }
+});
+const listItemAttrs = computed(() => ({
+  class: [
+    'ui-multiple-answer-item',
+    { 'ui-multiple-answer-item--has-info': hasInfo.value },
+  ],
+  style: { ...suffixSize.value },
+}));
 </script>
 
 <style lang="scss">
@@ -185,33 +253,37 @@ const handleUpdateModelValue = (newValue: Record<string, unknown> | Record<strin
   $this: &;
   $element: multiple-answer-item;
 
-  padding: functions.var($element + "-choice", padding, var(--space-12) var(--space-20));
-  background: functions.var($element + "-choice", background, transparent);
+  &--has-info {
+    #{$this}__label {
+      &::after {
+        @include mixins.use-logical($element + "-suffix", margin, 0 0 0 var(--space-12));
 
-  @include mixins.from-tablet {
-    padding: functions.var($element + "-tablet-choice", padding, var(--space-12));
-
-    @include mixins.hover {
-      background: functions.var($element + "-tablet-choice-hover", background, var(--color-background-white-hover));
-    }
-  }
-
-  &--has-error {
-    background: functions.var($element + "-option", background, var(--color-background-error));
-
-    @include mixins.hover {
-      background: functions.var($element + "-option-hover", background, var(--color-background-error));
+        width: var(--_label-suffix-width);
+        height: var(--_label-suffix-height);
+        flex: none;
+        content: "";
+      }
     }
   }
 
   &__label {
+    position: relative;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
   }
 
-  &__explication {
-    margin: functions.var($element + "-explication", margin, 0 0 0 var(--space-12));
+  &__suffix {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    margin-block: var(--list-item-content-padding-block, var(--list-item-content-padding-block-start, var(--space-12)) var(--list-item-content-padding-block-end, var(--space-12)));
+    margin-inline: var(--list-item-content-padding-inline, var(--list-item-content-padding-inline-start, var(--space-20)) var(--list-item-content-padding-inline-end, var(--space-12)));
+
+    @include mixins.from-tablet {
+      margin-block: var(--list-item-tablet-content-padding-block, var(--list-item-tablet-content-padding-block-start, var(--space-12)) var(--list-item-tablet-content-padding-block-end, var(--space-12)));
+      margin-inline: var(--list-item-tablet-content-padding-inline, var(--list-item-tablet-content-padding-inline-start, var(--space-12)) var(--list-item-tablet-content-padding-inline-end, var(--space-12)));
+    }
   }
 }
 </style>

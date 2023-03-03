@@ -43,6 +43,14 @@ export default {
     iconAlertAttrs: { table: { subcategory: 'Attrs props' } },
     textMessageAttrs: { table: { subcategory: 'Attrs props' } },
   },
+  parameters: {
+    cssProperties: {
+      '--alert-gap': 'var(--space-4)',
+      '--alert-vertical-align': 'top',
+      '--alert-icon-color': 'var(--color-icon-error)',
+      '--alert-color': 'var(--color-text-error)',
+    },
+  },
 };
 
 const Template = (args) => ({
@@ -88,9 +96,7 @@ export const WithIconSlot = (args) => ({
     :text-message-attrs="textMessageAttrs"
     :class="modifiers"
   >
-    <template #icon="{ 
-      iconAlertAttrs
-    }">
+    <template #icon="{ iconAlertAttrs }">
       <UiIcon 
         v-if="iconAlertAttrs.icon"
         v-bind="iconAlertAttrs"
@@ -110,15 +116,13 @@ export const WithMessageSlot = (args) => ({
     return { ...args };
   },
   template: `<UiAlert
-      :type="type"
-      :has-icon="hasIcon"
-      :icon-alert-attrs="iconAlertAttrs"
-      :text-message-attrs="textMessageAttrs"
-      :class="modifiers"
+    :type="type"
+    :has-icon="hasIcon"
+    :icon-alert-attrs="iconAlertAttrs"
+    :text-message-attrs="textMessageAttrs"
+    :class="modifiers"
   >
-    <template #message="{
-      textMessageAttrs
-    }">
+    <template #message="{ textMessageAttrs }">
       <UiText
         v-bind="textMessageAttrs"
         class="ui-text--body-2-comfortable ui-alert__message"

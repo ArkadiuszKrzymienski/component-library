@@ -8,11 +8,14 @@ import UiPopover from '@/components/molecules/UiPopover/UiPopover.vue';
 import UiBulletPoints from '@/components/molecules/UiBulletPoints/UiBulletPoints.vue';
 import UiMessage from '@/components/templates/UiMessage/UiMessage.vue';
 import { actions } from '@storybook/addon-actions';
+import { modifiers } from '@sb/helpers/argTypes';
 import {
   computed,
   ref,
   watch,
 } from 'vue';
+import './UiDropdown.stories.scss';
+import docs from './UiDropdown.mdx';
 
 const events = actions({
   onUpdateModelValue: 'update:modelValue',
@@ -45,6 +48,7 @@ export default {
       class: 'ui-button--text',
     },
     popoverAttrs: { 'data-testid': 'popover' },
+    modifiers: [],
   },
   argTypes: {
     initModelValue: {
@@ -80,8 +84,27 @@ export default {
     },
     buttonToggleAttrs: { table: { subcategory: 'Attrs props' } },
     popoverAttrs: { table: { subcategory: 'Attrs props' } },
+    modifiers: modifiers({ options: [ 'ui-dropdown--compact' ] }),
   },
-  decorators: [ () => ({ template: '<div style="min-height: 220px"><story /></div>' }) ],
+  decorators: [ () => ({
+    template: `<div class="min-h-55">
+        <story />
+    </div>`,
+  }) ],
+  parameters: {
+    docs: { page: docs },
+    cssProperties: {
+      '--dropdown-popover-padding-block': 'var(--dropdown-popover-padding-block-start, var(--space-8)) var(--dropdown-popover-padding-block-end, var(--space-8))',
+      '--dropdown-popover-padding-inline': 'var(--dropdown-popover-padding-inline-start, var(--space-8)) var(--dropdown-popover-padding-inline-end, var(--space-8))',
+      '--dropdown-popover-margin-block': 'var(--dropdown-popover-margin-block-start, var(--space-8)) var(--dropdown-popover-margin-block-end, 0)',
+      '--dropdown-popover-margin-inline': 'var(--dropdown-popover-margin-inline-start, 0) var(--dropdown-popover-margin-inline-end, 0)',
+      '--dropdown-popover-inset-block': 'var(--dropdown-popover-inset-block-start, 100%) var(--dropdown-popover-inset-block-end, auto)',
+      '--dropdown-popover-inset-inline': 'var(--dropdown-popover-inset-inline-start, 0) var(--dropdown-popover-inset-inline-end, auto)',
+      '--dropdown-popover-width': '100%',
+      '--dropdown-popover-max-width': '15rem',
+      '--dropdown-popover-min-height': '0',
+    },
+  },
 };
 
 const Template = (args) => ({
@@ -95,19 +118,19 @@ const Template = (args) => ({
     };
   },
   template: `<UiDropdown
-      v-model="modelValue"
-      :text="modelValue"
-      :name="name"
-      :close-on-click-outside="closeOnClickOutside"
-      :toggle-element="toggleElement"
-      :enable-keyboard-navigation="enableKeyboardNavigation"
-      :items="items"
-      :button-toggle-attrs="buttonToggleAttrs"
-      :popover-attrs="popoverAttrs"
-      style="--dropdown-popover-width: 15rem;"
-      @update:modelValue="onUpdateModelValue"
-      @open="onOpen"
-      @close="onClose"
+    v-model="modelValue"
+    :text="modelValue"
+    :name="name"
+    :close-on-click-outside="closeOnClickOutside"
+    :toggle-element="toggleElement"
+    :enable-keyboard-navigation="enableKeyboardNavigation"
+    :items="items"
+    :button-toggle-attrs="buttonToggleAttrs"
+    :popover-attrs="popoverAttrs"
+    class="dropdown-with-popover-width"
+    @update:modelValue="onUpdateModelValue"
+    @open="onOpen"
+    @close="onClose"
   />`,
 });
 
@@ -146,20 +169,20 @@ export const WithDefaultSlot = (args) => ({
     };
   },
   template: `<UiDropdown
-      v-model="modelValue"
-      :text="modelValue"
-      :name="name"
-      :close-on-click-outside="closeOnClickOutside"
-      :toggle-element="toggleElement"
-      :enable-keyboard-navigation="enableKeyboardNavigation"
-      :button-toggle-attrs="buttonToggleAttrs"
-      :popover-attrs="popoverAttrs"
-      style="--dropdown-popover-width: 15rem;"
-      @update:modelValue="onUpdateModelValue"
-      @open="onOpen"
-      @close="onClose"
+    v-model="modelValue"
+    :text="modelValue"
+    :name="name"
+    :close-on-click-outside="closeOnClickOutside"
+    :toggle-element="toggleElement"
+    :enable-keyboard-navigation="enableKeyboardNavigation"
+    :button-toggle-attrs="buttonToggleAttrs"
+    :popover-attrs="popoverAttrs"
+    class="dropdown-with-popover-width"
+    @update:modelValue="onUpdateModelValue"
+    @open="onOpen"
+    @close="onClose"
   >
-    <template 
+    <template
       v-for="(item, key) in items"
       :key="key"
     >
@@ -207,6 +230,7 @@ export const WithDropdownItemSlot = (args) => ({
   },
   template: `<UiDropdown
     v-model="modelValue"
+    :class="modifiers"
     :text="modelValue.text"
     :name="name"
     :close-on-click-outside="closeOnClickOutside"
@@ -215,12 +239,11 @@ export const WithDropdownItemSlot = (args) => ({
     :items="items"
     :button-toggle-attrs="buttonToggleAttrs"
     :popover-attrs="popoverAttrs"
-    style="--dropdown-popover-width: 15rem;"
+    class="dropdown-with-popover-width"
     @update:modelValue="onUpdateModelValue"
     @open="onOpen"
     @close="onClose"
-  >
-  </UiDropdown>`,
+  />`,
 });
 WithDropdownItemSlot.args = {
   initModelValue: {
@@ -263,6 +286,7 @@ export const WithToggleSlot = (args) => ({
     };
   },
   template: `<UiDropdown
+    :class="modifiers"
     v-model="modelValue"
     :text="text"
     :name="name"
@@ -272,17 +296,17 @@ export const WithToggleSlot = (args) => ({
     :items="items"
     :button-toggle-attrs="buttonToggleAttrs"
     :popover-attrs="popoverAttrs"
-    style="--dropdown-popover-width: 15rem;"
+    class="dropdown-with-popover-width"
     @update:modelValue="onUpdateModelValue"
     @open="onOpen"
     @close="onClose"
   >
     <template #toggle="{
-      toggleHandler, 
-      openHandler, 
-      closeHandler, 
-      isOpen, 
-      text, 
+      toggleHandler,
+      openHandler,
+      closeHandler,
+      isOpen,
+      text,
       buttonToggleAttrs
     }">
       <UiButton
@@ -338,6 +362,7 @@ export const WithPopoverSlot = (args) => ({
   },
   template: `<UiDropdown
     v-model="modelValue"
+    :class="modifiers"
     :text="text"
     :name="name"
     :close-on-click-outside="closeOnClickOutside"
@@ -346,14 +371,14 @@ export const WithPopoverSlot = (args) => ({
     :items="items"
     :button-toggle-attrs="buttonToggleAttrs"
     :popover-attrs="popoverAttrs"
-    style="--dropdown-popover-width: 15rem;"
+    class="dropdown-with-popover-width"
     @update:modelValue="onUpdateModelValue"
     @open="onOpen"
     @close="onClose"
   >
     <template #popover="{
-      closeHandler, 
-      isOpen, 
+      closeHandler,
+      isOpen,
       popoverAttrs
     }">
       <UiPopover
@@ -362,12 +387,12 @@ export const WithPopoverSlot = (args) => ({
         class="ui-dropdown__popover"
         @close="closeHandler"
       >
-        <div 
+        <div
           role="radiogroup"
           class="ui-dropdown__items"
         >
-          <template 
-            v-for="(item, key) in itemsToRender" 
+          <template
+            v-for="(item, key) in itemsToRender"
             :key="key"
           >
             <UiDropdownItem
@@ -400,6 +425,7 @@ export const WithContentSlot = (args) => ({
   },
   template: `<UiDropdown
     v-model="modelValue"
+    :class="modifiers"
     :text="text"
     :name="name"
     :close-on-click-outside="closeOnClickOutside"
@@ -408,27 +434,27 @@ export const WithContentSlot = (args) => ({
     :items="items"
     :button-toggle-attrs="buttonToggleAttrs"
     :popover-attrs="popoverAttrs"
-    style="--dropdown-popover-width: 15rem;"
+    class="dropdown-with-popover-width"
     @update:modelValue="onUpdateModelValue"
     @open="onOpen"
     @close="onClose"
   >
     <template #content="{
       closeHandler,
-       isOpen
+      isOpen
     }">
-      <div 
+      <div
         role="radiogroup"
         class="ui-dropdown__items"
       >
-        <template 
-          v-for="(item, key) in items" 
+        <template
+          v-for="(item, key) in items"
           :key="key"
         >
-          <UiDropdownItem 
+          <UiDropdownItem
             :value="item"
           >
-            {{item}}
+            {{ item }}
           </UiDropdownItem>
         </template>
       </div>
@@ -483,32 +509,26 @@ export const WithInputToggle = (args) => ({
     };
   },
   template: `<UiDropdown
-        v-model="modelValue"
-        :text="text"
-        :name="name"
-        :close-on-click-outside="closeOnClickOutside"
-        :toggle-element="toggleElement"
-        :enable-keyboard-navigation="enableKeyboardNavigation"
-        :items="filteredItems"
-        :button-toggle-attrs="buttonToggleAttrs"
-        :popover-attrs="popoverAttrs"
-        :style="{
-          '--dropdown-popover-width': '26.25rem',
-          '--dropdown-popover-max-width': '26.25rem',
-          '--dropdown-popover-padding': noResults 
-            ? 'var(--space-24) var(--space-16)'
-            : 'var(--space-8)',
-        }"
-        @update:modelValue="onUpdateModelValue"
-        @open="onOpen"
-        @close="onClose"
+    v-model="modelValue"
+    :text="text"
+    :name="name"
+    :close-on-click-outside="closeOnClickOutside"
+    :toggle-element="toggleElement"
+    :enable-keyboard-navigation="enableKeyboardNavigation"
+    :items="filteredItems"
+    :button-toggle-attrs="buttonToggleAttrs"
+    :popover-attrs="popoverAttrs"
+    class="dropdown-with-input-toggle"
+    @update:modelValue="onUpdateModelValue"
+    @open="onOpen"
+    @close="onClose"
     >
       <template #toggle="{
-        toggleHandler, 
-        openHandler, 
-        closeHandler, 
-        isOpen, 
-        text, 
+        toggleHandler,
+        openHandler,
+        closeHandler,
+        isOpen,
+        text,
         buttonToggleAttrs
       }">
         <UiInput
@@ -516,13 +536,13 @@ export const WithInputToggle = (args) => ({
           ref="toggleElement"
           :model-value="search"
           type="search"
+          class="dropdown-with-input-toggle__input"
+          placeholder="Search, e.g. English"
           @update:model-value="inputHandler($event, openHandler, closeHandler)"
         >
         </UiInput>
       </template>
-      <template
-        #content
-      >
+      <template #content>
         <UiMessage
           v-if="noResults"
           title="No results"
@@ -530,18 +550,13 @@ export const WithInputToggle = (args) => ({
           :heading-title-attrs="{
             level: '4',
           }"
-          :style="{
-            '--message-flex-direction': 'row-reverse',
-            '--message-tablet-flex-direction': 'row-reverse',
-            '--message-aside-margin': '0 var(--space-12) 0 0',
-            '--message-tablet-aside-margin': '0 var(--space-12) 0 0',
-            '--message-content-align-self': 'flex-start',
-            '--message-illustration-size': '1.5rem',
-          }"
+          class="dropdown-with-input-toggle__no-results"
         >
-          <UiText>Unfortunately, the languages was not found.</UiText>
+          <UiText>
+            Unfortunately, the languages was not found.
+          </UiText>
           <UiBulletPoints :items="[
-            'Please try to enter single words', 
+            'Please try to enter single words',
             'Keep in mind, that you can only select languages from the autocomplete list'
           ]"/>
         </UiMessage>
